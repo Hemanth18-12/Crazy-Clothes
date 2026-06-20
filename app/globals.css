@@ -2,28 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
+/* 
+  =========================================
+  SPACING & LAYOUT CONVENTIONS (tokens)
+  =========================================
+  
+  1. Section Vertical Rhythm:
+     - Mobile: py-12 (48px)
+     - Tablet: py-20 (80px)
+     - Desktop: py-28 (112px)
+     Usage: Use `py-12 md:py-20 lg:py-28` on page section boundaries.
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  2. Content Max Width:
+     - Standard Container: max-w-6xl (1152px)
+     - Margins & Padding: mx-auto px-4 sm:px-6 lg:px-8
+     Usage: Use `mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl` to wrap page content.
+*/
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased min-h-screen selection:bg-accent/20 selection:text-ink;
+  }
+
+  /* Custom visible focus outlines for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper;
+  }
+
+  /* Core Type Scale Rules */
+  h1,
+  .h1 {
+    @apply font-display text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-ink;
+  }
+
+  h2,
+  .h2 {
+    @apply font-display text-3xl md:text-4xl font-normal tracking-tight text-ink;
+  }
+
+  h3,
+  .h3 {
+    @apply font-display text-2xl md:text-3xl font-normal tracking-tight text-ink;
+  }
+
+  p {
+    @apply text-base leading-relaxed text-stone-dark;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
-    rgb(var(--background-start-rgb));
+@layer components {
+  /* Reusable Style Primitives */
+
+  /* Primary Action Button (solid block style) */
+  .btn-primary {
+    @apply font-sans font-medium text-sm tracking-wide uppercase px-6 py-3.5 
+           bg-ink text-paper border border-ink
+           hover:bg-accent hover:border-accent active:bg-ink active:border-ink
+           transition-colors duration-200 cursor-pointer text-center 
+           inline-flex items-center justify-center;
+  }
+
+  /* Secondary Action Button (minimal outline style) */
+  .btn-secondary {
+    @apply font-sans font-medium text-sm tracking-wide uppercase px-6 py-3.5 
+           bg-transparent text-ink border border-stone
+           hover:bg-stone-light hover:border-stone-dark active:bg-paper
+           transition-colors duration-200 cursor-pointer text-center 
+           inline-flex items-center justify-center;
+  }
+
+  /* Eyebrow Label (small tracked headers) */
+  .label-eyebrow {
+    @apply font-mono text-xs uppercase tracking-eyebrow text-stone-dark;
+  }
+
+  /* Signature Design Element: Textile / Garment Spec Tag */
+  .spec-tag {
+    @apply bg-stone-light border border-stone/50 px-6 py-5 font-mono text-xs text-stone-dark 
+           relative flex flex-col gap-1 tracking-wide shadow-sm max-w-sm;
+  }
+
+  .spec-tag-heading {
+    @apply text-ink font-semibold uppercase tracking-wider border-b border-stone/40 pb-2 mb-2 
+           flex justify-between items-center;
+  }
+
+  .spec-tag-row {
+    @apply flex justify-between py-1 border-b border-stone/20 last:border-b-0;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Accessibility: Reduced Motion Media Query overrides */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }

@@ -1,112 +1,136 @@
-import Image from 'next/image';
+import React from 'react';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
+    <main className="min-h-screen py-12 md:py-20 lg:py-28">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl space-y-16">
+        {/* Header */}
+        <header className="border-b border-stone pb-8">
+          <span className="label-eyebrow">Design System Showcase</span>
+          <h1 className="mt-2 font-display">Staple Visual Foundation</h1>
+          <p className="mt-4 text-lg max-w-2xl">
+            This page demonstrates the core tokens, colors, typography, and reusable primitives that
+            define the Staple aesthetic. Understated, quality-focused, and accessible.
           </p>
-        </a>
+        </header>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        {/* Color Palette */}
+        <section className="space-y-6">
+          <h2 className="font-display">1. Color Palette</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Paper */}
+            <div className="border border-stone p-4 bg-paper rounded flex flex-col justify-between h-32">
+              <span className="font-sans font-medium text-ink">Paper</span>
+              <span className="font-mono text-xs text-stone-dark">#FAF9F6</span>
+            </div>
+            {/* Ink */}
+            <div className="border border-stone p-4 bg-ink rounded flex flex-col justify-between h-32 text-paper">
+              <span className="font-sans font-medium text-paper">Ink</span>
+              <span className="font-mono text-xs opacity-80">#121212</span>
+            </div>
+            {/* Accent */}
+            <div className="border border-stone p-4 bg-accent rounded flex flex-col justify-between h-32 text-paper">
+              <span className="font-sans font-medium">Accent</span>
+              <span className="font-mono text-xs opacity-80">#A66E5E</span>
+            </div>
+            {/* Stone Range */}
+            <div className="border border-stone p-4 bg-stone-light rounded flex flex-col justify-between h-32">
+              <span className="font-sans font-medium text-ink">Stone Range</span>
+              <div className="flex flex-col font-mono text-[10px] text-stone-dark gap-1">
+                <span>Light: #F3F2EE</span>
+                <span>Default: #E2DFD8</span>
+                <span>Dark: #7D796F</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+        {/* Typography */}
+        <section className="space-y-6">
+          <h2 className="font-display">2. Typography</h2>
+          <div className="border border-stone/50 bg-stone-light/30 p-6 rounded space-y-8">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-stone-dark block mb-1">
+                Display Font (Cormorant Garamond)
+              </span>
+              <h1 className="font-display">Understated Luxury Basics</h1>
+              <p className="font-display text-2xl italic">The art of fine details.</p>
+            </div>
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-stone-dark block mb-1">
+                Body Font (Inter)
+              </span>
+              <p className="font-sans text-base">
+                Our clean, highly legible body copy. Designed to be easy to read at any scale,
+                optimizing comfort and flow for customers reading specifications, guides, and store
+                documentation.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-stone-dark block mb-1">
+                Mono / Utility Font (JetBrains Mono)
+              </span>
+              <p className="font-mono text-sm tracking-wide">
+                Price: $48.00 USD | Stock: 120 | SKU: STPL-TEE-001
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        {/* Style Primitives */}
+        <section className="space-y-6">
+          <h2 className="font-display">3. Reusable Style Primitives</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Buttons & Labels */}
+            <div className="space-y-6 flex flex-col justify-start">
+              <div>
+                <span className="font-mono text-xs text-stone-dark block mb-2">Primary Button</span>
+                <button className="btn-primary w-full sm:w-auto">Add to Cart</button>
+              </div>
+              <div>
+                <span className="font-mono text-xs text-stone-dark block mb-2">
+                  Secondary Button
+                </span>
+                <button className="btn-secondary w-full sm:w-auto">Select Size</button>
+              </div>
+              <div>
+                <span className="font-mono text-xs text-stone-dark block mb-2">Eyebrow Label</span>
+                <span className="label-eyebrow">100% Organic Egyptian Cotton</span>
+              </div>
+            </div>
+
+            {/* Signature Element */}
+            <div>
+              <span className="font-mono text-xs text-stone-dark block mb-2">
+                Signature Garment Spec Tag
+              </span>
+              <div className="spec-tag">
+                <div className="spec-tag-heading">
+                  <span>Garment Spec</span>
+                  <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-sans">
+                    Staple Core
+                  </span>
+                </div>
+                <div className="spec-tag-row">
+                  <span>Material</span>
+                  <span className="text-ink">100% Combed Cotton</span>
+                </div>
+                <div className="spec-tag-row">
+                  <span>Weight</span>
+                  <span className="text-ink">220 GSM (Heavyweight)</span>
+                </div>
+                <div className="spec-tag-row">
+                  <span>Weave</span>
+                  <span className="text-ink">Tight-Knit Jersey</span>
+                </div>
+                <div className="spec-tag-row">
+                  <span>Care</span>
+                  <span className="text-ink">Wash Cold, Hang Dry</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );
