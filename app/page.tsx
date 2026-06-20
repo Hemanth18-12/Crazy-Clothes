@@ -1,137 +1,150 @@
-import React from 'react';
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
+import ProductCard from '@/components/product-card';
+import ColorSelector from '@/components/color-selector';
+import SizeSelector from '@/components/size-selector';
+import type { Product, ProductSize } from '@/lib/products';
+
+// Sample product for interactive selectors demo
+const DEMO_PRODUCT: Product = {
+  slug: 'classic-crewneck-tee',
+  name: 'Classic Crewneck Tee',
+  price: 3800,
+  description: 'The foundation every wardrobe quietly depends on.',
+  fabricComposition: '100% Combed Organic Cotton',
+  fabricWeightGsm: 180,
+  fit: 'Regular',
+  madeIn: 'Portugal',
+  colors: [
+    { name: 'Paper White', hex: '#FAF9F6' },
+    { name: 'Ink Black', hex: '#121212' },
+    { name: 'Slate Blue', hex: '#7B8FA1' },
+  ],
+  sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+  image: '/images/classic-crewneck-tee.png',
+};
+
+const ALL_DEMO_PRODUCTS: Product[] = [
+  DEMO_PRODUCT,
+  {
+    slug: 'boxy-heavyweight-tee',
+    name: 'Boxy Heavyweight Tee',
+    price: 4500,
+    description: 'Washed to a matte finish before it ships so it arrives pre-broken-in.',
+    fabricComposition: '100% Ringspun Cotton (Enzyme Washed)',
+    fabricWeightGsm: 240,
+    fit: 'Boxy',
+    madeIn: 'Portugal',
+    colors: [
+      { name: 'Washed Black', hex: '#2A2A2A' },
+      { name: 'Clay', hex: '#A66E5E' },
+      { name: 'Washed Ecru', hex: '#EDE8DF' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    image: '/images/boxy-heavyweight-tee.png',
+  },
+  {
+    slug: 'textured-slub-tee',
+    name: 'Textured Slub Tee',
+    price: 4200,
+    description: 'Each shirt is slightly unique. That is not a flaw.',
+    fabricComposition: '100% Japanese Slub Cotton',
+    fabricWeightGsm: 160,
+    fit: 'Regular',
+    madeIn: 'Japan',
+    colors: [
+      { name: 'Natural Stone', hex: '#C8BEA9' },
+      { name: 'Dusk', hex: '#8D8B7C' },
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    image: '/images/textured-slub-tee.png',
+  },
+  {
+    slug: 'relaxed-pocket-tee',
+    name: 'Relaxed Pocket Tee',
+    price: 4000,
+    description: 'The single left-chest pocket is functional — not decorative.',
+    fabricComposition: '100% Supima Cotton',
+    fabricWeightGsm: 200,
+    fit: 'Relaxed',
+    madeIn: 'USA',
+    colors: [
+      { name: 'Olive', hex: '#6B6B4E' },
+      { name: 'Bone', hex: '#E8E3D9' },
+      { name: 'Ink Black', hex: '#121212' },
+      { name: 'Warm Grey', hex: '#9E9890' },
+    ],
+    sizes: ['S', 'M', 'L', 'XL'],
+    image: '/images/relaxed-pocket-tee.png',
+  },
+];
+
+export default function ComponentShowcase() {
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
+  const [showSizeError, setShowSizeError] = useState(false);
+
+  function handleAddToCart() {
+    if (!selectedSize) {
+      setShowSizeError(true);
+      return;
+    }
+    setShowSizeError(false);
+    alert(`Added to cart — Size: ${selectedSize}, Colour: ${selectedColor ?? 'none'}`);
+  }
+
   return (
-    <main className="min-h-screen py-12 md:py-20 lg:py-28">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl space-y-16">
-        {/* Header */}
-        <header className="border-b border-stone pb-8">
-          <span className="label-eyebrow">Design System Showcase</span>
-          <h1 className="mt-2 font-display">Staple Visual Foundation</h1>
-          <p className="mt-4 text-lg max-w-2xl">
-            This page demonstrates the core tokens, colors, typography, and reusable primitives that
-            define the Staple aesthetic. Understated, quality-focused, and accessible.
-          </p>
-        </header>
+    <>
+      <Header cartCount={2} />
 
-        {/* Color Palette */}
-        <section className="space-y-6">
-          <h2 className="font-display">1. Color Palette</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Paper */}
-            <div className="border border-stone p-4 bg-paper rounded flex flex-col justify-between h-32">
-              <span className="font-sans font-medium text-ink">Paper</span>
-              <span className="font-mono text-xs text-stone-dark">#FAF9F6</span>
-            </div>
-            {/* Ink */}
-            <div className="border border-stone p-4 bg-ink rounded flex flex-col justify-between h-32 text-paper">
-              <span className="font-sans font-medium text-paper">Ink</span>
-              <span className="font-mono text-xs opacity-80">#121212</span>
-            </div>
-            {/* Accent */}
-            <div className="border border-stone p-4 bg-accent rounded flex flex-col justify-between h-32 text-paper">
-              <span className="font-sans font-medium">Accent</span>
-              <span className="font-mono text-xs opacity-80">#A66E5E</span>
-            </div>
-            {/* Stone Range */}
-            <div className="border border-stone p-4 bg-stone-light rounded flex flex-col justify-between h-32">
-              <span className="font-sans font-medium text-ink">Stone Range</span>
-              <div className="flex flex-col font-mono text-[10px] text-stone-dark gap-1">
-                <span>Light: #F3F2EE</span>
-                <span>Default: #E2DFD8</span>
-                <span>Dark: #7D796F</span>
-              </div>
+      <main className="min-h-screen">
+        {/* ── Product grid ── */}
+        <section className="py-12 md:py-20 lg:py-28 border-b border-stone">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <span className="label-eyebrow">Component QA — Product Cards</span>
+            <h2 className="mt-2 mb-8 font-display">The Collection</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+              {ALL_DEMO_PRODUCTS.map((product) => (
+                <ProductCard key={product.slug} product={product} />
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Typography */}
-        <section className="space-y-6">
-          <h2 className="font-display">2. Typography</h2>
-          <div className="border border-stone/50 bg-stone-light/30 p-6 rounded space-y-8">
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-stone-dark block mb-1">
-                Display Font (Cormorant Garamond)
-              </span>
-              <h1 className="font-display">Understated Luxury Basics</h1>
-              <p className="font-display text-2xl italic">The art of fine details.</p>
-            </div>
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-stone-dark block mb-1">
-                Body Font (Inter)
-              </span>
-              <p className="font-sans text-base">
-                Our clean, highly legible body copy. Designed to be easy to read at any scale,
-                optimizing comfort and flow for customers reading specifications, guides, and store
-                documentation.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-stone-dark block mb-1">
-                Mono / Utility Font (JetBrains Mono)
-              </span>
-              <p className="font-mono text-sm tracking-wide">
-                Price: $48.00 USD | Stock: 120 | SKU: STPL-TEE-001
-              </p>
+        {/* ── Selectors ── */}
+        <section className="py-12 md:py-20 lg:py-28">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <span className="label-eyebrow">Component QA — Selectors</span>
+            <h2 className="mt-2 mb-10 font-display">{DEMO_PRODUCT.name}</h2>
+
+            <div className="max-w-md flex flex-col gap-8">
+              <ColorSelector
+                colors={DEMO_PRODUCT.colors}
+                selected={selectedColor}
+                onChange={setSelectedColor}
+              />
+              <SizeSelector
+                sizes={DEMO_PRODUCT.sizes}
+                selected={selectedSize}
+                onChange={(s) => {
+                  setSelectedSize(s);
+                  setShowSizeError(false);
+                }}
+                showError={showSizeError}
+              />
+              <button className="btn-primary w-full" onClick={handleAddToCart}>
+                Add to Cart
+              </button>
+              <button className="btn-secondary w-full">Save for Later</button>
             </div>
           </div>
         </section>
+      </main>
 
-        {/* Style Primitives */}
-        <section className="space-y-6">
-          <h2 className="font-display">3. Reusable Style Primitives</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Buttons & Labels */}
-            <div className="space-y-6 flex flex-col justify-start">
-              <div>
-                <span className="font-mono text-xs text-stone-dark block mb-2">Primary Button</span>
-                <button className="btn-primary w-full sm:w-auto">Add to Cart</button>
-              </div>
-              <div>
-                <span className="font-mono text-xs text-stone-dark block mb-2">
-                  Secondary Button
-                </span>
-                <button className="btn-secondary w-full sm:w-auto">Select Size</button>
-              </div>
-              <div>
-                <span className="font-mono text-xs text-stone-dark block mb-2">Eyebrow Label</span>
-                <span className="label-eyebrow">100% Organic Egyptian Cotton</span>
-              </div>
-            </div>
-
-            {/* Signature Element */}
-            <div>
-              <span className="font-mono text-xs text-stone-dark block mb-2">
-                Signature Garment Spec Tag
-              </span>
-              <div className="spec-tag">
-                <div className="spec-tag-heading">
-                  <span>Garment Spec</span>
-                  <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-sans">
-                    Staple Core
-                  </span>
-                </div>
-                <div className="spec-tag-row">
-                  <span>Material</span>
-                  <span className="text-ink">100% Combed Cotton</span>
-                </div>
-                <div className="spec-tag-row">
-                  <span>Weight</span>
-                  <span className="text-ink">220 GSM (Heavyweight)</span>
-                </div>
-                <div className="spec-tag-row">
-                  <span>Weave</span>
-                  <span className="text-ink">Tight-Knit Jersey</span>
-                </div>
-                <div className="spec-tag-row">
-                  <span>Care</span>
-                  <span className="text-ink">Wash Cold, Hang Dry</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
+      <Footer />
+    </>
   );
 }

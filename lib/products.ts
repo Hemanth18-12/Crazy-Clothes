@@ -180,16 +180,12 @@ function validateCatalog(products: Product[]): void {
 
     // At least one colour
     if (product.colors.length === 0) {
-      throw new Error(
-        `[Staple] Product "${product.slug}" must have at least one colour option.`
-      );
+      throw new Error(`[Staple] Product "${product.slug}" must have at least one colour option.`);
     }
 
     // At least one size
     if (product.sizes.length === 0) {
-      throw new Error(
-        `[Staple] Product "${product.slug}" must have at least one size option.`
-      );
+      throw new Error(`[Staple] Product "${product.slug}" must have at least one size option.`);
     }
   }
 }
