@@ -6,9 +6,9 @@ import { useCart } from '@/context/cart-context';
 import CartDrawer from '@/components/cart-drawer';
 
 const NAV_LINKS = [
-  { label: 'Shop', href: '/' }, // Pointing to home showcasing collection
-  { label: 'About', href: '/about' },
-  { label: 'Care', href: '/care' },
+  { label: 'Shop', href: '/#collection' },
+  { label: 'About', href: '/#about' },
+  { label: 'Care', href: '/#care' },
 ];
 
 export default function Header() {

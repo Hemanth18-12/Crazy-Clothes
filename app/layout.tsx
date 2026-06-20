@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter, JetBrains_Mono } from 'next/font/google';
 import { CartProvider } from '@/context/cart-context';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 import './globals.css';
 
 const cormorantGaramond = Cormorant_Garamond({
@@ -38,8 +40,12 @@ export default function RootLayout({
       lang="en"
       className={`${cormorantGaramond.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="antialiased">
-        <CartProvider>{children}</CartProvider>
+      <body className="antialiased bg-paper text-ink min-h-screen flex flex-col">
+        <CartProvider>
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

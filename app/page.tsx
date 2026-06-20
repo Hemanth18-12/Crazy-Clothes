@@ -1,150 +1,150 @@
-'use client';
-
-import { useState } from 'react';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
+import Link from 'next/link';
 import ProductCard from '@/components/product-card';
-import ColorSelector from '@/components/color-selector';
-import SizeSelector from '@/components/size-selector';
-import type { Product, ProductSize } from '@/lib/products';
+import { getAllProducts } from '@/lib/products';
 
-// Sample product for interactive selectors demo
-const DEMO_PRODUCT: Product = {
-  slug: 'classic-crewneck-tee',
-  name: 'Classic Crewneck Tee',
-  price: 3800,
-  description: 'The foundation every wardrobe quietly depends on.',
-  fabricComposition: '100% Combed Organic Cotton',
-  fabricWeightGsm: 180,
-  fit: 'Regular',
-  madeIn: 'Portugal',
-  colors: [
-    { name: 'Paper White', hex: '#FAF9F6' },
-    { name: 'Ink Black', hex: '#121212' },
-    { name: 'Slate Blue', hex: '#7B8FA1' },
-  ],
-  sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  image: '/images/classic-crewneck-tee.png',
+export const metadata = {
+  title: 'Staple — Essential Organic T-Shirts',
+  description:
+    'Understated, premium organic cotton tees built for comfort, shape retention, and longevity.',
 };
 
-const ALL_DEMO_PRODUCTS: Product[] = [
-  DEMO_PRODUCT,
-  {
-    slug: 'boxy-heavyweight-tee',
-    name: 'Boxy Heavyweight Tee',
-    price: 4500,
-    description: 'Washed to a matte finish before it ships so it arrives pre-broken-in.',
-    fabricComposition: '100% Ringspun Cotton (Enzyme Washed)',
-    fabricWeightGsm: 240,
-    fit: 'Boxy',
-    madeIn: 'Portugal',
-    colors: [
-      { name: 'Washed Black', hex: '#2A2A2A' },
-      { name: 'Clay', hex: '#A66E5E' },
-      { name: 'Washed Ecru', hex: '#EDE8DF' },
-    ],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    image: '/images/boxy-heavyweight-tee.png',
-  },
-  {
-    slug: 'textured-slub-tee',
-    name: 'Textured Slub Tee',
-    price: 4200,
-    description: 'Each shirt is slightly unique. That is not a flaw.',
-    fabricComposition: '100% Japanese Slub Cotton',
-    fabricWeightGsm: 160,
-    fit: 'Regular',
-    madeIn: 'Japan',
-    colors: [
-      { name: 'Natural Stone', hex: '#C8BEA9' },
-      { name: 'Dusk', hex: '#8D8B7C' },
-    ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    image: '/images/textured-slub-tee.png',
-  },
-  {
-    slug: 'relaxed-pocket-tee',
-    name: 'Relaxed Pocket Tee',
-    price: 4000,
-    description: 'The single left-chest pocket is functional — not decorative.',
-    fabricComposition: '100% Supima Cotton',
-    fabricWeightGsm: 200,
-    fit: 'Relaxed',
-    madeIn: 'USA',
-    colors: [
-      { name: 'Olive', hex: '#6B6B4E' },
-      { name: 'Bone', hex: '#E8E3D9' },
-      { name: 'Ink Black', hex: '#121212' },
-      { name: 'Warm Grey', hex: '#9E9890' },
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    image: '/images/relaxed-pocket-tee.png',
-  },
-];
-
-export default function ComponentShowcase() {
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
-  const [showSizeError, setShowSizeError] = useState(false);
-
-  function handleAddToCart() {
-    if (!selectedSize) {
-      setShowSizeError(true);
-      return;
-    }
-    setShowSizeError(false);
-    alert(`Added to cart — Size: ${selectedSize}, Colour: ${selectedColor ?? 'none'}`);
-  }
+export default async function HomePage() {
+  const products = await getAllProducts();
 
   return (
-    <>
-      <Header />
+    <div className="flex flex-col min-h-screen">
+      {/* ── HERO SECTION ── */}
+      <section className="relative py-20 md:py-28 lg:py-36 border-b border-stone bg-paper">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Hero text */}
+            <div className="lg:col-span-7 space-y-6 md:space-y-8">
+              <span className="label-eyebrow">The Fundamentals of Sourcing</span>
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-ink leading-tight">
+                We build the foundation of your wardrobe.
+              </h1>
+              <p className="font-sans text-base md:text-lg text-stone-dark max-w-xl leading-relaxed">
+                Understated, high-quality t-shirts built for longevity. We believe a garment should
+                retain its shape, feel premium against the skin, and speak quietly. No logos, no
+                loud prints.
+              </p>
+              <div className="pt-4 flex flex-wrap gap-4">
+                <Link href="#collection" className="btn-primary">
+                  Explore Collection
+                </Link>
+                <Link href="/about" className="btn-secondary">
+                  Our Philosophy
+                </Link>
+              </div>
+            </div>
 
-      <main className="min-h-screen">
-        {/* ── Product grid ── */}
-        <section className="py-12 md:py-20 lg:py-28 border-b border-stone">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <span className="label-eyebrow">Component QA — Product Cards</span>
-            <h2 className="mt-2 mb-8 font-display">The Collection</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-              {ALL_DEMO_PRODUCTS.map((product) => (
-                <ProductCard key={product.slug} product={product} />
-              ))}
+            {/* Spec Tag (Signature brand tag widget) */}
+            <div
+              id="care"
+              className="lg:col-span-5 flex justify-center lg:justify-end scroll-mt-24"
+            >
+              <div className="spec-tag w-full max-w-[340px] shadow-sm">
+                <h3 className="spec-tag-title">GARMENT SPECIFICATION</h3>
+                <div className="space-y-4 font-mono text-xs">
+                  <div>
+                    <span className="text-stone-dark block uppercase tracking-wider text-[10px]">
+                      Material Sourcing
+                    </span>
+                    <span className="text-ink font-medium">100% Organic Long-Staple Cotton</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-dark block uppercase tracking-wider text-[10px]">
+                      Fabric Weight
+                    </span>
+                    <span className="text-ink font-medium">
+                      180 GSM (Classic) / 240 GSM (Heavy)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-stone-dark block uppercase tracking-wider text-[10px]">
+                      Fit Profile
+                    </span>
+                    <span className="text-ink font-medium">Pre-shrunk, tailored silhouettes</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-dark block uppercase tracking-wider text-[10px]">
+                      Origin Certification
+                    </span>
+                    <span className="text-ink font-medium">Portugal & Japan (GOTS Certified)</span>
+                  </div>
+                  <div className="border-t border-stone pt-3 mt-4 text-[10px] text-stone-dark leading-relaxed">
+                    This directive ensures that each garment holds its seams, resists pilling, and
+                    matures naturally with wear.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── Selectors ── */}
-        <section className="py-12 md:py-20 lg:py-28">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <span className="label-eyebrow">Component QA — Selectors</span>
-            <h2 className="mt-2 mb-10 font-display">{DEMO_PRODUCT.name}</h2>
+      {/* ── PRODUCTS SECTION ── */}
+      <section id="collection" className="py-16 md:py-24 border-b border-stone scroll-mt-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <span className="label-eyebrow">The Catalog</span>
+              <h2 className="font-display text-3xl text-ink mt-2">The Basics Collection</h2>
+            </div>
+            <p className="font-mono text-xs text-stone-dark md:max-w-xs leading-relaxed">
+              Consolidated selection of essential cuts. Every knit is custom-made.
+            </p>
+          </div>
 
-            <div className="max-w-md flex flex-col gap-8">
-              <ColorSelector
-                colors={DEMO_PRODUCT.colors}
-                selected={selectedColor}
-                onChange={setSelectedColor}
-              />
-              <SizeSelector
-                sizes={DEMO_PRODUCT.sizes}
-                selected={selectedSize}
-                onChange={(s) => {
-                  setSelectedSize(s);
-                  setShowSizeError(false);
-                }}
-                showError={showSizeError}
-              />
-              <button className="btn-primary w-full" onClick={handleAddToCart}>
-                Add to Cart
-              </button>
-              <button className="btn-secondary w-full">Save for Later</button>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {products.map((product) => (
+              <ProductCard key={product.slug} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PHILOSOPHY/TRUST SECTION ── */}
+      <section id="about" className="py-16 md:py-24 bg-stone-light/40 scroll-mt-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mb-12">
+            <span className="label-eyebrow">Quality Pillars</span>
+            <h2 className="font-display text-3xl text-ink mt-2">
+              Garments designed for daily wear.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="space-y-3">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider text-ink">
+                01. Custom Knit Textiles
+              </h3>
+              <p className="font-sans text-sm text-stone-dark leading-relaxed">
+                We do not source off-the-shelf fabrics. Our cotton is custom-knitted in small
+                batches to achieve perfect drape, breathability, and weight balance.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider text-ink">
+                02. Iterated Silhouettes
+              </h3>
+              <p className="font-sans text-sm text-stone-dark leading-relaxed">
+                We believe fits shouldn&apos;t be standard. Our patterns are iteratively revised in
+                millimeters to refine shoulder lines, neck ribbing, and body length.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-wider text-ink">
+                03. Manufacturing Seams
+              </h3>
+              <p className="font-sans text-sm text-stone-dark leading-relaxed">
+                Every hem is double-needle stitched. Internal seams are bound or overlocked to
+                withstand hundreds of machine cycles without bursting.
+              </p>
             </div>
           </div>
-        </section>
-      </main>
-
-      <Footer />
-    </>
+        </div>
+      </section>
+    </div>
   );
 }

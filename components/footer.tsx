@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 const CARE_LINKS = [
-  { label: 'Size Guide', href: '/size-guide' },
-  { label: 'Fabric Care', href: '/care' },
-  { label: 'Sustainability', href: '/sustainability' },
-  { label: 'Returns & Exchanges', href: '/returns' },
+  { label: 'Size Guide', href: '/#collection' },
+  { label: 'Fabric Care', href: '/#care' },
+  { label: 'Sustainability', href: '/#about' },
+  { label: 'Returns & Exchanges', href: '/#about' },
 ];
 
 const CONTACT_LINKS = [

@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import { useCart } from '@/context/cart-context';
 import { formatPrice } from '@/lib/products';
 
@@ -12,8 +10,6 @@ export default function CartPage() {
 
   return (
     <>
-      <Header />
-
       <main className="min-h-screen py-12 md:py-20 lg:py-28">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           {/* Header */}
@@ -172,8 +168,6 @@ export default function CartPage() {
           )}
         </div>
       </main>
-
-      <Footer />
     </>
   );
 }
