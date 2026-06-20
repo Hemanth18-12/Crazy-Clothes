@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/cart-context';
 import { formatPrice } from '@/lib/products';
+import CheckoutButton from '@/components/checkout-button';
 
 export default function CartPage() {
   const { items, isHydrated, updateQuantity, removeItem, subtotal, cartCount } = useCart();
@@ -150,15 +151,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="pt-4 space-y-3">
-                  <button
-                    onClick={() => {
-                      console.log('[Staple] Standalone checkout initiated.');
-                      alert('Checkout integration (Stripe) happens in the next phase.');
-                    }}
-                    className="btn-primary w-full"
-                  >
-                    Proceed to Checkout
-                  </button>
+                  <CheckoutButton label="Proceed to Checkout" />
                   <Link href="/" className="btn-secondary w-full text-center block">
                     Continue Shopping
                   </Link>

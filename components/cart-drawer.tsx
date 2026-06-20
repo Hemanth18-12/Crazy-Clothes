@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/cart-context';
 import { formatPrice } from '@/lib/products';
+import CheckoutButton from '@/components/checkout-button';
 
 export default function CartDrawer() {
   const { items, isOpen, isHydrated, closeCart, updateQuantity, removeItem, subtotal, cartCount } =
@@ -223,16 +224,8 @@ export default function CartDrawer() {
               Shipping & taxes calculated at checkout.
             </p>
             <div className="flex flex-col gap-2 pt-2">
-              <button
-                onClick={() => {
-                  console.log('[Staple] Mock checkout process initiated.');
-                  alert('Checkout integration (Stripe) happens in the next phase.');
-                }}
-                className="btn-primary w-full"
-              >
-                Checkout
-              </button>
-              <Link href="/cart" onClick={closeCart} className="btn-secondary w-full">
+              <CheckoutButton />
+              <Link href="/cart" onClick={closeCart} className="btn-secondary w-full text-center">
                 View Full Bag
               </Link>
             </div>
