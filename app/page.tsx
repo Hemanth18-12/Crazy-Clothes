@@ -98,7 +98,7 @@ export default function ComponentShowcase() {
 
   return (
     <>
-      <Header cartCount={2} />
+      <Header />
 
       <main className="min-h-screen">
         {/* ── Product grid ── */}
