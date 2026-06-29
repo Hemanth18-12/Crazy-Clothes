@@ -218,7 +218,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="config.js"></script>
+
+  <!-- ✅ FIXED: removed duplicate config.js — everything is inside firebase-config.js -->
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
 
@@ -454,7 +455,6 @@
 
     // Page Transition Sweeper Init
     document.addEventListener('DOMContentLoaded', () => {
-      // Page Transition Out Sweep
       const overlay = document.getElementById('page-transition-overlay');
       if (overlay) {
         overlay.classList.add('active-out');
