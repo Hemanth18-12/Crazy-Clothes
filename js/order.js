@@ -12,8 +12,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // ── DOM refs ─────────────────────────────────────────────
-  const colorButtons   = document.querySelectorAll('.color-btn');
-  const sizeButtons    = document.querySelectorAll('.size-btn');
+  const colorButtons   = document.querySelectorAll('.color-btn, .color-card-btn');
+  const sizeButtons    = document.querySelectorAll('.size-btn, .size-box-btn');
   const qtyInput       = document.getElementById('qty-input');
   const nameInput      = document.getElementById('name-input');
   const emailInput     = document.getElementById('email-input');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Internal state ───────────────────────────────────────
   let selectedColor   = 'white';
-  let selectedSize    = '';
+  let selectedSize    = 'Free Size';
   let selectedProduct = null; // set when user picks from Firestore grid
 
   init();
@@ -48,13 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    sizeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        setSize(btn.dataset.size);
-        updateSummary();
-        saveCurrentDraft();
+    if (sizeButtons && sizeButtons.length > 0) {
+      sizeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          setSize(btn.dataset.size);
+          updateSummary();
+          saveCurrentDraft();
+        });
       });
-    });
+    }
 
     [qtyInput, nameInput, emailInput, phoneInput, addressInput, notesInput].forEach(input => {
       if (!input) return;
@@ -94,8 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setSize(size) {
-    selectedSize = size;
-    sizeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.size === size));
+    selectedSize = size || 'Free Size';
+    // Toggle active on both .size-btn and .size-box-btn
+    document.querySelectorAll('.size-btn, .size-box-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.size === size);
+    });
     const err = document.getElementById('size-error');
     if (err) err.style.display = 'none';
   }
@@ -214,11 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Validate size
-    if (!selectedSize) {
-      showErr('size-error', 'Please select a size.');
-      isValid = false;
-    }
+    // Validate size (always Free Size, so always valid)
 
     // Design upload — optional, but block if mid-upload
     if (window.UploaderState && window.UploaderState.getIsUploading()) {

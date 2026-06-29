@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crazy Cloths — Customize Your T-Shirt</title>
+  
+  <!-- Inline Script to prevent theme flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -12,10 +21,20 @@
 </head>
 <body>
 
+  <!-- Top YouTube-style Loading Bar -->
+  <div class="top-loading-bar"></div>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="page-transition-overlay"></div>
+
+  <!-- Custom Cursor (Desktop Only) -->
+  <div class="custom-cursor" id="custom-cursor"></div>
+
   <!-- HEADER -->
   <header>
     <div class="container header-container">
       <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+      
       <nav class="desktop-nav">
         <ul>
           <li><a href="index.html" class="nav-link">Home</a></li>
@@ -23,11 +42,32 @@
           <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
           <li><a href="index.html#collection" class="nav-link">Products</a></li>
           <li><a href="login.html" class="nav-link">Login</a></li>
+          <li>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </li>
         </ul>
       </nav>
-      <button class="menu-toggle" aria-label="Toggle Menu">
-        <span></span><span></span><span></span>
-      </button>
+
+      <div style="display:flex; align-items:center; gap: 1rem;">
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <button class="menu-toggle" aria-label="Toggle Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -48,11 +88,13 @@
         <div class="designer-grid">
           <!-- LEFT: Mockup preview (sticky on desktop) -->
           <div class="designer-left">
-            <h2 style="font-size:2.2rem;align-self:flex-start;text-transform:uppercase;">Design Canvas</h2>
+            <h2 style="font-size:2.5rem;align-self:flex-start;text-transform:uppercase;font-family:var(--font-display);letter-spacing:0.05em;">Design Canvas</h2>
+            
             <div class="designer-mockup-container">
-              <img id="base-mockup" src="assets/images/white-tee.png" alt="Base Mockup T-Shirt" class="mockup-base image-crossfade">
+              <img id="base-mockup" src="assets/images/white-t-shirt.png" alt="Base Mockup T-Shirt" class="mockup-base image-crossfade">
               <img id="design-overlay" src="" alt="Custom Design Preview" class="mockup-design-overlay">
             </div>
+            
             <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--color-text-secondary);text-align:center;max-width:320px;">
               Mockup preview shows approximate print placement (~32% chest width).
             </p>
@@ -65,24 +107,57 @@
             <div class="designer-card">
               <div class="selector-group">
                 <span class="selector-label">01. Select T-Shirt Color</span>
-                <div class="selector-options">
-                  <button type="button" class="color-btn active" data-color="white">White T-Shirt (₹499)</button>
-                  <button type="button" class="color-btn" data-color="black">Black T-Shirt (₹499)</button>
+                <div class="color-cards-container">
+
+                  <!-- White T-Shirt Card -->
+                  <button type="button" class="color-card-btn active" data-color="white"
+                          onclick="document.querySelectorAll('.color-card-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
+                    <div class="checkmark-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <div class="color-card-img-wrap">
+                      <img src="assets/images/white-t-shirt.png" alt="White T-Shirt" loading="lazy">
+                    </div>
+                    <div class="color-card-info">
+                      <span class="color-indicator white-dot"></span>
+                      <span class="color-name">White</span>
+                    </div>
+                  </button>
+
+                  <!-- Black T-Shirt Card -->
+                  <button type="button" class="color-card-btn" data-color="black"
+                          onclick="document.querySelectorAll('.color-card-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
+                    <div class="checkmark-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <div class="color-card-img-wrap">
+                      <img src="assets/images/black-t-shirt.png" alt="Black T-Shirt" loading="lazy">
+                    </div>
+                    <div class="color-card-info">
+                      <span class="color-indicator black-dot"></span>
+                      <span class="color-name">Black</span>
+                    </div>
+                  </button>
+
                 </div>
               </div>
             </div>
 
-            <!-- PART B: Size -->
+            <!-- PART B: Size Selector -->
             <div class="designer-card">
               <div class="selector-group">
                 <span class="selector-label">02. Select Size</span>
-                <div class="selector-options">
-                  <button type="button" class="size-btn" data-size="XS">XS</button>
-                  <button type="button" class="size-btn" data-size="S">S</button>
-                  <button type="button" class="size-btn" data-size="M">M</button>
-                  <button type="button" class="size-btn" data-size="L">L</button>
-                  <button type="button" class="size-btn" data-size="XL">XL</button>
-                  <button type="button" class="size-btn" data-size="XXL">XXL</button>
+                <div class="size-grid">
+                  <button type="button" class="size-box-btn" data-size="XS">XS</button>
+                  <button type="button" class="size-box-btn" data-size="S">S</button>
+                  <button type="button" class="size-box-btn" data-size="M">M</button>
+                  <button type="button" class="size-box-btn" data-size="L">L</button>
+                  <button type="button" class="size-box-btn" data-size="XL">XL</button>
+                  <button type="button" class="size-box-btn" data-size="XXL">XXL</button>
                 </div>
                 <div id="size-error" class="form-input-error"></div>
               </div>
@@ -91,15 +166,16 @@
             <!-- PART C: Optional Custom Design Upload -->
             <div class="designer-card">
               <div class="selector-group">
-                <span class="selector-label" style="font-size:0.9rem;">
-                  03. Want to add your own design?
-                  <span style="color:var(--color-text-secondary);font-weight:400;">(Optional)</span>
+                <span class="selector-label" style="font-size:0.9rem; position: relative; width: 100%;">
+                  02. Add Your Custom Design <span style="font-family:var(--font-mono);font-size:0.65rem;background:var(--color-surface-2);border:1px solid var(--color-border);padding:0.15rem 0.45rem;color:var(--color-text-secondary);">OPTIONAL</span>
                 </span>
-                <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--color-text-secondary);margin-bottom:0.75rem;">
+                <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--color-text-secondary);margin-bottom:1rem;">
                   Skip this section to order a plain t-shirt. Upload a graphic to print on the front.
                 </p>
 
-                <div id="upload-zone" class="upload-zone upload-glow-pulse">
+                <div id="upload-zone" class="upload-zone">
+                  <div class="upload-optional-badge">Optional</div>
+                  
                   <svg id="upload-icon" class="upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
@@ -122,48 +198,51 @@
             </div>
 
             <!-- PART D: Customer Details Form -->
-            <form id="order-form" class="designer-card" novalidate>
-              <h3 style="font-size:1.8rem;margin-bottom:1.5rem;text-transform:uppercase;">04. Customer Details</h3>
+            <div class="designer-card">
+              <h3 style="font-size:2rem;margin-bottom:1.5rem;text-transform:uppercase;font-family:var(--font-display);letter-spacing:0.05em;">03. Customer Details</h3>
+              <form id="order-form" novalidate style="border:1px solid var(--color-border);padding:1.5rem;display:flex;flex-direction:column;gap:0;">
 
-              <div class="form-group">
-                <label for="name-input" class="form-label">Full Name <span>*</span></label>
-                <input type="text" id="name-input" class="form-input" placeholder="e.g. Hemanth">
-                <div id="name-input-error" class="form-input-error"></div>
-              </div>
+                <div class="form-group">
+                  <input type="text" id="name-input" class="form-input" placeholder=" ">
+                  <label for="name-input" class="form-label">Full Name *</label>
+                  <div id="name-input-error" class="form-input-error"></div>
+                </div>
 
-              <div class="form-group">
-                <label for="email-input" class="form-label">Email Address</label>
-                <input type="email" id="email-input" class="form-input" placeholder="e.g. you@email.com">
-                <span class="form-input-note">Used to send your order confirmation email.</span>
-              </div>
+                <div class="form-group">
+                  <input type="email" id="email-input" class="form-input" placeholder=" ">
+                  <label for="email-input" class="form-label">Email Address</label>
+                  <span class="form-input-note">Used to send your order confirmation email.</span>
+                </div>
 
-              <div class="form-group">
-                <label for="phone-input" class="form-label">WhatsApp Number <span>*</span></label>
-                <input type="tel" id="phone-input" class="form-input" placeholder="e.g. 919876543210">
-                <span class="form-input-note">Country code + number, no spaces, no + (e.g. 91 for India).</span>
-                <div id="phone-input-error" class="form-input-error"></div>
-              </div>
+                <div class="form-group">
+                  <input type="tel" id="phone-input" class="form-input" placeholder=" ">
+                  <label for="phone-input" class="form-label">WhatsApp Number *</label>
+                  <span class="form-input-note">Country code + number (e.g. 919876543210).</span>
+                  <div id="phone-input-error" class="form-input-error"></div>
+                </div>
 
-              <div class="form-group">
-                <label for="address-input" class="form-label">Delivery Address <span>*</span></label>
-                <textarea id="address-input" class="form-input" rows="3" style="resize:vertical;font-family:var(--font-body);" placeholder="Street, City, State, Pincode"></textarea>
-                <div id="address-input-error" class="form-input-error"></div>
-              </div>
+                <div class="form-group">
+                  <textarea id="address-input" class="form-input" rows="3" style="resize:vertical;font-family:var(--font-body);" placeholder=" "></textarea>
+                  <label for="address-input" class="form-label">Delivery Address *</label>
+                  <div id="address-input-error" class="form-input-error"></div>
+                </div>
 
-              <div class="form-group">
-                <label for="qty-input" class="form-label">Quantity <span>*</span></label>
-                <input type="number" id="qty-input" class="form-input" min="1" value="1" style="font-family:var(--font-mono);">
-                <div id="qty-input-error" class="form-input-error"></div>
-              </div>
+                <div class="form-group">
+                  <input type="number" id="qty-input" class="form-input" min="1" value="1" style="font-family:var(--font-mono);" placeholder=" ">
+                  <label for="qty-input" class="form-label">Quantity *</label>
+                  <div id="qty-input-error" class="form-input-error"></div>
+                </div>
 
-              <div class="form-group">
-                <label for="notes-input" class="form-label">Special Instructions (Optional)</label>
-                <textarea id="notes-input" class="form-input" rows="2" style="resize:vertical;font-family:var(--font-body);" placeholder="e.g. Print slightly higher on the chest."></textarea>
-              </div>
-            </form>
+                <div class="form-group">
+                  <textarea id="notes-input" class="form-input" rows="2" style="resize:vertical;font-family:var(--font-body);" placeholder=" "></textarea>
+                  <label for="notes-input" class="form-label">Special Instructions (Optional)</label>
+                </div>
+
+              </form>
+            </div>
 
             <!-- PART E: Order Summary -->
-            <div class="designer-card">
+            <div class="designer-card summary-card-premium">
               <h3 class="designer-card-title">ORDER SUMMARY</h3>
 
               <div class="summary-row">
@@ -187,11 +266,11 @@
                 <span id="sum-design" class="summary-row-val">No Design (Optional)</span>
               </div>
               <div class="summary-row total">
-                <span class="summary-row-label" style="color:var(--color-white);">TOTAL</span>
-                <span id="sum-total" style="color:var(--color-accent);">₹499</span>
+                <span class="summary-row-label" style="color:var(--color-text-primary);">TOTAL</span>
+                <span id="sum-total">₹499</span>
               </div>
 
-              <button type="submit" form="order-form" id="place-order-btn" class="btn btn-accent btn-press-feedback btn-ripple" style="width:100%;margin-top:1.5rem;">
+              <button type="submit" form="order-form" id="place-order-btn" class="btn btn-accent btn-premium" style="width:100%;margin-top:1.5rem;">
                 Place Order
               </button>
               <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--color-text-secondary);text-align:center;margin-top:var(--spacing-sm);">
@@ -253,5 +332,137 @@
   <script src="js/whatsapp.js"></script>
   <script src="js/email.js"></script>
   <script src="js/order.js"></script>
+
+  <!-- Visual/Interactive Scripting -->
+  <script>
+    // Style Fit Selection Helper
+    let selectedFit = 'Oversized Tee';
+    function selectType(type, element) {
+      document.querySelectorAll('.type-pill').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      selectedFit = type;
+      
+      const sumProdName = document.getElementById('sum-product-name');
+      if (sumProdName) {
+        const colorVal = document.getElementById('sum-color').textContent;
+        sumProdName.textContent = `${colorVal.charAt(0) + colorVal.slice(1).toLowerCase()} ${type}`;
+      }
+      triggerFlashEffect();
+    }
+
+    // Flash Highlight Effect on Summary update
+    function triggerFlashEffect() {
+      const card = document.querySelector('.summary-card-premium');
+      if (card) {
+        card.classList.add('flash-highlight');
+        setTimeout(() => {
+          card.classList.remove('flash-highlight');
+        }, 300);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Monitor value changes to flash highlight the summary card
+      const inputs = [
+        document.getElementById('qty-input'),
+        document.getElementById('name-input'),
+        document.getElementById('email-input'),
+        document.getElementById('phone-input'),
+        document.getElementById('address-input'),
+        document.getElementById('notes-input')
+      ];
+      inputs.forEach(input => {
+        if (input) input.addEventListener('input', triggerFlashEffect);
+      });
+      document.querySelectorAll('.color-btn, .size-btn').forEach(btn => {
+        btn.addEventListener('click', triggerFlashEffect);
+      });
+
+      // 1. Theme Toggle Logic
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+      const handleThemeToggle = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cc_theme', newTheme);
+      };
+      if (themeToggle) themeToggle.addEventListener('click', handleThemeToggle);
+      if (themeToggleMobile) themeToggleMobile.addEventListener('click', handleThemeToggle);
+
+      // 2. Custom Cursor
+      const cursor = document.getElementById('custom-cursor');
+      if (cursor) {
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        });
+        function animateCursor() {
+          cursorX += (mouseX - cursorX) * 0.15;
+          cursorY += (mouseY - cursorY) * 0.15;
+          cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+          requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        const hoverElements = document.querySelectorAll('a, button, input, select, textarea, .color-btn, .size-btn, .upload-zone');
+        hoverElements.forEach(el => {
+          el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+          el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
+      }
+
+      // 3. Page Transition Sweep
+      const overlay = document.getElementById('page-transition-overlay');
+      if (overlay) {
+        overlay.classList.add('active-out');
+        setTimeout(() => { overlay.classList.remove('active-out'); }, 600);
+        
+        const links = document.querySelectorAll('a');
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !link.getAttribute('target')) {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              overlay.classList.add('active-in');
+              setTimeout(() => { window.location.href = href; }, 550);
+            });
+          }
+        });
+      }
+
+      // 4. Override Place Order button loading/success visuals
+      const orderForm = document.getElementById('order-form');
+      const placeOrderBtn = document.getElementById('place-order-btn');
+      if (orderForm && placeOrderBtn) {
+        orderForm.addEventListener('submit', () => {
+          // Check if inputs are valid
+          const firstErr = document.querySelector('.input-invalid');
+          if (firstErr) return;
+          
+          // If valid, show loading animation
+          placeOrderBtn.disabled = true;
+          placeOrderBtn.classList.add('loading-active');
+          
+          // Check periodically if we got redirected or success happened
+          let checkInterval = setInterval(() => {
+            const lastOrder = localStorage.getItem('crazy_cloths_last_order');
+            if (lastOrder) {
+              clearInterval(checkInterval);
+              placeOrderBtn.classList.remove('loading-active');
+              placeOrderBtn.classList.add('btn-success-state');
+              placeOrderBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Order Placed!
+              `;
+            }
+          }, 200);
+        });
+      }
+    });
+  </script>
 </body>
 </html>

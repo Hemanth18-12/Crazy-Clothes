@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crazy Cloths — Wear Your Vision</title>
+  
+  <!-- Inline Script to prevent theme flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/animations.css">
@@ -12,6 +21,14 @@
   <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
+
+  <!-- Top YouTube-style Loading Bar -->
+  <div class="top-loading-bar"></div>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="page-transition-overlay"></div>
+
+
 
   <!-- HEADER -->
   <header>
@@ -25,16 +42,49 @@
           <li><a href="product.html" class="nav-link">Shop</a></li>
           <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
           <li><a href="#collection" class="nav-link">Products</a></li>
-          <li><a href="login.html" class="nav-link">Login</a></li>
+          <li>
+            <!-- Logged out state -->
+            <a href="login.html" id="header-login-btn" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+              Login
+            </a>
+            <!-- Logged in state (hidden by default) -->
+            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
+              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                Logout
+              </button>
+            </div>
+          </li>
+          <li>
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </li>
         </ul>
       </nav>
 
       <!-- Hamburger toggle on Mobile -->
-      <button class="menu-toggle" aria-label="Toggle Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <div style="display:flex; align-items:center; gap: 1rem;">
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <button class="menu-toggle" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -45,48 +95,93 @@
       <li><a href="product.html" class="nav-link">Shop</a></li>
       <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
       <li><a href="#collection" class="nav-link">Products</a></li>
-      <li><a href="login.html" class="nav-link">Login</a></li>
+      <li>
+        <!-- Mobile Logged out state -->
+        <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
+        <!-- Mobile Logged in state (hidden by default) -->
+        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent);">Logout</a>
+        </div>
+      </li>
     </ul>
   </nav>
 
   <main>
     <!-- HERO SECTION -->
     <section class="hero">
+      <!-- Noise texture overlay -->
+      <div class="noise-overlay"></div>
+      
+      <!-- Slow-drifting radial blob -->
+      <div class="hero-blob"></div>
+
       <!-- Background mockup image -->
-      <div class="hero-bg" style="background-image: url('assets/images/black-tee.png');"></div>
+      <div class="hero-bg" style="background-image: url('assets/images/black-t-shirt.png');"></div>
       <div class="hero-bg-overlay"></div>
 
       <div class="container hero-content">
         <div class="hero-inner">
           <div class="hero-title-container">
-            <h1 class="hero-title anim-slam-down">WEAR YOUR</h1>
+            <h1 class="hero-title slam-left">WEAR YOUR</h1>
           </div>
-          <div class="hero-title-container" style="margin-bottom: 2rem;">
-            <h1 class="hero-title anim-slam-up" style="color: var(--color-accent);">VISION</h1>
+          <div class="hero-title-container" style="margin-bottom: 1.5rem;">
+            <h1 class="hero-title stroke-accent slam-right">VISION</h1>
           </div>
-          <p class="hero-subhead anim-fade-in-up delay-1">
-            Custom black & white premium organic cotton T-Shirts. Your design, your rules. Upload your image, checkout instantly via WhatsApp.
+          <p class="hero-subhead fade-up-anim delay-sub">
+            Premium heavyweight cotton t-shirts customized with your uploaded graphics. No templates, no limits. Engineered for the street, tailored for the bold.
           </p>
-          <div class="hero-ctas anim-fade-in-up delay-2">
-            <a href="product.html?color=white" class="btn btn-primary btn-press-feedback">Order White T-Shirt</a>
-            <a href="product.html?color=black" class="btn btn-secondary btn-press-feedback">Order Black T-Shirt</a>
+          <div class="hero-ctas fade-up-anim delay-ctas" style="margin-bottom: 4rem;">
+            <a href="product.html?color=white" id="hero-btn-primary" class="btn btn-primary shimmer-btn">Shop White T-Shirt</a>
+            <a href="product.html?color=black" id="hero-btn-secondary" class="btn btn-secondary wipe-btn">Shop Black T-Shirt</a>
           </div>
         </div>
+      </div>
+
+      <!-- Scrolling Ticker Strip -->
+      <div class="ticker-wrap fade-up-anim delay-ticker" style="position: absolute; bottom: 6rem; left: 0;">
+        <div class="ticker-content">
+          <span>FREE DELIVERY ·</span>
+          <span>CUSTOM PRINTS ·</span>
+          <span>SAME DAY DISPATCH ·</span>
+          <span>100% COTTON ·</span>
+          <span>MADE TO ORDER ·</span>
+          <span>FREE DELIVERY ·</span>
+          <span>CUSTOM PRINTS ·</span>
+          <span>SAME DAY DISPATCH ·</span>
+          <span>100% COTTON ·</span>
+          <span>MADE TO ORDER ·</span>
+        </div>
+      </div>
+
+      <!-- Bouncing Scroll Indicator -->
+      <div class="scroll-indicator" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'});">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
       </div>
     </section>
 
     <!-- HOW IT WORKS SECTION -->
     <section id="how-it-works" class="page-section reveal-on-scroll">
-      <div class="container">
-        <h2 style="font-size: 3rem; margin-bottom: 3rem; text-align: center;">HOW IT WORKS</h2>
+      <div class="container" style="position:relative;">
+        <h2 style="font-size: 4rem; margin-bottom: 4rem; text-align: center; text-transform: uppercase;">HOW IT WORKS</h2>
         
-        <div class="grid-3">
+        <!-- Connecting SVG line -->
+        <div class="steps-line-container">
+          <svg width="100%" height="2" viewBox="0 0 1000 2" fill="none" preserveAspectRatio="none">
+            <line x1="0" y1="1" x2="1000" y2="1" stroke="var(--color-accent)" stroke-width="2" class="steps-connecting-line"></line>
+          </svg>
+        </div>
+
+        <div class="how-it-works-row">
           <!-- Step 1 -->
           <div class="step-card reveal-on-scroll stagger-1">
             <div class="step-num">01</div>
             <div>
               <h3 class="step-title">UPLOAD DESIGN</h3>
-              <p>Drop your JPG, PNG, or SVG image. We accept high-resolution files up to 10MB.</p>
+              <p>Drop your custom graphics, text, or artwork. We support all high-res image formats.</p>
             </div>
           </div>
           
@@ -94,8 +189,8 @@
           <div class="step-card reveal-on-scroll stagger-2">
             <div class="step-num">02</div>
             <div>
-              <h3 class="step-title">CHOOSE COLOR</h3>
-              <p>Toggle between our heavy-weight Paper White or Ink Black premium cotton shirts.</p>
+              <h3 class="step-title">CHOOSE FIT &amp; COLOR</h3>
+              <p>Select between Paper White or Ink Black bases. Find your perfect tailored fit.</p>
             </div>
           </div>
           
@@ -103,8 +198,8 @@
           <div class="step-card reveal-on-scroll stagger-3">
             <div class="step-num">03</div>
             <div>
-              <h3 class="step-title">PLACE ORDER</h3>
-              <p>Confirm the details and checkout. Your order is formatted and sent directly to us on WhatsApp.</p>
+              <h3 class="step-title">ORDER VIA WHATSAPP</h3>
+              <p>Verify your mockups and checkout. Your order details are dispatched directly to our chat.</p>
             </div>
           </div>
         </div>
@@ -114,54 +209,97 @@
     <!-- PRODUCT CATALOG SHOWCASE -->
     <section id="collection" class="page-section reveal-on-scroll">
       <div class="container">
-        <div style="text-align: center; margin-bottom: 4rem;">
-          <h2 style="font-size: 3rem;">THE COLLECTION</h2>
-          <p style="max-width: 500px; margin: 1rem auto 0; font-family: var(--font-mono); font-size: 0.85rem;">
-            Heavyweight knit cotton. Perfect tailored shoulders. Pre-shrunk for shape retention.
-          </p>
+        <div style="text-align: center; margin-bottom: 5rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
+          <h2 style="font-size: 4.5rem; margin-bottom: 0.5rem; text-transform: uppercase;">THE COLLECTION</h2>
+          <div style="width: 80px; height: 2px; background-color: var(--color-accent); margin: 1rem auto 0;"></div>
         </div>
 
-        <!-- Dynamic product grid from Firestore -->
-        <div class="grid-2" id="product-grid" style="max-width: 900px; margin: 0 auto;">
-          <!-- Skeleton loaders shown while Firestore fetches -->
+        <!-- Dynamic product grid from Firestore (2 col mobile, 4 col desktop) -->
+        <div class="grid-4" id="product-grid" style="margin: 0 auto;">
           <!-- Fallback static cards (shown when Firebase not configured) -->
-          <div class="product-card card-hover-lift reveal-on-scroll stagger-1" id="static-card-white">
+          <div class="product-card reveal-on-scroll stagger-1" id="static-card-white">
             <div class="product-image-wrapper">
-              <img src="assets/images/white-tee.png" alt="Crazy Cloths White Custom T-Shirt" loading="lazy">
+              <img src="assets/images/white-t-shirt.png" alt="Crazy Cloths White Custom T-Shirt" loading="lazy">
+              <div class="product-price">₹499</div>
             </div>
             <div class="product-info">
               <span class="product-meta">100% Cotton · 220 GSM · White</span>
               <h3 class="product-title">White Vision T-Shirt</h3>
-              <p>Clean, crisp, double-needle stitched neck ribbing. Bright optical white fabric base.</p>
-              <div class="product-price">₹499</div>
-              <a href="product.html?color=white" class="btn btn-accent btn-press-feedback" style="margin-top: auto;">Customize &amp; Order</a>
+              <button onclick="window.location.href='product.html?color=white'" class="btn btn-accent btn-press-feedback">Customize &amp; Order</button>
             </div>
           </div>
 
-          <div class="product-card card-hover-lift reveal-on-scroll stagger-2 product-card--black" id="static-card-black">
+          <div class="product-card product-card--black reveal-on-scroll stagger-2" id="static-card-black">
             <div class="product-image-wrapper">
-              <img src="assets/images/black-tee.png" alt="Crazy Cloths Black Custom T-Shirt" loading="lazy">
+              <img src="assets/images/black-t-shirt.png" alt="Crazy Cloths Black Custom T-Shirt" loading="lazy">
+              <div class="product-price">₹499</div>
             </div>
             <div class="product-info">
               <span class="product-meta">100% Cotton · 240 GSM · Black</span>
               <h3 class="product-title">Black Vision T-Shirt</h3>
-              <p>Ultra-dense, rich matte black fabric base. Structured fit that maintains drape wash after wash.</p>
-              <div class="product-price">₹499</div>
-              <a href="product.html?color=black" class="btn btn-accent btn-press-feedback" style="margin-top: auto;">Customize &amp; Order</a>
+              <button onclick="window.location.href='product.html?color=black'" class="btn btn-accent btn-press-feedback">Customize &amp; Order</button>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- BRAND STRIP SECTION -->
+    <section class="brand-strip reveal-on-scroll">
+      <div class="container">
+        <div class="brand-strip-grid">
+          <div class="brand-strip-col">
+            <svg class="brand-strip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+            <div class="brand-strip-stat">100% ORGANIC COTTON</div>
+            <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #999999;">Heavyweight 240GSM combed weave fabric base.</p>
+          </div>
+          <div class="brand-strip-col">
+            <svg class="brand-strip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5A2.5 2.5 0 0119 14.5v.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="brand-strip-stat">ETHICALLY SOURCED</div>
+            <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #999999;">Fair-trade certified mills, premium wash drapes.</p>
+          </div>
+          <div class="brand-strip-col">
+            <svg class="brand-strip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            <div class="brand-strip-stat">INFINITE CREATIVITY</div>
+            <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #999999;">Vibrant, crack-resistant high-definition DTF prints.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- TESTIMONIAL MARQUEE -->
-    <section class="marquee-container reveal-on-scroll">
-      <div class="marquee-content">
-        <div class="marquee-item">"The print detail holds up amazing even after 10 washes."<span>— RAHUL K.</span></div>
-        <div class="marquee-item">"Best custom street-wear fit I have found online."<span>— ARYAN M.</span></div>
-        <div class="marquee-item">"WhatsApp ordering was super simple, got order confirmed in minutes."<span>— SIMRAN S.</span></div>
-        <div class="marquee-item">"Fabric weight is solid, doesn't feel thin or cheap."<span>— HARSH V.</span></div>
-        <div class="marquee-item">"The print detail holds up amazing even after 10 washes."<span>— RAHUL K.</span></div>
+    <section class="marquee-wrap reveal-on-scroll">
+      <div class="marquee-list">
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"The print detail holds up amazing even after 10 washes. The fit is perfectly oversized."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— RAHUL K.</span>
+        </div>
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"Best custom streetwear fit I've found online. The combed cotton feels incredibly dense."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— ARYAN M.</span>
+        </div>
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"WhatsApp ordering was super simple, got order confirmed in minutes. Amazing customer service."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— SIMRAN S.</span>
+        </div>
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"Fabric weight is solid, doesn't feel thin or cheap. Perfect shoulders drape."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— HARSH V.</span>
+        </div>
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"The print detail holds up amazing even after 10 washes. The fit is perfectly oversized."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— RAHUL K.</span>
+        </div>
+        <div class="testimonial-card-premium">
+          <p style="font-style: italic; margin-bottom: 1rem;">"Best custom streetwear fit I've found online. The combed cotton feels incredibly dense."</p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); font-weight: 700;">— ARYAN M.</span>
+        </div>
       </div>
     </section>
   </main>
@@ -172,7 +310,7 @@
       <div class="footer-grid">
         <div class="footer-col">
           <div class="footer-logo">CRAZY<span>CLOTHS</span></div>
-          <p style="max-width: 320px; font-size: 0.9rem;">
+          <p style="max-width: 320px; font-size: 0.9rem; margin-bottom: 1.5rem;">
             Streetwear-focused premium t-shirts customized with your uploaded graphics. No templates, no limits.
           </p>
         </div>
@@ -213,12 +351,65 @@
   <script src="js/auth.js"></script>
   <script src="js/products.js"></script>
   <script src="js/animations.js"></script>
+
+  <!-- Visual/Interactive Scripting -->
   <script>
-    // Load Firestore products if Firebase is enabled;
-    // otherwise the static fallback cards remain visible.
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Theme Toggle Logic
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+      const handleThemeToggle = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cc_theme', newTheme);
+      };
+      if (themeToggle) themeToggle.addEventListener('click', handleThemeToggle);
+      if (themeToggleMobile) themeToggleMobile.addEventListener('click', handleThemeToggle);
+
+
+
+      // 3. Page Transition Sweep
+      const overlay = document.getElementById('page-transition-overlay');
+      if (overlay) {
+        overlay.classList.add('active-out');
+        setTimeout(() => {
+          overlay.classList.remove('active-out');
+        }, 600);
+
+        const links = document.querySelectorAll('a');
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !link.getAttribute('target')) {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              overlay.classList.add('active-in');
+              setTimeout(() => {
+                window.location.href = href;
+              }, 550);
+            });
+          }
+        });
+      }
+
+      // 4. Magnetic Button Hover Effect
+      const primaryBtn = document.getElementById('hero-btn-primary');
+      const secondaryBtn = document.getElementById('hero-btn-secondary');
+      [primaryBtn, secondaryBtn].forEach(btn => {
+        if (!btn) return;
+        btn.addEventListener('mousemove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          btn.style.transform = `translate3d(${x * 0.18}px, ${y * 0.18}px, 0)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = 'translate3d(0, 0, 0)';
+        });
+      });
+
+      // 5. Hide / Load Firestore Products
       if (CONFIG.firebaseEnabled && typeof firebase !== 'undefined') {
-        // Hide static fallback cards
         ['static-card-white','static-card-black'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.style.display = 'none';
@@ -226,6 +417,26 @@
         ProductsService.load('product-grid', (product) => {
           window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
         });
+      }
+
+      // 6. Header Login / Greeting State Handler
+      const name = sessionStorage.getItem('cc_user_name');
+      const loginBtn = document.getElementById('header-login-btn');
+      const userArea = document.getElementById('header-user-area');
+      const userName = document.getElementById('header-user-name');
+      
+      const mLoginBtn = document.getElementById('mobile-login-btn');
+      const mUserArea = document.getElementById('mobile-user-area');
+      const mUserName = document.getElementById('mobile-user-name');
+
+      if (name) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userArea) userArea.style.display = 'flex';
+        if (userName) userName.textContent = 'Hi, ' + name;
+
+        if (mLoginBtn) mLoginBtn.style.display = 'none';
+        if (mUserArea) mUserArea.style.display = 'flex';
+        if (mUserName) mUserName.textContent = 'Hi, ' + name;
       }
     });
   </script>

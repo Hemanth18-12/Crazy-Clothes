@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crazy Cloths — Order Confirmed</title>
+  
+  <!-- Inline Script to prevent theme flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/animations.css">
@@ -12,6 +21,14 @@
   <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
+
+  <!-- Top YouTube-style Loading Bar -->
+  <div class="top-loading-bar"></div>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="page-transition-overlay"></div>
+
+
 
   <!-- HEADER -->
   <header>
@@ -25,15 +42,48 @@
           <li><a href="product.html" class="nav-link">Customize</a></li>
           <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
           <li><a href="index.html#collection" class="nav-link">Products</a></li>
+          <li>
+            <!-- Logged out state -->
+            <a href="login.html" id="header-login-btn" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+              Login
+            </a>
+            <!-- Logged in state (hidden by default) -->
+            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
+              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                Logout
+              </button>
+            </div>
+          </li>
+          <li>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </li>
         </ul>
       </nav>
 
       <!-- Hamburger toggle on Mobile -->
-      <button class="menu-toggle" aria-label="Toggle Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <div style="display:flex; align-items:center; gap: 1rem;">
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <button class="menu-toggle" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -44,27 +94,50 @@
       <li><a href="product.html" class="nav-link">Customize</a></li>
       <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
       <li><a href="index.html#collection" class="nav-link">Products</a></li>
+      <li>
+        <!-- Mobile Logged out state -->
+        <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
+        <!-- Mobile Logged in state (hidden by default) -->
+        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent);">Logout</a>
+        </div>
+      </li>
     </ul>
   </nav>
 
   <main>
     <section class="success-container">
-      <div class="success-card reveal-on-scroll revealed">
-        <!-- SVG Stroke checkmark -->
-        <div class="success-icon-wrapper anim-fade-in-up">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12" class="success-checkmark"></polyline>
+      <div class="success-card">
+        
+        <!-- CSS Confetti Burst container -->
+        <div class="confetti-container">
+          <div class="confetti-particle" style="--delay: 0.1s; --x: -80px; --y: -120px; --bg: var(--color-accent);"></div>
+          <div class="confetti-particle" style="--delay: 0.25s; --x: 100px; --y: -150px; --bg: #3b82f6;"></div>
+          <div class="confetti-particle" style="--delay: 0.15s; --x: -140px; --y: -60px; --bg: #10b981;"></div>
+          <div class="confetti-particle" style="--delay: 0.35s; --x: 120px; --y: -50px; --bg: #f59e0b;"></div>
+          <div class="confetti-particle" style="--delay: 0.2s; --x: -50px; --y: -180px; --bg: var(--color-accent);"></div>
+          <div class="confetti-particle" style="--delay: 0.4s; --x: 60px; --y: -200px; --bg: #3b82f6;"></div>
+          <div class="confetti-particle" style="--delay: 0.45s; --x: -110px; --y: -160px; --bg: #10b981;"></div>
+          <div class="confetti-particle" style="--delay: 0.3s; --x: 140px; --y: -110px; --bg: #f59e0b;"></div>
+        </div>
+
+        <!-- Self-drawing SVG checkmark -->
+        <div class="success-icon-wrapper" style="border: none; background: transparent;">
+          <svg viewBox="0 0 52 52" class="checkmark-svg">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
           </svg>
         </div>
 
-        <h1 class="success-title anim-slam-down delay-1">ORDER CONFIRMED</h1>
+        <h1 class="success-title slam-left">ORDER PLACED!</h1>
         
-        <p class="anim-fade-in-up delay-2" style="max-width: 480px;">
+        <p style="max-width: 480px; font-size: 1.05rem;">
           Your order has been sent to us via WhatsApp! We will check your design, confirm payment details, and reach out to you within 24 hours.
         </p>
 
         <!-- Dynamic Order Summary Receipt -->
-        <div id="receipt-details" class="success-details anim-fade-in-up delay-2">
+        <div id="receipt-details" class="success-details">
           <div class="success-details-row">
             <span class="success-details-label">Order Reference</span>
             <span id="ref-order-id" class="success-details-val">#CC-XXXXXXXXXX</span>
@@ -81,13 +154,13 @@
           </div>
 
           <div class="success-details-row" style="border-top: 1px dashed var(--color-border); padding-top: var(--spacing-sm); margin-top: 4px;">
-            <span class="success-details-label" style="color: var(--color-white); font-weight: 600;">Amount Total</span>
+            <span class="success-details-label" style="color: var(--color-text-primary); font-weight: 600;">Amount Total</span>
             <span id="ref-total" class="success-details-val" style="color: var(--color-accent); font-weight: 700;">₹599</span>
           </div>
         </div>
 
-        <div class="anim-fade-in-up delay-3" style="width: 100%; margin-top: var(--spacing-sm);">
-          <a href="product.html" class="btn btn-primary btn-press-feedback" style="width: 100%;">
+        <div style="width: 100%; margin-top: var(--spacing-sm);">
+          <a href="product.html" class="btn btn-primary btn-pulse-loop btn-full">
             Order Another
           </a>
         </div>
@@ -136,6 +209,7 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Load receipt
       try {
         const orderData = localStorage.getItem('crazy_cloths_last_order');
         if (orderData) {
@@ -145,13 +219,49 @@
           document.getElementById('ref-qty').textContent = order.quantity;
           document.getElementById('ref-total').textContent = order.total;
         } else {
-          // If no order data exists in storage (e.g. direct access), hide the receipt card
           document.getElementById('receipt-details').style.display = 'none';
         }
       } catch (e) {
         console.error('Failed to load order receipt:', e);
       }
+
+      // Theme Toggle Logic
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+      const handleThemeToggle = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cc_theme', newTheme);
+      };
+      if (themeToggle) themeToggle.addEventListener('click', handleThemeToggle);
+      if (themeToggleMobile) themeToggleMobile.addEventListener('click', handleThemeToggle);
+
+
+
+      // 6. Header Login / Greeting State Handler
+      // Since AuthService may not be imported in success.html, make sure logout calls it or handles it
+      const name = sessionStorage.getItem('cc_user_name');
+      const loginBtn = document.getElementById('header-login-btn');
+      const userArea = document.getElementById('header-user-area');
+      const userName = document.getElementById('header-user-name');
+      
+      const mLoginBtn = document.getElementById('mobile-login-btn');
+      const mUserArea = document.getElementById('mobile-user-area');
+      const mUserName = document.getElementById('mobile-user-name');
+
+      if (name) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userArea) userArea.style.display = 'flex';
+        if (userName) userName.textContent = 'Hi, ' + name;
+
+        if (mLoginBtn) mLoginBtn.style.display = 'none';
+        if (mUserArea) mUserArea.style.display = 'flex';
+        if (mUserName) mUserName.textContent = 'Hi, ' + name;
+      }
     });
   </script>
+  <!-- Load auth script for logout functionality -->
+  <script src="js/auth.js"></script>
 </body>
 </html>

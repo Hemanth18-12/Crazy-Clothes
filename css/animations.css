@@ -1,320 +1,348 @@
 /* 
   =========================================
-  CRAZY CLOTHS — ANIMATIONS
+  CRAZY CLOTHS — PREMIUM ANIMATIONS
   =========================================
 */
 
-/* ─── NEW: 1. Login card entrance ─────────────────────── */
-@keyframes auth-card-entrance {
-  from { transform: scale(0.85); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
-}
-.anim-card-entrance {
-  animation: auth-card-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-/* ─── NEW: 2. Form tab switch ──────────────────────────── */
-@keyframes form-slide-out {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(-30px); opacity: 0; }
-}
-@keyframes form-slide-in {
-  from { transform: translateX(30px); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
-}
-
-/* ─── NEW: 3. Skeleton loading sweep ───────────────────── */
-@keyframes skeleton-sweep {
-  0%   { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-}
-.skeleton-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-}
-.skeleton-img {
+/* ─── 1. CSS-only Noise/Grain Overlay ─── */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 1;
-  background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
-  background-size: 400px 100%;
-  animation: skeleton-sweep 1.5s infinite linear;
-}
-.skeleton-line {
-  height: 12px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
-  background-size: 400px 100%;
-  animation: skeleton-sweep 1.5s infinite linear;
-}
-.skeleton-line.wide   { width: 80%; }
-.skeleton-line.medium { width: 55%; }
-.skeleton-line.narrow { width: 35%; }
-
-/* ─── NEW: 4. Admin add-product ripple burst ────────────── */
-@keyframes ripple-expand {
-  0%   { transform: scale(0);   opacity: 0.6; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-.btn-ripple {
-  position: relative;
-  overflow: hidden;
-}
-.ripple-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  pointer-events: none;
-  animation: ripple-expand 0.6s ease-out forwards;
-  transform-origin: center;
-}
-
-/* ─── NEW: 5. Admin product card slide-in from top ─────── */
-@keyframes slide-in-from-top {
-  from { transform: translateY(-20px); opacity: 0; }
-  to   { transform: translateY(0);     opacity: 1; }
-}
-.anim-slide-in-top {
-  animation: slide-in-from-top 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
-}
-
-/* ─── NEW: Stock & custom badges ───────────────────────── */
-.product-badges {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.stock-badge {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  letter-spacing: 0.05em;
-}
-.stock-badge.in-stock   { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid #4ade8055; }
-.stock-badge.out-of-stock { background: rgba(255,60,60,0.15); color: var(--color-accent); border: 1px solid var(--color-accent)44; }
-.custom-badge {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  background: rgba(255,200,60,0.12);
-  color: #ffc83c;
-  border: 1px solid #ffc83c44;
-  padding: 2px 7px;
-}
-
-/* 1. Hero text split reveal (spring entrance) */
-@keyframes slam-down {
-  0% {
-    transform: translateY(-80%) skewY(10deg);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(10%) skewY(-2deg);
-    opacity: 1;
-  }
-  80% {
-    transform: translateY(-4%) skewY(1deg);
-  }
-  100% {
-    transform: translateY(0) skewY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slam-up {
-  0% {
-    transform: translateY(80%) skewY(-10deg);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(-10%) skewY(2deg);
-    opacity: 1;
-  }
-  80% {
-    transform: translateY(4%) skewY(-1deg);
-  }
-  100% {
-    transform: translateY(0) skewY(0);
-    opacity: 1;
-  }
-}
-
-.anim-slam-down {
-  animation: slam-down 0.7s cubic-bezier(0.25, 1.25, 0.5, 1) forwards;
-}
-
-.anim-slam-up {
-  animation: slam-up 0.7s cubic-bezier(0.25, 1.25, 0.5, 1) forwards;
-}
-
-/* 2. Scroll fade-slide-in (IntersectionObserver triggered) */
-.reveal-on-scroll {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-}
-
-.reveal-on-scroll.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Staggering utility classes */
-.stagger-1 { transition-delay: 80ms; }
-.stagger-2 { transition-delay: 160ms; }
-.stagger-3 { transition-delay: 240ms; }
-.stagger-4 { transition-delay: 320ms; }
-
-/* 3. Product card hover lift */
-.card-hover-lift {
-  position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  border: 1px solid var(--color-border);
-}
-
-.card-hover-lift::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border: 1px solid var(--color-accent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  height: 100%;
   z-index: 2;
+  opacity: 0.04;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle at 50% 50%, #fff 10%, transparent 10.2%),
+    radial-gradient(circle at 0 0, #fff 10%, transparent 10.2%),
+    radial-gradient(circle at 100% 100%, #fff 10%, transparent 10.2%);
+  background-size: 3px 3px;
 }
 
-.card-hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(255, 60, 60, 0.1);
-  border-color: transparent;
-}
-
-.card-hover-lift:hover::before {
-  opacity: 1;
-}
-
-/* 4. T-shirt color switch cross-fade & pulse */
-@keyframes pulse-scale {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
-}
-
-.pulse-active {
-  animation: pulse-scale 0.4s ease-out;
-}
-
-.image-crossfade {
-  transition: opacity 0.4s ease-in-out;
-}
-
-/* 5. Upload zone pulse and upload success burst */
-@keyframes glow-pulse {
+/* ─── 2. Slow-drifting Radial Gradient Blob ─── */
+@keyframes drift-blob {
   0% {
-    border-color: var(--color-border);
-    box-shadow: 0 0 0 0px rgba(255, 60, 60, 0);
+    transform: translate(-10%, -10%) scale(1);
+    opacity: 0.35;
   }
   50% {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 15px 2px rgba(255, 60, 60, 0.2);
+    transform: translate(15%, 10%) scale(1.2);
+    opacity: 0.5;
   }
   100% {
-    border-color: var(--color-border);
-    box-shadow: 0 0 0 0px rgba(255, 60, 60, 0);
+    transform: translate(-5%, 15%) scale(0.9);
+    opacity: 0.35;
   }
 }
-
-.upload-glow-pulse {
-  animation: glow-pulse 2s infinite ease-in-out;
+.hero-blob {
+  position: absolute;
+  top: 25%;
+  left: 30%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 500px;
+  max-height: 500px;
+  background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+  filter: blur(80px);
+  z-index: 2;
+  pointer-events: none;
+  animation: drift-blob 10s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-@keyframes upload-burst {
+/* ─── 3. Split-word Slam-in from Left / Right ─── */
+@keyframes slam-from-left {
   0% {
-    transform: scale(0.95);
+    transform: translateX(-150px) skewX(15deg);
     opacity: 0;
   }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
+  60% {
+    transform: translateX(15px) skewX(-4deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(-5px) skewX(2deg);
   }
   100% {
-    transform: scale(1);
+    transform: translateX(0) skewX(0);
     opacity: 1;
   }
 }
-
-.upload-success-burst {
-  animation: upload-burst 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-/* 6. Button press feedback */
-.btn-press-feedback {
-  transition: transform 0.1s ease;
-}
-
-.btn-press-feedback:active {
-  transform: scale(0.96) !important;
-}
-
-/* 7. Order success reveal (SVG Stroke Dash & Slams) */
-@keyframes draw-check {
-  to {
-    stroke-dashoffset: 0;
+@keyframes slam-from-right {
+  0% {
+    transform: translateX(150px) skewX(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-15px) skewX(4deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(5px) skewX(-2deg);
+  }
+  100% {
+    transform: translateX(0) skewX(0);
+    opacity: 1;
   }
 }
-
-.success-checkmark {
-  stroke-dasharray: 80;
-  stroke-dashoffset: 80;
-  animation: draw-check 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: 0.2s;
+.slam-left {
+  display: inline-block;
+  opacity: 0;
+  animation: slam-from-left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.slam-right {
+  display: inline-block;
+  opacity: 0;
+  animation: slam-from-right 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 150ms;
 }
 
-@keyframes fade-in-up {
+/* ─── 4. Subheadline & CTA Fade-up ─── */
+@keyframes fade-up-premium {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-.anim-fade-in-up {
+.fade-up-anim {
   opacity: 0;
-  animation: fade-in-up 0.8s ease-out forwards;
+  animation: fade-up-premium 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+.delay-sub { animation-delay: 500ms; }
+.delay-ctas { animation-delay: 700ms; }
+.delay-ticker { animation-delay: 900ms; }
 
-.delay-1 { animation-delay: 0.4s; }
-.delay-2 { animation-delay: 0.7s; }
-.delay-3 { animation-delay: 1s; }
-
-/* 8. Navigation active underline slide and scroll transitions */
-.nav-link {
+/* ─── 5. Button Hover Effects ─── */
+/* Shimmer Sweep */
+@keyframes shimmer-sweep {
+  0% { left: -150%; }
+  50% { left: 150%; }
+  100% { left: 150%; }
+}
+.shimmer-btn {
   position: relative;
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
-  transition: color 0.3s ease;
-  padding: 0.5rem 0;
+  overflow: hidden;
 }
-
-.nav-link:hover,
-.nav-link.active {
-  color: var(--color-white);
-}
-
-.nav-link::after {
+.shimmer-btn::after {
   content: '';
+  position: absolute;
+  top: -50%;
+  left: -150%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  pointer-events: none;
+}
+.shimmer-btn:hover::after {
+  animation: shimmer-sweep 1.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+/* Wipe Fill */
+.wipe-btn {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-primary);
+  transition: border-color 0.4s ease;
+}
+.wipe-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-text-primary);
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.wipe-btn:hover::before {
+  transform: scaleX(1);
+}
+.wipe-btn:hover {
+  color: var(--color-bg);
+  border-color: var(--color-text-primary);
+}
+
+/* ─── 6. Infinite Ticker Scrolling ─── */
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.ticker-content {
+  display: inline-flex;
+  white-space: nowrap;
+  gap: 2rem;
+  animation: ticker-scroll 15s linear infinite;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+/* ─── 7. Bouncing Scroll Indicator ─── */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  cursor: pointer;
+  animation: bounce-slow 2s infinite ease-in-out;
+  transition: opacity 0.3s ease;
+}
+
+/* ─── 8. Reveal-on-scroll (IntersectionObserver) ─── */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger-1 { transition-delay: 80ms; }
+.stagger-2 { transition-delay: 160ms; }
+.stagger-3 { transition-delay: 240ms; }
+.stagger-4 { transition-delay: 320ms; }
+
+/* Connecting Line Draw */
+@keyframes draw-line {
+  to { stroke-dashoffset: 0; }
+}
+.steps-connecting-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.revealed .steps-connecting-line {
+  stroke-dashoffset: 0;
+}
+
+/* ─── 9. Testimonial Scrolling Marquee ─── */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  padding: 2.5rem 0;
+  background-color: var(--color-bg-2);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.marquee-list {
+  display: inline-flex;
+  gap: 2rem;
+  animation: marquee-scroll 35s linear infinite;
+}
+.marquee-list:hover {
+  animation-play-state: paused;
+}
+
+/* Frosted glass card styling */
+.testimonial-card-premium {
+  display: inline-block;
+  white-space: normal;
+  width: 320px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+html[data-theme="light"] .testimonial-card-premium {
+  background: rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.testimonial-card-premium:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ─── 10. Page Transition Sweeper ─── */
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-accent);
+  z-index: 11000;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+.page-transition-overlay.active-in {
+  animation: sweep-in 0.6s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+.page-transition-overlay.active-out {
+  animation: sweep-out 0.6s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+@keyframes sweep-in {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@keyframes sweep-out {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+/* ─── 11. Loading Bar ─── */
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--color-accent);
+  z-index: 12000;
+  width: 0;
+  pointer-events: none;
+  animation: loading-bar-sweep 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+@keyframes loading-bar-sweep {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+/* ─── 12. Input underlines & error shakes ─── */
+.input-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-border);
+  transition: background-color 0.3s;
+}
+.input-underline-focus {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -325,29 +353,98 @@
   transform-origin: left;
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
-
-.nav-link.active::after {
+.form-input-premium:focus ~ .input-underline-focus {
   transform: scaleX(1);
 }
 
-/* Header transition on scroll */
-.header-scrolled {
-  background-color: rgba(10, 10, 10, 0.95) !important;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--color-border);
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.error-shake {
+  animation: shake 0.4s ease-in-out;
 }
 
-/* Accessibility: Respect user settings */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-delay: 0s !important;
-    animation-duration: 0s !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0s !important;
-    scroll-behavior: auto !important;
+/* ─── 13. Collapse to Circle Loader ─── */
+@keyframes button-spin {
+  to { transform: rotate(360deg); }
+}
+.btn-premium {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.btn-premium.loading-active {
+  width: 50px !important;
+  height: 50px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  color: transparent !important;
+  border-color: var(--color-border) !important;
+  background-color: transparent !important;
+}
+.btn-premium.loading-active::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
+  animation: button-spin 0.6s linear infinite;
+}
+
+/* ─── 14. SVG Self Drawing Checkmark ─── */
+@keyframes draw-path {
+  to { stroke-dashoffset: 0; }
+}
+.success-checkmark-circle {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw-path 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.success-checkmark-check {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw-path 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.5s;
+}
+
+/* ─── 15. Pure CSS Confetti ─── */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 1;
   }
-  .reveal-on-scroll {
-    opacity: 1 !important;
-    transform: none !important;
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
   }
+}
+.confetti-particle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-accent);
+  z-index: 1000;
+  top: -20px;
+  pointer-events: none;
+  animation: confetti-fall 3s linear forwards;
+}
+
+/* ─── 16. Circular Swatch Ring Animation ─── */
+@keyframes swatch-ring {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+.swatch-ring {
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: swatch-ring 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
