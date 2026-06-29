@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Customize Your T-Shirt</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-container">
+      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+      <nav class="desktop-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="product.html" class="nav-link active">Shop</a></li>
+          <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="index.html#collection" class="nav-link">Products</a></li>
+          <li><a href="login.html" class="nav-link">Login</a></li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="mobile-drawer">
+    <ul>
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="product.html" class="nav-link active">Shop</a></li>
+      <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+      <li><a href="index.html#collection" class="nav-link">Products</a></li>
+      <li><a href="login.html" class="nav-link">Login</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="page-section designer-section">
+      <div class="container">
+
+        <div class="designer-grid">
+          <!-- LEFT: Mockup preview (sticky on desktop) -->
+          <div class="designer-left">
+            <h2 style="font-size:2.2rem;align-self:flex-start;text-transform:uppercase;">Design Canvas</h2>
+            <div class="designer-mockup-container">
+              <img id="base-mockup" src="assets/images/white-tee.png" alt="Base Mockup T-Shirt" class="mockup-base image-crossfade">
+              <img id="design-overlay" src="" alt="Custom Design Preview" class="mockup-design-overlay">
+            </div>
+            <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--color-text-secondary);text-align:center;max-width:320px;">
+              Mockup preview shows approximate print placement (~32% chest width).
+            </p>
+          </div>
+
+          <!-- RIGHT: Selections + Form -->
+          <div class="designer-right" id="order-form-section">
+
+            <!-- PART A: Color -->
+            <div class="designer-card">
+              <div class="selector-group">
+                <span class="selector-label">01. Select T-Shirt Color</span>
+                <div class="selector-options">
+                  <button type="button" class="color-btn active" data-color="white">White T-Shirt (₹499)</button>
+                  <button type="button" class="color-btn" data-color="black">Black T-Shirt (₹499)</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PART B: Size -->
+            <div class="designer-card">
+              <div class="selector-group">
+                <span class="selector-label">02. Select Size</span>
+                <div class="selector-options">
+                  <button type="button" class="size-btn" data-size="XS">XS</button>
+                  <button type="button" class="size-btn" data-size="S">S</button>
+                  <button type="button" class="size-btn" data-size="M">M</button>
+                  <button type="button" class="size-btn" data-size="L">L</button>
+                  <button type="button" class="size-btn" data-size="XL">XL</button>
+                  <button type="button" class="size-btn" data-size="XXL">XXL</button>
+                </div>
+                <div id="size-error" class="form-input-error"></div>
+              </div>
+            </div>
+
+            <!-- PART C: Optional Custom Design Upload -->
+            <div class="designer-card">
+              <div class="selector-group">
+                <span class="selector-label" style="font-size:0.9rem;">
+                  03. Want to add your own design?
+                  <span style="color:var(--color-text-secondary);font-weight:400;">(Optional)</span>
+                </span>
+                <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--color-text-secondary);margin-bottom:0.75rem;">
+                  Skip this section to order a plain t-shirt. Upload a graphic to print on the front.
+                </p>
+
+                <div id="upload-zone" class="upload-zone upload-glow-pulse">
+                  <svg id="upload-icon" class="upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  <span id="upload-text" class="upload-text">Drag &amp; drop your artwork here, or <strong>browse</strong></span>
+                  <span id="upload-subtext" class="upload-subtext">PNG, JPG, SVG · max 10MB</span>
+
+                  <input type="file" id="file-input" style="display:none;" accept="image/png,image/jpeg,image/svg+xml">
+
+                  <div id="upload-preview-container" class="upload-preview-container">
+                    <img id="preview-thumbnail" src="" alt="Thumbnail" class="preview-thumbnail">
+                    <button type="button" id="remove-upload-btn" class="btn btn-secondary" style="font-size:0.85rem;padding:0.5rem 1rem;">Remove File</button>
+                  </div>
+
+                  <div id="upload-progress-bar" class="upload-progress-bar" style="display:none;">
+                    <div id="upload-progress-fill" class="upload-progress-fill"></div>
+                  </div>
+                </div>
+                <div id="upload-error" class="upload-error"></div>
+              </div>
+            </div>
+
+            <!-- PART D: Customer Details Form -->
+            <form id="order-form" class="designer-card" novalidate>
+              <h3 style="font-size:1.8rem;margin-bottom:1.5rem;text-transform:uppercase;">04. Customer Details</h3>
+
+              <div class="form-group">
+                <label for="name-input" class="form-label">Full Name <span>*</span></label>
+                <input type="text" id="name-input" class="form-input" placeholder="e.g. Hemanth">
+                <div id="name-input-error" class="form-input-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="email-input" class="form-label">Email Address</label>
+                <input type="email" id="email-input" class="form-input" placeholder="e.g. you@email.com">
+                <span class="form-input-note">Used to send your order confirmation email.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="phone-input" class="form-label">WhatsApp Number <span>*</span></label>
+                <input type="tel" id="phone-input" class="form-input" placeholder="e.g. 919876543210">
+                <span class="form-input-note">Country code + number, no spaces, no + (e.g. 91 for India).</span>
+                <div id="phone-input-error" class="form-input-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="address-input" class="form-label">Delivery Address <span>*</span></label>
+                <textarea id="address-input" class="form-input" rows="3" style="resize:vertical;font-family:var(--font-body);" placeholder="Street, City, State, Pincode"></textarea>
+                <div id="address-input-error" class="form-input-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="qty-input" class="form-label">Quantity <span>*</span></label>
+                <input type="number" id="qty-input" class="form-input" min="1" value="1" style="font-family:var(--font-mono);">
+                <div id="qty-input-error" class="form-input-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="notes-input" class="form-label">Special Instructions (Optional)</label>
+                <textarea id="notes-input" class="form-input" rows="2" style="resize:vertical;font-family:var(--font-body);" placeholder="e.g. Print slightly higher on the chest."></textarea>
+              </div>
+            </form>
+
+            <!-- PART E: Order Summary -->
+            <div class="designer-card">
+              <h3 class="designer-card-title">ORDER SUMMARY</h3>
+
+              <div class="summary-row">
+                <span class="summary-row-label">Product</span>
+                <span id="sum-product-name" class="summary-row-val">White T-Shirt</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row-label">Color</span>
+                <span id="sum-color" class="summary-row-val">WHITE</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row-label">Size</span>
+                <span id="sum-size" class="summary-row-val">None Selected</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row-label">Quantity</span>
+                <span id="sum-qty" class="summary-row-val">1</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row-label">Custom Design</span>
+                <span id="sum-design" class="summary-row-val">No Design (Optional)</span>
+              </div>
+              <div class="summary-row total">
+                <span class="summary-row-label" style="color:var(--color-white);">TOTAL</span>
+                <span id="sum-total" style="color:var(--color-accent);">₹499</span>
+              </div>
+
+              <button type="submit" form="order-form" id="place-order-btn" class="btn btn-accent btn-press-feedback btn-ripple" style="width:100%;margin-top:1.5rem;">
+                Place Order
+              </button>
+              <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--color-text-secondary);text-align:center;margin-top:var(--spacing-sm);">
+                Clicking Place Order opens WhatsApp to send your order details to us.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">CRAZY<span>CLOTHS</span></div>
+          <p style="max-width:320px;font-size:0.9rem;">Streetwear-focused premium t-shirts customized with your uploaded graphics.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="product.html">Shop</a></li>
+            <li><a href="index.html#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="mailto:support@crazycloths.com">Contact Us</a></li>
+            <li><a href="login.html">My Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Crazy Cloths. All rights reserved.</p>
+        <p style="color:var(--color-text-secondary);">Designed for the bold</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <!-- Store scripts -->
+  <script src="config.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/uploader.js"></script>
+  <script src="js/whatsapp.js"></script>
+  <script src="js/email.js"></script>
+  <script src="js/order.js"></script>
+</body>
+</html>

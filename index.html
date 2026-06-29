@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Wear Your Vision</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-container">
+      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+      
+      <!-- Desktop Navigation -->
+      <nav class="desktop-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link active">Home</a></li>
+          <li><a href="product.html" class="nav-link">Shop</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#collection" class="nav-link">Products</a></li>
+          <li><a href="login.html" class="nav-link">Login</a></li>
+        </ul>
+      </nav>
+
+      <!-- Hamburger toggle on Mobile -->
+      <button class="menu-toggle" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <nav class="mobile-drawer">
+    <ul>
+      <li><a href="index.html" class="nav-link active">Home</a></li>
+      <li><a href="product.html" class="nav-link">Shop</a></li>
+      <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+      <li><a href="#collection" class="nav-link">Products</a></li>
+      <li><a href="login.html" class="nav-link">Login</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <!-- Background mockup image -->
+      <div class="hero-bg" style="background-image: url('assets/images/black-tee.png');"></div>
+      <div class="hero-bg-overlay"></div>
+
+      <div class="container hero-content">
+        <div class="hero-inner">
+          <div class="hero-title-container">
+            <h1 class="hero-title anim-slam-down">WEAR YOUR</h1>
+          </div>
+          <div class="hero-title-container" style="margin-bottom: 2rem;">
+            <h1 class="hero-title anim-slam-up" style="color: var(--color-accent);">VISION</h1>
+          </div>
+          <p class="hero-subhead anim-fade-in-up delay-1">
+            Custom black & white premium organic cotton T-Shirts. Your design, your rules. Upload your image, checkout instantly via WhatsApp.
+          </p>
+          <div class="hero-ctas anim-fade-in-up delay-2">
+            <a href="product.html?color=white" class="btn btn-primary btn-press-feedback">Order White T-Shirt</a>
+            <a href="product.html?color=black" class="btn btn-secondary btn-press-feedback">Order Black T-Shirt</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section id="how-it-works" class="page-section reveal-on-scroll">
+      <div class="container">
+        <h2 style="font-size: 3rem; margin-bottom: 3rem; text-align: center;">HOW IT WORKS</h2>
+        
+        <div class="grid-3">
+          <!-- Step 1 -->
+          <div class="step-card reveal-on-scroll stagger-1">
+            <div class="step-num">01</div>
+            <div>
+              <h3 class="step-title">UPLOAD DESIGN</h3>
+              <p>Drop your JPG, PNG, or SVG image. We accept high-resolution files up to 10MB.</p>
+            </div>
+          </div>
+          
+          <!-- Step 2 -->
+          <div class="step-card reveal-on-scroll stagger-2">
+            <div class="step-num">02</div>
+            <div>
+              <h3 class="step-title">CHOOSE COLOR</h3>
+              <p>Toggle between our heavy-weight Paper White or Ink Black premium cotton shirts.</p>
+            </div>
+          </div>
+          
+          <!-- Step 3 -->
+          <div class="step-card reveal-on-scroll stagger-3">
+            <div class="step-num">03</div>
+            <div>
+              <h3 class="step-title">PLACE ORDER</h3>
+              <p>Confirm the details and checkout. Your order is formatted and sent directly to us on WhatsApp.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT CATALOG SHOWCASE -->
+    <section id="collection" class="page-section reveal-on-scroll">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 4rem;">
+          <h2 style="font-size: 3rem;">THE COLLECTION</h2>
+          <p style="max-width: 500px; margin: 1rem auto 0; font-family: var(--font-mono); font-size: 0.85rem;">
+            Heavyweight knit cotton. Perfect tailored shoulders. Pre-shrunk for shape retention.
+          </p>
+        </div>
+
+        <!-- Dynamic product grid from Firestore -->
+        <div class="grid-2" id="product-grid" style="max-width: 900px; margin: 0 auto;">
+          <!-- Skeleton loaders shown while Firestore fetches -->
+          <!-- Fallback static cards (shown when Firebase not configured) -->
+          <div class="product-card card-hover-lift reveal-on-scroll stagger-1" id="static-card-white">
+            <div class="product-image-wrapper">
+              <img src="assets/images/white-tee.png" alt="Crazy Cloths White Custom T-Shirt" loading="lazy">
+            </div>
+            <div class="product-info">
+              <span class="product-meta">100% Cotton · 220 GSM · White</span>
+              <h3 class="product-title">White Vision T-Shirt</h3>
+              <p>Clean, crisp, double-needle stitched neck ribbing. Bright optical white fabric base.</p>
+              <div class="product-price">₹499</div>
+              <a href="product.html?color=white" class="btn btn-accent btn-press-feedback" style="margin-top: auto;">Customize &amp; Order</a>
+            </div>
+          </div>
+
+          <div class="product-card card-hover-lift reveal-on-scroll stagger-2 product-card--black" id="static-card-black">
+            <div class="product-image-wrapper">
+              <img src="assets/images/black-tee.png" alt="Crazy Cloths Black Custom T-Shirt" loading="lazy">
+            </div>
+            <div class="product-info">
+              <span class="product-meta">100% Cotton · 240 GSM · Black</span>
+              <h3 class="product-title">Black Vision T-Shirt</h3>
+              <p>Ultra-dense, rich matte black fabric base. Structured fit that maintains drape wash after wash.</p>
+              <div class="product-price">₹499</div>
+              <a href="product.html?color=black" class="btn btn-accent btn-press-feedback" style="margin-top: auto;">Customize &amp; Order</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIAL MARQUEE -->
+    <section class="marquee-container reveal-on-scroll">
+      <div class="marquee-content">
+        <div class="marquee-item">"The print detail holds up amazing even after 10 washes."<span>— RAHUL K.</span></div>
+        <div class="marquee-item">"Best custom street-wear fit I have found online."<span>— ARYAN M.</span></div>
+        <div class="marquee-item">"WhatsApp ordering was super simple, got order confirmed in minutes."<span>— SIMRAN S.</span></div>
+        <div class="marquee-item">"Fabric weight is solid, doesn't feel thin or cheap."<span>— HARSH V.</span></div>
+        <div class="marquee-item">"The print detail holds up amazing even after 10 washes."<span>— RAHUL K.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">CRAZY<span>CLOTHS</span></div>
+          <p style="max-width: 320px; font-size: 0.9rem;">
+            Streetwear-focused premium t-shirts customized with your uploaded graphics. No templates, no limits.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="product.html">Customize</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#care">Garment Care</a></li>
+            <li><a href="#faq">Delivery FAQ</a></li>
+            <li><a href="mailto:support@crazycloths.com">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Crazy Cloths. All rights reserved.</p>
+        <p style="color: var(--color-text-secondary);">Designed for the bold</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <!-- Store scripts -->
+  <script src="config.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    // Load Firestore products if Firebase is enabled;
+    // otherwise the static fallback cards remain visible.
+    document.addEventListener('DOMContentLoaded', () => {
+      if (CONFIG.firebaseEnabled && typeof firebase !== 'undefined') {
+        // Hide static fallback cards
+        ['static-card-white','static-card-black'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        ProductsService.load('product-grid', (product) => {
+          window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Admin Dashboard</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .admin-nav {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .admin-nav a {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      color: var(--color-text-secondary);
+      transition: color 0.2s ease;
+    }
+    .admin-nav a.active, .admin-nav a:hover {
+      color: var(--color-accent);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .stat-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      padding: 2rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      color: var(--color-white);
+      margin-bottom: 0.5rem;
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body data-page="dashboard">
+
+  <div class="admin-container">
+    <header class="admin-header">
+      <a href="../index.html" class="logo">CRAZY<span>CLOTHS</span> <span style="font-size:0.8rem;font-family:var(--font-mono);color:var(--color-text-secondary);margin-left:0.5rem;">[ADMIN]</span></a>
+      <div style="display:flex;align-items:center;gap:1.5rem;">
+        <span id="admin-email-display" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-text-secondary);"></span>
+        <button id="logout-btn" class="btn btn-secondary" style="padding:0.5rem 1rem;font-size:0.85rem;">Logout</button>
+      </div>
+    </header>
+
+    <nav class="admin-nav">
+      <a href="dashboard.html" class="active">Overview</a>
+      <a href="products.html">Products Catalog</a>
+      <a href="../index.html">View Storefront</a>
+    </nav>
+
+    <main>
+      <h2 style="font-family:var(--font-display);font-size:2rem;margin-bottom:2rem;text-transform:uppercase;">Store Overview</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="stat-total-products" class="stat-value">-</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-orders-today" class="stat-value">-</div>
+          <div class="stat-label">Orders Today</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-orders-total" class="stat-value">-</div>
+          <div class="stat-label">Total Orders (All Time)</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  
+  <script src="../config.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Order Confirmed</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-container">
+      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+      
+      <!-- Desktop Navigation -->
+      <nav class="desktop-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="product.html" class="nav-link">Customize</a></li>
+          <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="index.html#collection" class="nav-link">Products</a></li>
+        </ul>
+      </nav>
+
+      <!-- Hamburger toggle on Mobile -->
+      <button class="menu-toggle" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <nav class="mobile-drawer">
+    <ul>
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="product.html" class="nav-link">Customize</a></li>
+      <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+      <li><a href="index.html#collection" class="nav-link">Products</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="success-container">
+      <div class="success-card reveal-on-scroll revealed">
+        <!-- SVG Stroke checkmark -->
+        <div class="success-icon-wrapper anim-fade-in-up">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" class="success-checkmark"></polyline>
+          </svg>
+        </div>
+
+        <h1 class="success-title anim-slam-down delay-1">ORDER CONFIRMED</h1>
+        
+        <p class="anim-fade-in-up delay-2" style="max-width: 480px;">
+          Your order has been sent to us via WhatsApp! We will check your design, confirm payment details, and reach out to you within 24 hours.
+        </p>
+
+        <!-- Dynamic Order Summary Receipt -->
+        <div id="receipt-details" class="success-details anim-fade-in-up delay-2">
+          <div class="success-details-row">
+            <span class="success-details-label">Order Reference</span>
+            <span id="ref-order-id" class="success-details-val">#CC-XXXXXXXXXX</span>
+          </div>
+          
+          <div class="success-details-row">
+            <span class="success-details-label">Custom Garment</span>
+            <span id="ref-color-size" class="success-details-val">WHITE / M</span>
+          </div>
+
+          <div class="success-details-row">
+            <span class="success-details-label">Quantity</span>
+            <span id="ref-qty" class="success-details-val">1</span>
+          </div>
+
+          <div class="success-details-row" style="border-top: 1px dashed var(--color-border); padding-top: var(--spacing-sm); margin-top: 4px;">
+            <span class="success-details-label" style="color: var(--color-white); font-weight: 600;">Amount Total</span>
+            <span id="ref-total" class="success-details-val" style="color: var(--color-accent); font-weight: 700;">₹599</span>
+          </div>
+        </div>
+
+        <div class="anim-fade-in-up delay-3" style="width: 100%; margin-top: var(--spacing-sm);">
+          <a href="product.html" class="btn btn-primary btn-press-feedback" style="width: 100%;">
+            Order Another
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">CRAZY<span>CLOTHS</span></div>
+          <p style="max-width: 320px; font-size: 0.9rem;">
+            Streetwear-focused premium t-shirts customized with your uploaded graphics. No templates, no limits.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="product.html">Customize</a></li>
+            <li><a href="index.html#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#care">Garment Care</a></li>
+            <li><a href="#faq">Delivery FAQ</a></li>
+            <li><a href="mailto:support@crazycloths.com">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Crazy Cloths. All rights reserved.</p>
+        <p style="color: var(--color-text-secondary);">Designed for the bold</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/animations.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const orderData = localStorage.getItem('crazy_cloths_last_order');
+        if (orderData) {
+          const order = JSON.parse(orderData);
+          document.getElementById('ref-order-id').textContent = '#' + order.orderId;
+          document.getElementById('ref-color-size').textContent = `${order.color.toUpperCase()} / ${order.size}`;
+          document.getElementById('ref-qty').textContent = order.quantity;
+          document.getElementById('ref-total').textContent = order.total;
+        } else {
+          // If no order data exists in storage (e.g. direct access), hide the receipt card
+          document.getElementById('receipt-details').style.display = 'none';
+        }
+      } catch (e) {
+        console.error('Failed to load order receipt:', e);
+      }
+    });
+  </script>
+</body>
+</html>

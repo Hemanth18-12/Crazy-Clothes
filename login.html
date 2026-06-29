@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Login</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <div class="auth-page">
+    <div class="auth-card">
+
+      <!-- Logo -->
+      <div class="auth-logo">CRAZY<span>CLOTHS</span></div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" id="tab-customer" role="tab" aria-selected="true"
+                onclick="switchTab('customer')">Customer</button>
+        <button class="auth-tab" id="tab-admin" role="tab" aria-selected="false"
+                onclick="switchTab('admin')">Admin</button>
+      </div>
+
+      <!-- ── CUSTOMER PANEL ── -->
+      <div class="form-panel active" id="panel-customer">
+
+        <!-- Login sub-panel -->
+        <div id="sub-login">
+          <h2 class="auth-form-title">Welcome Back</h2>
+          <div id="customer-msg" class="auth-message"></div>
+
+          <div class="input-group">
+            <input type="email" id="cust-email" placeholder=" " autocomplete="email">
+            <label for="cust-email">Email Address</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="cust-password" placeholder=" " autocomplete="current-password">
+            <label for="cust-password">Password</label>
+          </div>
+
+          <button class="btn btn-accent btn-full btn-press-feedback" onclick="handleCustomerLogin()">
+            Login
+          </button>
+
+          <p class="auth-toggle-link">
+            Don't have an account? <span onclick="showRegister()">Register here</span>
+          </p>
+        </div>
+
+        <!-- Register sub-panel (hidden by default) -->
+        <div id="sub-register" style="display:none;">
+          <h2 class="auth-form-title">Create Account</h2>
+          <div id="register-msg" class="auth-message"></div>
+
+          <div class="input-group">
+            <input type="text" id="reg-name" placeholder=" " autocomplete="name">
+            <label for="reg-name">Full Name</label>
+          </div>
+          <div class="input-group">
+            <input type="email" id="reg-email" placeholder=" " autocomplete="email">
+            <label for="reg-email">Email Address</label>
+          </div>
+          <div class="input-group">
+            <input type="tel" id="reg-phone" placeholder=" " autocomplete="tel">
+            <label for="reg-phone">Phone Number</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="reg-password" placeholder=" " autocomplete="new-password">
+            <label for="reg-password">Password</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="reg-confirm" placeholder=" " autocomplete="new-password">
+            <label for="reg-confirm">Confirm Password</label>
+          </div>
+
+          <button class="btn btn-accent btn-full btn-press-feedback" onclick="handleRegister()">
+            Create Account
+          </button>
+          <p class="auth-toggle-link">
+            Already have an account? <span onclick="showLogin()">Login here</span>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- ── ADMIN PANEL ── -->
+      <div class="form-panel" id="panel-admin">
+        <h2 class="auth-form-title">Admin Access</h2>
+        <div id="admin-msg" class="auth-message"></div>
+
+        <div class="input-group">
+          <input type="email" id="admin-email" placeholder=" " autocomplete="email">
+          <label for="admin-email">Admin Email</label>
+        </div>
+        <div class="input-group">
+          <input type="password" id="admin-password" placeholder=" " autocomplete="current-password">
+          <label for="admin-password">Password</label>
+        </div>
+
+        <button class="btn btn-accent btn-full btn-press-feedback" onclick="handleAdminLogin()">
+          Admin Login
+        </button>
+        <p style="font-family:var(--font-mono);font-size:0.68rem;color:var(--color-text-secondary);text-align:center;margin-top:1rem;">
+          Access restricted to authorised staff only.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="config.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    // ── Redirect if already logged in ──────────────────────
+    if (typeof firebase !== 'undefined' && CONFIG.firebaseEnabled) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+        const redirect = sessionStorage.getItem('cc_redirect_after_login');
+        if (redirect) {
+          sessionStorage.removeItem('cc_redirect_after_login');
+          window.location.href = redirect;
+        } else if (AuthService.isAdmin()) {
+          window.location.href = 'admin/dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    }
+
+    // ── Tab switching ──────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => {
+        p.classList.add('exiting');
+        setTimeout(() => { p.classList.remove('active','exiting'); }, 200);
+      });
+
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      setTimeout(() => {
+        document.getElementById(`panel-${tab}`).classList.add('active');
+      }, 220);
+    }
+
+    function showRegister() {
+      document.getElementById('sub-login').style.display = 'none';
+      document.getElementById('sub-register').style.display = 'flex';
+      document.getElementById('sub-register').style.flexDirection = 'column';
+    }
+
+    function showLogin() {
+      document.getElementById('sub-register').style.display = 'none';
+      document.getElementById('sub-login').style.display = 'block';
+    }
+
+    // ── Helpers ───────────────────────────────────────────
+    function showMsg(id, msg, type = 'error') {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = `auth-message ${type} visible`;
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.textContent = loading ? 'Please wait...' : btn.dataset.label || btn.textContent;
+    }
+
+    // ── Handlers ─────────────────────────────────────────
+    async function handleCustomerLogin() {
+      const email    = document.getElementById('cust-email').value.trim();
+      const password = document.getElementById('cust-password').value;
+      if (!email || !password) { showMsg('customer-msg','Please fill in all fields.'); return; }
+      try {
+        await AuthService.loginCustomer(email, password);
+        const redirect = sessionStorage.getItem('cc_redirect_after_login');
+        sessionStorage.removeItem('cc_redirect_after_login');
+        window.location.href = redirect || 'index.html';
+      } catch (e) {
+        showMsg('customer-msg', e.message || 'Login failed. Please try again.');
+      }
+    }
+
+    async function handleRegister() {
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const phone    = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm  = document.getElementById('reg-confirm').value;
+      if (!name || !email || !password || !confirm) { showMsg('register-msg','Please fill in all fields.'); return; }
+      if (password !== confirm) { showMsg('register-msg','Passwords do not match.'); return; }
+      if (password.length < 6)  { showMsg('register-msg','Password must be at least 6 characters.'); return; }
+      try {
+        await AuthService.registerCustomer(name, email, phone, password);
+        showMsg('register-msg','Account created! Redirecting...', 'success');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+      } catch (e) {
+        showMsg('register-msg', e.message || 'Registration failed.');
+      }
+    }
+
+    async function handleAdminLogin() {
+      const email    = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+      if (!email || !password) { showMsg('admin-msg','Please enter your admin email and password.'); return; }
+      try {
+        await AuthService.loginAdmin(email, password);
+        window.location.href = 'admin/dashboard.html';
+      } catch (e) {
+        showMsg('admin-msg', e.message || 'Admin login failed.');
+      }
+    }
+  </script>
+
+</body>
+</html>
