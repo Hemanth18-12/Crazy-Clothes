@@ -57,6 +57,36 @@ const AuthService = {
   },
 
   /**
+   * Login or Register via Google Sign-In
+   */
+  async loginWithGoogle() {
+    if (typeof firebase === 'undefined') {
+      throw new Error('Firebase is not configured. Please fill in js/firebase-config.js');
+    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const cred = await firebase.auth().signInWithPopup(provider);
+    
+    // Save profile to Firestore users collection if they don't exist yet
+    try {
+      const db = firebase.firestore();
+      const userDoc = await db.collection('users').doc(cred.user.uid).get();
+      if (!userDoc.exists) {
+        await db.collection('users').doc(cred.user.uid).set({
+          name: cred.user.displayName || cred.user.email.split('@')[0],
+          email: cred.user.email,
+          phone: cred.user.phoneNumber || 'N/A',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    } catch (e) {
+      console.warn('Firestore profile check/save failed:', e);
+    }
+
+    setSession(cred.user);
+    return cred.user;
+  },
+
+  /**
    * Admin login — checks allowlist BEFORE hitting Firebase
    */
   async loginAdmin(email, password) {
