@@ -4,20 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crazy Cloths — Admin Dashboard</title>
-  
-  <!-- Inline Script to prevent theme flash -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
 
+  <!-- Auth guard script loaded at the very top -->
+  <script src="js/admin-auth.js"></script>
+
+  <!-- External/Local Fonts and Styles -->
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/pages.css">
+  
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body data-page="dashboard">
 
@@ -27,18 +26,26 @@
   <!-- Page Transition Overlay -->
   <div class="page-transition-overlay" id="page-transition-overlay"></div>
 
-
-
   <div class="admin-layout">
-    <!-- Fixed Left Sidebar -->
-    <aside class="admin-sidebar">
-      <div class="admin-logo">CRAZY<span>CLOTHS</span></div>
+    
+    <!-- FIXED LEFT SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-logo-area">
+        <div class="admin-sidebar-logo">CRAZY<span>CLOTHS</span></div>
+        <div class="admin-badge-red">Admin</div>
+      </div>
       
       <ul class="admin-nav-list">
         <li class="admin-nav-item active">
           <a href="dashboard.html">
-            <span class="icon">📊</span>
-            <span>Overview</span>
+            <span class="icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="orders.html">
+            <span class="icon">📦</span>
+            <span>Orders</span>
           </a>
         </li>
         <li class="admin-nav-item">
@@ -48,55 +55,157 @@
           </a>
         </li>
         <li class="admin-nav-item">
-          <a href="../index.html">
-            <span class="icon">🌐</span>
-            <span>Storefront</span>
+          <a href="users.html">
+            <span class="icon">👥</span>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="#" onclick="AuthService.logout()">
+            <span class="icon">🚪</span>
+            <span>Logout</span>
           </a>
         </li>
       </ul>
 
-      <div class="admin-user-info">
-        <div class="admin-avatar" id="admin-avatar">A</div>
-        <div style="display: flex; flex-direction: column; overflow: hidden;">
-          <span style="font-family: var(--font-display); font-size: 1rem; color: #ffffff; text-transform: uppercase;">Admin</span>
-          <span id="admin-email-display" style="font-family:var(--font-mono);font-size:0.7rem;color:#666666;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;"></span>
+      <!-- Logged-in admin profile footer -->
+      <div class="admin-sidebar-profile">
+        <div class="admin-profile-avatar" id="admin-avatar-circle">A</div>
+        <div class="admin-profile-info">
+          <span class="admin-profile-name">Administrator</span>
+          <span class="admin-profile-email" id="admin-email-display">admin@crazycloths.com</span>
         </div>
       </div>
-      
-      <button id="logout-btn" class="btn btn-secondary" style="margin-top:1.5rem;padding:0.6rem 1rem;font-size:0.85rem;width:100%;">Logout</button>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="admin-main">
-      <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 3rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem;">
-        <h2 style="font-family:var(--font-display);font-size:3rem;text-transform:uppercase;letter-spacing:0.05em;margin:0;">Store Overview</h2>
-        
-        <!-- Theme Toggle -->
-        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
-          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-          </svg>
-          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        </button>
-      </header>
+    <!-- Mobile Drawer Backdrop -->
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="admin-content-wrapper">
       
-      <div class="stats-grid">
-        <div class="stat-card reveal-on-scroll stagger-1">
-          <div id="stat-total-products" class="stat-value">-</div>
-          <div class="stat-label">Total Products</div>
+      <!-- FIXED TOPBAR -->
+      <header class="admin-topbar">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <button class="admin-mobile-toggle" onclick="toggleMobileSidebar(true)" aria-label="Open Sidebar">☰</button>
+          <h2 class="admin-page-title">Dashboard</h2>
         </div>
-        <div class="stat-card reveal-on-scroll stagger-2">
-          <div id="stat-orders-today" class="stat-value">-</div>
-          <div class="stat-label">Orders Today</div>
+
+        <div class="admin-topbar-right">
+          <!-- Live clock (JS) -->
+          <div class="admin-live-clock" id="topbar-clock">Loading time...</div>
+          
+          <!-- Notification Bell -->
+          <button class="admin-notification-bell" id="topbar-bell" aria-label="Notifications" onclick="window.location.href='orders.html'">
+            🔔
+            <span class="admin-notification-badge" id="topbar-bell-badge" style="display:none;">0</span>
+          </button>
         </div>
-        <div class="stat-card reveal-on-scroll stagger-3">
-          <div id="stat-orders-total" class="stat-value">-</div>
-          <div class="stat-label">Total Orders (All Time)</div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="admin-main-content">
+        
+        <!-- STATS CARDS ROW (4 cards) -->
+        <div class="admin-stats-row">
+          
+          <!-- Card 1 — Total Orders -->
+          <div class="admin-stat-card accent-red">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Total Orders</span>
+              <span class="admin-stat-icon">📦</span>
+            </div>
+            <div class="admin-stat-number" id="dashboard-total-orders">0</div>
+          </div>
+
+          <!-- Card 2 — Today's Orders -->
+          <div class="admin-stat-card accent-orange">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Today's Orders</span>
+              <span class="admin-stat-icon">🗓️</span>
+            </div>
+            <div class="admin-stat-number" id="dashboard-today-orders">0</div>
+          </div>
+
+          <!-- Card 3 — Total Users -->
+          <div class="admin-stat-card accent-blue">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Total Users</span>
+              <span class="admin-stat-icon">👥</span>
+            </div>
+            <div class="admin-stat-number" id="dashboard-total-users">0</div>
+          </div>
+
+          <!-- Card 4 — Total Products -->
+          <div class="admin-stat-card accent-green">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Total Products</span>
+              <span class="admin-stat-icon">👕</span>
+            </div>
+            <div class="admin-stat-number" id="dashboard-total-products">0</div>
+          </div>
+
         </div>
-      </div>
-    </main>
+
+        <!-- CHARTS ROW -->
+        <div class="admin-charts-row">
+          
+          <!-- Chart 1: Orders This Week -->
+          <div class="admin-chart-card">
+            <h3 class="admin-chart-title">Orders This Week</h3>
+            <div class="admin-chart-canvas-container">
+              <canvas id="orders-weekly-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Top Products Ordered -->
+          <div class="admin-chart-card">
+            <h3 class="admin-chart-title">Top Product Types</h3>
+            <div class="admin-chart-canvas-container">
+              <canvas id="products-top-chart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RECENT ORDERS TABLE -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-chart-title" style="margin-bottom:0;">Recent Orders</h3>
+            <button class="admin-btn admin-btn-secondary" onclick="window.location.href='orders.html'">View All Orders</button>
+          </div>
+          
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer Name</th>
+                  <th>Product</th>
+                  <th>Color</th>
+                  <th>Price</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders-table-body">
+                <tr>
+                  <td colspan="7" style="text-align:center;">Loading recent orders...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ORDER DETAIL MODAL CONTAINER (Loaded for openOrderModal helper) -->
+  <div class="admin-modal-backdrop" id="order-detail-modal-backdrop" onclick="closeOrderModal()">
+    <div class="admin-modal" id="order-detail-modal-content" onclick="event.stopPropagation()">
+      <!-- Loaded dynamically -->
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -107,72 +216,304 @@
   <script src="../config.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
-  <script src="../js/admin.js"></script>
+  
+  <!-- Orders controller scripts containing global clock & real-time notification engine -->
+  <script src="js/admin-orders.js"></script>
 
-  <!-- Interactive/Visual Scripting -->
+  <!-- Local Script: Dashboard specific data loading and pure JS charts -->
   <script>
-    // Stats Count Up Animation
-    function animateValue(obj, start, end, duration) {
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerHTML = Math.floor(progress * (end - start) + start);
+    // Toggle Mobile Sidebar
+    function toggleMobileSidebar(show) {
+      const sidebar = document.getElementById('admin-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (show) {
+        sidebar.classList.add('active');
+        backdrop.classList.add('active');
+      } else {
+        sidebar.classList.remove('active');
+        backdrop.classList.remove('active');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load user profile details
+      if (typeof AuthService !== 'undefined') {
+        const email = AuthService.getEmail() || 'admin@crazycloths.com';
+        document.getElementById('admin-email-display').textContent = email;
+        const initial = email.charAt(0).toUpperCase();
+        document.getElementById('admin-avatar-circle').textContent = initial;
+      }
+
+      loadDashboardData();
+    });
+
+    // Animate numbers counting up on load
+    function animateCounter(id, endValue) {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      let start = 0;
+      let duration = 1500;
+      let startTime = null;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        // Ease-out calculation
+        const easeVal = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        obj.textContent = Math.floor(easeVal * endValue);
         if (progress < 1) {
           window.requestAnimationFrame(step);
+        } else {
+          obj.textContent = endValue;
         }
-      };
+      }
       window.requestAnimationFrame(step);
     }
 
-    // Monitor value changes from Firebase to trigger count up
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        const val = parseInt(mutation.target.textContent);
-        if (!isNaN(val) && !mutation.target.dataset.animated) {
-          mutation.target.dataset.animated = "true";
-          animateValue(mutation.target, 0, val, 1200);
-        }
-      });
-    });
+    async function loadDashboardData() {
+      if (typeof firebase === 'undefined' || !CONFIG.firebaseEnabled) return;
+      const db = firebase.firestore();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      ['stat-total-products', 'stat-orders-today', 'stat-orders-total'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) observer.observe(el, { childList: true });
-      });
+      try {
+        // 1. Fetch products count
+        const prodsSnap = await db.collection('products').get();
+        animateCounter('dashboard-total-products', prodsSnap.size);
 
-      // Theme Toggle Logic
-      const themeToggle = document.getElementById('theme-toggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', newTheme);
-          localStorage.setItem('cc_theme', newTheme);
-        });
-      }
+        // 2. Fetch users count
+        const usersSnap = await db.collection('users').get();
+        animateCounter('dashboard-total-users', usersSnap.size);
 
+        // 3. Fetch orders (all-time & today)
+        const ordersSnap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+        const totalOrders = ordersSnap.size;
+        animateCounter('dashboard-total-orders', totalOrders);
 
+        // Today's orders filter (same day)
+        const todayStr = new Date().toISOString().split('T')[0];
+        let todayOrdersCount = 0;
+        let recentOrders = [];
+        let weekCounts = [0, 0, 0, 0, 0, 0, 0]; // Sun - Sat
+        let productTypeCounts = {}; // Counts for charts
 
-      // Page Transition Sweep
-      const overlay = document.getElementById('page-transition-overlay');
-      if (overlay) {
-        overlay.classList.add('active-out');
-        setTimeout(() => { overlay.classList.remove('active-out'); }, 600);
-        
-        const links = document.querySelectorAll('a');
-        links.forEach(link => {
-          const href = link.getAttribute('href');
-          if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !link.getAttribute('target')) {
-            link.addEventListener('click', (e) => {
-              e.preventDefault();
-              overlay.classList.add('active-in');
-              setTimeout(() => { window.location.href = href; }, 550);
-            });
+        ordersSnap.forEach((doc, index) => {
+          const order = doc.data();
+          const createdAt = order.createdAt;
+
+          if (createdAt) {
+            // Count today's orders
+            if (createdAt.split('T')[0] === todayStr) {
+              todayOrdersCount++;
+            }
+
+            // Distribute across days of this week
+            const orderDate = new Date(createdAt);
+            const daysDiff = (new Date() - orderDate) / (1000 * 60 * 60 * 24);
+            if (daysDiff <= 7) {
+              const dayIndex = orderDate.getDay(); // 0 is Sunday
+              weekCounts[dayIndex]++;
+            }
+
+            // Product distribution
+            const type = order.productName || 'T-Shirt';
+            productTypeCounts[type] = (productTypeCounts[type] || 0) + (order.quantity || 1);
+          }
+
+          // Gather last 10 orders
+          if (recentOrders.length < 10) {
+            recentOrders.push({ id: doc.id, ...order });
           }
         });
+
+        animateCounter('dashboard-today-orders', todayOrdersCount);
+
+        // Render recent orders table
+        renderRecentOrdersTable(recentOrders);
+
+        // Draw Canvas Charts
+        drawWeeklyChart(weekCounts);
+        drawProductsChart(productTypeCounts);
+
+      } catch (err) {
+        console.error("Dashboard statistics loading failed:", err);
       }
+    }
+
+    function renderRecentOrdersTable(orders) {
+      const tbody = document.getElementById('recent-orders-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--admin-text-muted);">No orders placed yet.</td></tr>';
+        return;
+      }
+
+      orders.forEach((o, index) => {
+        const tr = document.createElement('tr');
+        tr.style.animationDelay = `${index * 40}ms`;
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', () => {
+          if (window.openOrderModal) window.openOrderModal(o.id);
+        });
+
+        const orderIdDisplay = o.orderId || o.id.slice(0, 8);
+        const dateFormatted = o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A';
+        const statusVal = o.status || 'Pending';
+
+        tr.innerHTML = `
+          <td class="admin-table-mono">#${orderIdDisplay}</td>
+          <td style="font-weight:600;">${o.customerName || 'Anonymous'}</td>
+          <td>${o.productName || 'T-Shirt'}</td>
+          <td><span class="admin-table-mono">${o.color || 'white'}</span></td>
+          <td class="admin-table-mono" style="font-weight:600;">₹${o.price || 499}</td>
+          <td class="admin-table-mono">${dateFormatted}</td>
+          <td><span class="badge ${statusVal.toLowerCase()}">${statusVal}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  PURE CANVAS WEEKLY BAR CHART (last 7 days order count)
+    // ────────────────────────────────────────────────────────────
+    function drawWeeklyChart(data) {
+      const canvas = document.getElementById('orders-weekly-chart');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      // Set resolution manually for crisp display
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 260;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const padding = 40;
+
+      // Draw Grid & Background
+      ctx.fillStyle = '#141414';
+      ctx.fillRect(0, 0, width, height);
+
+      // Days array labels
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Reorder days so today is on the far right
+      const today = new Date().getDay();
+      let orderedDays = [];
+      let orderedData = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = (today - i + 7) % 7;
+        orderedDays.push(days[d]);
+        orderedData.push(data[d]);
+      }
+
+      const maxVal = Math.max(...orderedData, 5); // Default scale max of 5 at least
+
+      // Draw axes
+      ctx.strokeStyle = '#2A2A2A';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding, height - padding);
+      ctx.lineTo(width - padding, height - padding);
+      ctx.stroke();
+
+      // Plot bars
+      const barCount = 7;
+      const chartWidth = width - padding * 2;
+      const chartHeight = height - padding * 2;
+      const spacing = 15;
+      const barWidth = (chartWidth / barCount) - spacing;
+
+      for (let i = 0; i < barCount; i++) {
+        const barHeight = (orderedData[i] / maxVal) * chartHeight;
+        const x = padding + i * (barWidth + spacing) + spacing / 2;
+        const y = height - padding - barHeight;
+
+        // Draw bar
+        const gradient = ctx.createLinearGradient(0, y, 0, height - padding);
+        gradient.addColorStop(0, '#FF2D2D');
+        gradient.addColorStop(1, '#A01515');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Draw Labels
+        ctx.fillStyle = '#888888';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(orderedDays[i], x + barWidth / 2, height - padding + 15);
+
+        // Draw Value above bar
+        ctx.fillStyle = '#F5F5F5';
+        ctx.font = '11px JetBrains Mono';
+        ctx.fillText(orderedData[i], x + barWidth / 2, y - 8);
+      }
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  PURE CANVAS TOP PRODUCT HORIZONTAL BAR CHART
+    // ────────────────────────────────────────────────────────────
+    function drawProductsChart(data) {
+      const canvas = document.getElementById('products-top-chart');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 260;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const padding = 45;
+
+      ctx.fillStyle = '#141414';
+      ctx.fillRect(0, 0, width, height);
+
+      // Sort data
+      const items = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, 4); // Top 4
+      if (items.length === 0) {
+        // Draw empty state
+        ctx.fillStyle = '#888888';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('No product sales data yet.', width / 2, height / 2);
+        return;
+      }
+
+      const maxVal = Math.max(...items.map(item => item[1]), 1);
+      const chartWidth = width - padding * 2.5;
+      const chartHeight = height - padding * 2;
+      const barHeight = Math.min(25, chartHeight / 4 - 15);
+      const gap = (chartHeight - barHeight * items.length) / (items.length - 1 || 1);
+
+      items.forEach((item, i) => {
+        const label = item[0];
+        const val = item[1];
+        const barWidth = (val / maxVal) * chartWidth;
+        const x = padding + 80;
+        const y = padding + i * (barHeight + gap);
+
+        // Draw Bar
+        const gradient = ctx.createLinearGradient(x, 0, x + barWidth, 0);
+        gradient.addColorStop(0, '#3B82F6');
+        gradient.addColorStop(1, '#22C55E');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Draw Label
+        ctx.fillStyle = '#F5F5F5';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'right';
+        ctx.fillText(label.length > 12 ? label.slice(0,10)+'...' : label, x - 10, y + barHeight / 2 + 4);
+
+        // Draw Value
+        ctx.fillStyle = '#F5F5F5';
+        ctx.font = '10px JetBrains Mono';
+        ctx.textAlign = 'left';
+        ctx.fillText(val, x + barWidth + 8, y + barHeight / 2 + 4);
+      });
+    }
+
+    // Handle resize chart adjustments
+    window.addEventListener('resize', () => {
+      loadDashboardData();
     });
   </script>
 </body>

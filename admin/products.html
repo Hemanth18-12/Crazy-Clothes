@@ -3,92 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crazy Cloths — Admin Products</title>
-  
-  <!-- Inline Script to prevent theme flash -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+  <title>Crazy Cloths — Products Catalog</title>
 
+  <!-- Auth guard script loaded at the very top -->
+  <script src="js/admin-auth.js"></script>
+
+  <!-- External/Local Fonts and Styles -->
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/pages.css">
   
-  <style>
-    /* Admin catalog overrides for modern streetwear cards */
-    .admin-product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .admin-product-card {
-      background-color: var(--color-surface);
-      border: 1px solid var(--color-border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transition: transform 0.3s, border-color 0.3s;
-      position: relative;
-    }
-    .admin-product-card:hover {
-      border-color: var(--color-accent);
-      transform: translateY(-4px);
-    }
-    .admin-product-img {
-      width: 100%;
-      aspect-ratio: 1.1;
-      overflow: hidden;
-      border-bottom: 1px solid var(--color-border);
-      background-color: var(--color-bg-2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .admin-product-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s;
-    }
-    .admin-product-card:hover .admin-product-img img {
-      transform: scale(1.04);
-    }
-    .admin-product-info {
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .admin-product-info strong {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      color: var(--color-text-primary);
-      letter-spacing: 0.03em;
-    }
-    .admin-product-info span {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--color-text-secondary);
-    }
-    .admin-product-actions {
-      padding: 1rem 1.25rem;
-      border-top: 1px solid var(--color-border);
-      display: flex;
-      gap: 0.75rem;
-      margin-top: auto;
-      background-color: var(--color-bg-3);
-    }
-    .admin-product-actions button {
-      flex: 1;
-      padding: 0.5rem;
-      font-size: 0.85rem;
-    }
-  </style>
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body data-page="products">
 
@@ -98,18 +26,26 @@
   <!-- Page Transition Overlay -->
   <div class="page-transition-overlay" id="page-transition-overlay"></div>
 
-
-
   <div class="admin-layout">
-    <!-- Fixed Left Sidebar -->
-    <aside class="admin-sidebar">
-      <div class="admin-logo">CRAZY<span>CLOTHS</span></div>
+    
+    <!-- FIXED LEFT SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-logo-area">
+        <div class="admin-sidebar-logo">CRAZY<span>CLOTHS</span></div>
+        <div class="admin-badge-red">Admin</div>
+      </div>
       
       <ul class="admin-nav-list">
         <li class="admin-nav-item">
           <a href="dashboard.html">
-            <span class="icon">📊</span>
-            <span>Overview</span>
+            <span class="icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="orders.html">
+            <span class="icon">📦</span>
+            <span>Orders</span>
           </a>
         </li>
         <li class="admin-nav-item active">
@@ -119,112 +55,166 @@
           </a>
         </li>
         <li class="admin-nav-item">
-          <a href="../index.html">
-            <span class="icon">🌐</span>
-            <span>Storefront</span>
+          <a href="users.html">
+            <span class="icon">👥</span>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="#" onclick="AuthService.logout()">
+            <span class="icon">🚪</span>
+            <span>Logout</span>
           </a>
         </li>
       </ul>
 
-      <div class="admin-user-info">
-        <div class="admin-avatar" id="admin-avatar">A</div>
-        <div style="display: flex; flex-direction: column; overflow: hidden;">
-          <span style="font-family: var(--font-display); font-size: 1rem; color: #ffffff; text-transform: uppercase;">Admin</span>
-          <span id="admin-email-display" style="font-family:var(--font-mono);font-size:0.7rem;color:#666666;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;"></span>
+      <!-- Logged-in admin profile footer -->
+      <div class="admin-sidebar-profile">
+        <div class="admin-profile-avatar" id="admin-avatar-circle">A</div>
+        <div class="admin-profile-info">
+          <span class="admin-profile-name">Administrator</span>
+          <span class="admin-profile-email" id="admin-email-display">admin@crazycloths.com</span>
         </div>
       </div>
-      
-      <button id="logout-btn" class="btn btn-secondary" style="margin-top:1.5rem;padding:0.6rem 1rem;font-size:0.85rem;width:100%;">Logout</button>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="admin-main">
-      <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 3rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem;">
-        <h2 style="font-family:var(--font-display);font-size:3rem;text-transform:uppercase;letter-spacing:0.05em;margin:0;">Products Catalog</h2>
-        
-        <div style="display:flex; align-items:center; gap: 1.5rem;">
-          <button class="btn btn-primary" onclick="toggleAddPanel(true)" style="padding: 0.6rem 1.5rem; font-size: 1rem;">+ Add Product</button>
+    <!-- Mobile Drawer Backdrop -->
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="admin-content-wrapper">
+      
+      <!-- FIXED TOPBAR -->
+      <header class="admin-topbar">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <button class="admin-mobile-toggle" onclick="toggleMobileSidebar(true)" aria-label="Open Sidebar">☰</button>
+          <h2 class="admin-page-title">Products Catalog</h2>
+        </div>
+
+        <div class="admin-topbar-right">
+          <div class="admin-live-clock" id="topbar-clock">Loading time...</div>
           
-          <!-- Theme Toggle -->
-          <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
-            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-            </svg>
-            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
+          <button class="admin-notification-bell" id="topbar-bell" aria-label="Notifications" onclick="window.location.href='orders.html'">
+            🔔
+            <span class="admin-notification-badge" id="topbar-bell-badge" style="display:none;">0</span>
           </button>
         </div>
       </header>
 
-      <!-- Slide-In Add Product Panel -->
-      <div class="admin-panel-backdrop" id="panel-backdrop" onclick="toggleAddPanel(false)"></div>
-      <div class="admin-slide-panel" id="add-product-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
-          <h3 style="font-family:var(--font-display); font-size: 2rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Add New Product</h3>
-          <button class="btn btn-secondary" onclick="toggleAddPanel(false)" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Close</button>
-        </div>
+      <!-- MAIN CONTENT -->
+      <main class="admin-main-content">
         
-        <div id="add-product-msg" class="auth-message"></div>
+        <!-- HEADER CONTROL BAR -->
+        <div class="admin-card" style="margin-bottom: 2rem; display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="admin-chart-title" style="margin:0;">Products List</h3>
+          <button class="admin-btn admin-btn-primary" onclick="toggleProductPanel(true)">
+            ➕ Add New Product
+          </button>
+        </div>
 
-        <form id="add-product-form" style="display:flex; flex-direction:column; gap: 1.5rem;">
-          <div class="form-group">
-            <label class="form-label" for="ap-name">Product Name</label>
-            <input type="text" id="ap-name" class="form-input" placeholder="e.g. Classic White T-Shirt" required>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-type">Product Type</label>
-            <select id="ap-type" class="form-select">
-              <option value="T-Shirt">T-Shirt</option>
-              <option value="Oversized T-Shirt">Oversized T-Shirt</option>
-              <option value="Hoodie">Hoodie</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-color">Color</label>
-            <select id="ap-color" class="form-select">
-              <option value="white">White</option>
-              <option value="black">Black</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-price">Price (₹)</label>
-            <input type="number" id="ap-price" class="form-input" min="1" value="499" required>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-stock">Stock Status</label>
-            <select id="ap-stock" class="form-select">
-              <option value="inStock">In Stock</option>
-              <option value="outOfStock">Out of Stock</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-custom">Customizable?</label>
-            <select id="ap-custom" class="form-select">
-              <option value="yes">Yes (Allow custom design upload)</option>
-              <option value="no">No (Plain shirt only)</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="ap-image">Product Image</label>
-            <input type="file" id="ap-image" class="form-input" accept="image/*" required>
-          </div>
+        <!-- PRODUCTS RESPONSIVE GRID -->
+        <div class="admin-products-grid" id="products-grid">
+          <!-- Loaded dynamically via admin-products.js -->
+        </div>
 
-          <button type="submit" id="add-product-btn" class="btn btn-accent btn-premium" style="margin-top: 1rem; width: 100%;">Add Product</button>
-        </form>
+      </main>
+    </div>
+  </div>
+
+  <!-- SLIDE-IN ADD/EDIT PRODUCT PANEL -->
+  <div class="admin-panel-backdrop" id="product-panel-backdrop" onclick="toggleProductPanel(false)"></div>
+  <div class="admin-slide-panel" id="product-slide-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; border-bottom:1px solid var(--admin-border); padding-bottom:1rem;">
+      <h3 class="admin-chart-title" id="panel-title" style="margin:0;">Add New Product</h3>
+      <button class="admin-btn admin-btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="toggleProductPanel(false)">Close</button>
+    </div>
+
+    <form id="product-form" style="display:flex; flex-direction:column; gap:1.25rem;">
+      
+      <!-- Product Name -->
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="product-name">Product Name *</label>
+        <input type="text" id="product-name" class="admin-input" style="width:100%;" placeholder="e.g. Classic Oversized Tee" required>
       </div>
 
-      <!-- Products Catalog Grid -->
-      <div class="admin-product-grid" id="admin-product-grid">
-        <!-- Loaded dynamically from admin.js -->
+      <!-- Product Type -->
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="product-type">Product Type *</label>
+        <select id="product-type" class="admin-select" style="width:100%;">
+          <option value="Oversized T-Shirt">Oversized T-Shirt</option>
+          <option value="Polo T-Shirt">Polo T-Shirt</option>
+          <option value="Round Neck T-Shirt">Round Neck T-Shirt</option>
+          <option value="Sleeveless T-Shirt">Sleeveless T-Shirt</option>
+          <option value="Full Sleeve T-Shirt">Full Sleeve T-Shirt</option>
+        </select>
       </div>
-    </main>
+
+      <!-- Color -->
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="product-color">Color *</label>
+        <select id="product-color" class="admin-select" style="width:100%;">
+          <option value="white">White</option>
+          <option value="black">Black</option>
+        </select>
+      </div>
+
+      <!-- Price -->
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="product-price">Price (₹) *</label>
+        <input type="number" id="product-price" class="admin-input" style="width:100%;" min="1" value="499" required>
+      </div>
+
+      <!-- Toggles: Stock & Customizable -->
+      <div style="display:flex; gap:2rem; margin:0.5rem 0;">
+        <!-- Stock Status Toggle -->
+        <div class="admin-form-group">
+          <label class="admin-form-label" style="margin-bottom:0.4rem;">In Stock</label>
+          <div class="admin-toggle-wrapper">
+            <label class="admin-toggle-switch">
+              <input type="checkbox" id="product-stock" checked>
+              <span class="admin-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Customizable Toggle -->
+        <div class="admin-form-group">
+          <label class="admin-form-label" style="margin-bottom:0.4rem;">Customizable</label>
+          <div class="admin-toggle-wrapper">
+            <label class="admin-toggle-switch">
+              <input type="checkbox" id="product-custom" checked>
+              <span class="admin-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Zone for Image Upload -->
+      <div class="admin-form-group">
+        <label class="admin-form-label">Product Image *</label>
+        
+        <div class="admin-dropzone" id="product-dropzone">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span style="font-weight:600; font-size:0.85rem;">Drag image here or click to upload</span>
+          <p style="font-size:0.7rem; color:var(--admin-text-muted);">PNG, JPG, SVG up to 10MB</p>
+          
+          <input type="file" id="product-file-input" style="display:none;" accept="image/*">
+          
+          <!-- Dropzone preview area -->
+          <div class="admin-dropzone-preview" id="dropzone-preview-container" onclick="event.stopPropagation()">
+            <img id="dropzone-preview-img" src="" alt="Preview">
+            <button type="button" class="admin-btn admin-btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.75rem;" onclick="clearDragAndDrop()">Change Image</button>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="product-save-btn" class="admin-btn admin-btn-primary" style="width:100%; padding:0.8rem; margin-top:1rem;">
+        Save Product
+      </button>
+
+    </form>
   </div>
 
   <!-- Firebase SDK -->
@@ -235,69 +225,34 @@
   <script src="../config.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
-  <script src="../js/admin.js"></script>
+  
+  <!-- Orders controller handles the clock and topbar alert badges -->
+  <script src="js/admin-orders.js"></script>
+  
+  <!-- Products page controllers -->
+  <script src="js/admin-products.js"></script>
 
-  <!-- Visual/Interactive Scripting -->
+  <!-- Local Script: Responsive Toggle -->
   <script>
-    // Toggle Slide-In Panel
-    function toggleAddPanel(show) {
-      const panel = document.getElementById('add-product-panel');
-      const backdrop = document.getElementById('panel-backdrop');
+    function toggleMobileSidebar(show) {
+      const sidebar = document.getElementById('admin-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
       if (show) {
-        panel.classList.add('active');
+        sidebar.classList.add('active');
         backdrop.classList.add('active');
       } else {
-        panel.classList.remove('active');
+        sidebar.classList.remove('active');
         backdrop.classList.remove('active');
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Auto close panel on successful product add
-      const addForm = document.getElementById('add-product-form');
-      if (addForm) {
-        addForm.addEventListener('submit', () => {
-          setTimeout(() => {
-            const msg = document.getElementById('add-product-msg');
-            if (msg && msg.classList.contains('success')) {
-              setTimeout(() => {
-                toggleAddPanel(false);
-              }, 1000);
-            }
-          }, 200);
-        });
-      }
-
-      // Theme Toggle Logic
-      const themeToggle = document.getElementById('theme-toggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', newTheme);
-          localStorage.setItem('cc_theme', newTheme);
-        });
-      }
-
-
-
-      // Page Transition Sweep
-      const overlay = document.getElementById('page-transition-overlay');
-      if (overlay) {
-        overlay.classList.add('active-out');
-        setTimeout(() => { overlay.classList.remove('active-out'); }, 600);
-        
-        const links = document.querySelectorAll('a');
-        links.forEach(link => {
-          const href = link.getAttribute('href');
-          if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !link.getAttribute('target')) {
-            link.addEventListener('click', (e) => {
-              e.preventDefault();
-              overlay.classList.add('active-in');
-              setTimeout(() => { window.location.href = href; }, 550);
-            });
-          }
-        });
+      // Load user profile details
+      if (typeof AuthService !== 'undefined') {
+        const email = AuthService.getEmail() || 'admin@crazycloths.com';
+        document.getElementById('admin-email-display').textContent = email;
+        const initial = email.charAt(0).toUpperCase();
+        document.getElementById('admin-avatar-circle').textContent = initial;
       }
     });
   </script>
