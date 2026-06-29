@@ -7,7 +7,7 @@
 
 // ── Admin email allowlist ─────────────────────────────────
 const ADMIN_EMAILS = [
-  "admin1@crazycloths.com",
+  "hemanth.t18122005@gmail.com",
   "admin2@crazycloths.com",
   "admin3@crazycloths.com",
   "admin4@crazycloths.com",

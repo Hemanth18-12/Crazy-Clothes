@@ -41,7 +41,19 @@
           <li><a href="product.html" class="nav-link active">Shop</a></li>
           <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
           <li><a href="index.html#collection" class="nav-link">Products</a></li>
-          <li><a href="login.html" class="nav-link">Login</a></li>
+          <li>
+            <!-- Logged out state -->
+            <a href="login.html" id="header-login-btn" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+              Login
+            </a>
+            <!-- Logged in state (hidden by default) -->
+            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
+              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                Logout
+              </button>
+            </div>
+          </li>
           <li>
             <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
               <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +89,15 @@
       <li><a href="product.html" class="nav-link active">Shop</a></li>
       <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
       <li><a href="index.html#collection" class="nav-link">Products</a></li>
-      <li><a href="login.html" class="nav-link">Login</a></li>
+      <li>
+        <!-- Mobile Logged out state -->
+        <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
+        <!-- Mobile Logged in state (hidden by default) -->
+        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent);">Logout</a>
+        </div>
+      </li>
     </ul>
   </nav>
 
@@ -461,6 +481,26 @@
             }
           }, 200);
         });
+      }
+
+      // 5. Header Login / Greeting State Handler
+      const name = sessionStorage.getItem('cc_user_name');
+      const loginBtn = document.getElementById('header-login-btn');
+      const userArea = document.getElementById('header-user-area');
+      const userName = document.getElementById('header-user-name');
+      
+      const mLoginBtn = document.getElementById('mobile-login-btn');
+      const mUserArea = document.getElementById('mobile-user-area');
+      const mUserName = document.getElementById('mobile-user-name');
+
+      if (name) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userArea) userArea.style.display = 'flex';
+        if (userName) userName.textContent = 'Hi, ' + name;
+
+        if (mLoginBtn) mLoginBtn.style.display = 'none';
+        if (mUserArea) mUserArea.style.display = 'flex';
+        if (mUserName) mUserName.textContent = 'Hi, ' + name;
       }
     });
   </script>
