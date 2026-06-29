@@ -133,7 +133,7 @@ const AuthService = {
       await firebase.auth().signOut();
     }
     clearSession();
-    window.location.href = '/index.html';
+    window.location.href = 'index.html'; // ✅ Fixed: removed leading /
   },
 
   /**
@@ -141,13 +141,13 @@ const AuthService = {
    * Call this on product.html order submit, success.html, etc.
    */
   requireAuth() {
-    if (typeof firebase === 'undefined') return; // skip guard if Firebase not set up
+    if (typeof firebase === 'undefined') return;
     return new Promise((resolve) => {
       firebase.auth().onAuthStateChanged((user) => {
         if (!user) {
           // Save intended destination
           sessionStorage.setItem('cc_redirect_after_login', window.location.href);
-          window.location.href = '/login.html';
+          window.location.href = 'login.html'; // ✅ Fixed: removed leading /
         } else {
           resolve(user);
         }
@@ -164,7 +164,7 @@ const AuthService = {
     return new Promise((resolve) => {
       firebase.auth().onAuthStateChanged((user) => {
         if (!user || !isAdminEmail(user.email)) {
-          window.location.href = '/index.html';
+          window.location.href = 'index.html'; // ✅ Fixed: removed leading /
         } else {
           resolve(user);
         }
