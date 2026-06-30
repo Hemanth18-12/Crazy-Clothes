@@ -349,6 +349,8 @@ async function handleProductFormSubmit(e) {
     : (document.getElementById('product-type').value || 'Oversized T-Shirt');
   const price    = parseInt(document.getElementById('product-price').value) || 499;
   const inStock  = document.getElementById('product-stock').checked;
+  const stockCountEl = document.getElementById('product-stock-count');
+  const stockCount = (stockCountEl && stockCountEl.value.trim() !== '') ? parseInt(stockCountEl.value) : null;
 
   if (!isCustomizable && !name) {
     alert('Product name is required for catalog items.');
@@ -392,6 +394,7 @@ async function handleProductFormSubmit(e) {
       color,
       price,
       stockStatus:        inStock ? 'inStock' : 'outOfStock',
+      stockCount:         stockCount,
       isCustomizable,
       category,
       imageUrl:           imageUrl || '',
@@ -458,6 +461,11 @@ function createProductCard(product, container, index) {
   const catLabel  = category === 'customizable' ? '✏️ Custom Blank' : '📦 Catalog';
   const imgSrc    = product.imageUrl || (product.color === 'black' ? '../assets/images/black-t-shirt.png' : '../assets/images/white-t-shirt.png');
 
+  const isLowStock = product.stockCount !== undefined && product.stockCount !== null && product.stockCount <= 5;
+  const lowStockBadgeHtml = isLowStock 
+    ? `<span class="badge" style="background:#F59E0B; color:#fff; font-weight:700; animation: pulseBadge 1.2s infinite alternate;">⚠️ Low Stock: ${product.stockCount} left</span>`
+    : '';
+
   card.innerHTML = `
     <div class="admin-product-img">
       <img src="${imgSrc}" alt="${product.name}" loading="lazy">
@@ -470,10 +478,11 @@ function createProductCard(product, container, index) {
       <div class="admin-product-meta">${product.type || 'T-Shirt'} · ${product.color || 'white'}</div>
       <!-- Click price to edit -->
       <div class="admin-product-price" style="cursor:pointer;" onclick="togglePriceInlineEdit(event, '${product.id}', ${priceVal})">₹${priceVal}</div>
-      <div style="margin-top:0.4rem;">
+      <div style="margin-top:0.4rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
         <span class="badge ${isInStock ? 'stock-in' : 'stock-out'}">
           ${isInStock ? 'In Stock' : 'Out of Stock'}
         </span>
+        ${lowStockBadgeHtml}
       </div>
     </div>
     <div class="admin-product-card-actions">
@@ -572,6 +581,7 @@ async function editProduct(id) {
     document.getElementById('product-type').value  = data.type  || 'Oversized T-Shirt';
     document.getElementById('product-color').value = data.color || 'white';
     document.getElementById('product-price').value = data.price || 499;
+    document.getElementById('product-stock-count').value = (data.stockCount !== undefined && data.stockCount !== null) ? data.stockCount : '';
     document.getElementById('product-stock').checked  = data.stockStatus === 'inStock';
     document.getElementById('product-custom').checked = data.isCustomizable === true;
 

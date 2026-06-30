@@ -578,6 +578,23 @@ async function updateOrderStatus(id, newStatus) {
     const orderIdStr = o ? (o.orderId || o.id.slice(0, 8)) : id;
     logAdminAction("updated order status", "orders", id, `#CC-${orderIdStr} to ${newStatus}`);
 
+    // Automated WhatsApp notifications on status change
+    if (o && o.customerPhone) {
+      let text = "";
+      if (newStatus === 'Confirmed') {
+        text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} has been confirmed. We're preparing it for dispatch. 📦`;
+      } else if (newStatus === 'Dispatched') {
+        text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} is on its way! Expected delivery in 3-5 days. 🚚`;
+      } else if (newStatus === 'Delivered') {
+        text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} has been delivered. We hope you love it! Leave us a review on the app. ⭐`;
+      }
+
+      if (text) {
+        const cleanPhone = (o.customerPhone || '').replace(/\D/g, '');
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    }
+
     const row = document.getElementById(`order-row-${id}`);
     if (row) {
       row.classList.add('row-flash-green');
@@ -590,25 +607,11 @@ async function updateOrderStatus(id, newStatus) {
 
 // ── ACTION BUTTON LOGIC ────────────────────────────────────
 async function confirmOrder(id) {
-  const o = allOrdersData.find(order => order.id === id);
-  if (!o) return;
-
   await updateOrderStatus(id, 'Confirmed');
-
-  const text = `Hi ${o.customerName}! Your Crazy Cloths order #${o.orderId || o.id.slice(0, 8)} has been confirmed. We'll dispatch it soon! 🎉`;
-  const cleanPhone = (o.customerPhone || '').replace(/\D/g, '');
-  window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 async function dispatchOrder(id) {
-  const o = allOrdersData.find(order => order.id === id);
-  if (!o) return;
-
   await updateOrderStatus(id, 'Dispatched');
-
-  const text = `Hi ${o.customerName}! Your order #${o.orderId || o.id.slice(0, 8)} has been dispatched! Expected delivery in 3-5 days. 📦`;
-  const cleanPhone = (o.customerPhone || '').replace(/\D/g, '');
-  window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 async function deleteOrder(id) {

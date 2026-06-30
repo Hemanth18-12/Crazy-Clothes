@@ -50,6 +50,8 @@
             <!-- Logged in state (hidden by default) -->
             <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
               <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <a href="orders.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+              <a href="wishlist.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
               <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                 Logout
               </button>
@@ -100,7 +102,9 @@
         <!-- Mobile Logged in state (hidden by default) -->
         <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
           <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
-          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent);">Logout</a>
+          <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+          <a href="wishlist.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
         </div>
       </li>
     </ul>

@@ -28,6 +28,73 @@ const REQUIRED_FIELDS = [
 // Track IDs already rendered so we can animate new arrivals
 const _renderedIds = new Set();
 
+// ── WISHLIST REALTIME STATE SYNC ──────────────────────────────
+window.userWishlistSet = new Set();
+
+if (typeof firebase !== 'undefined') {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      firebase.firestore().collection('users').doc(user.uid).collection('wishlist')
+        .onSnapshot((snapshot) => {
+          window.userWishlistSet.clear();
+          snapshot.forEach(doc => {
+            window.userWishlistSet.add(doc.id);
+          });
+          // Update visual heart states
+          document.querySelectorAll('.wishlist-heart-btn').forEach(btn => {
+            const pid = btn.dataset.productId;
+            if (window.userWishlistSet.has(pid)) {
+              btn.classList.add('wishlisted');
+            } else {
+              btn.classList.remove('wishlisted');
+            }
+          });
+        });
+    } else {
+      window.userWishlistSet.clear();
+      document.querySelectorAll('.wishlist-heart-btn').forEach(btn => {
+        btn.classList.remove('wishlisted');
+      });
+    }
+  });
+}
+
+window.toggleProductWishlist = async function(event, productId) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  if (typeof firebase === 'undefined') return;
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    sessionStorage.setItem('cc_redirect_after_login', window.location.href);
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const btn = event ? event.currentTarget : null;
+  if (btn) {
+    btn.classList.add('pop-active');
+    setTimeout(() => btn.classList.remove('pop-active'), 300);
+  }
+
+  const wishRef = firebase.firestore().collection('users').doc(user.uid).collection('wishlist').doc(productId);
+  
+  try {
+    if (window.userWishlistSet.has(productId)) {
+      await wishRef.delete();
+    } else {
+      await wishRef.set({
+        addedAt: new Date().toISOString()
+      });
+    }
+  } catch (err) {
+    console.error("Wishlist operation failed:", err);
+  }
+};
+
+
 const ProductsService = {
 
   /**
@@ -173,6 +240,9 @@ const ProductsService = {
       ? product.color.charAt(0).toUpperCase() + product.color.slice(1)
       : '';
 
+    const isWishlisted = window.userWishlistSet && window.userWishlistSet.has(product.id);
+    const wishClass = isWishlisted ? ' wishlisted' : '';
+
     card.innerHTML = `
       <div class="product-image-wrapper">
         <img src="${product.imageUrl || 'assets/images/white-tee.png'}"
@@ -180,6 +250,11 @@ const ProductsService = {
         <div class="product-badges">
           <span class="stock-badge in-stock">In Stock</span>
         </div>
+        <button class="wishlist-heart-btn${wishClass}" aria-label="Toggle Wishlist" data-product-id="${product.id}" onclick="toggleProductWishlist(event, '${product.id}')">
+          <svg viewBox="0 0 24 24" class="heart-icon">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </button>
       </div>
       <div class="product-info">
         <span class="product-meta">${product.type || 'T-Shirt'} · ${colorLabel}</span>

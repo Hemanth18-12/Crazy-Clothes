@@ -28,7 +28,18 @@
     }
   </style>
 </head>
-<body>
+<body class="home-page">
+
+  <!-- Incomplete Draft Recovery Banner -->
+  <div id="draft-recovery-banner" class="draft-recovery-banner">
+    <div class="banner-content">
+      <span>🎨 You have an unfinished custom design — continue where you left off?</span>
+      <div class="banner-actions">
+        <button id="resume-draft-btn" class="btn btn-accent" style="padding: 0.4rem 1.2rem; font-size: 0.85rem;">Resume</button>
+        <button id="dismiss-draft-btn" class="banner-close-btn">&times;</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Top YouTube-style Loading Bar -->
   <div class="top-loading-bar"></div>
@@ -58,6 +69,8 @@
             <!-- Logged in state (hidden by default) -->
             <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
               <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <a href="orders.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+              <a href="wishlist.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
               <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                 Logout
               </button>
@@ -109,7 +122,9 @@
         <!-- Mobile Logged in state (hidden by default) -->
         <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
           <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
-          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent);">Logout</a>
+          <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+          <a href="wishlist.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
         </div>
       </li>
     </ul>
@@ -459,6 +474,46 @@
             ProductsService.loadCustomizable('customize-grid', (product) => {
               window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
             });
+
+            // ── DRAFT RECOVERY BANNER CHECK ──────────────────
+            const db = firebase.firestore();
+            db.collection('users').doc(user.uid).collection('drafts').doc('current_draft').get()
+              .then((doc) => {
+                if (doc.exists) {
+                  const draftData = doc.data();
+                  const banner = document.getElementById('draft-recovery-banner');
+                  const resumeBtn = document.getElementById('resume-draft-btn');
+                  const dismissBtn = document.getElementById('dismiss-draft-btn');
+
+                  if (banner) {
+                    banner.classList.add('active');
+                    
+                    if (resumeBtn) {
+                      resumeBtn.onclick = () => {
+                        const draftState = {
+                          color: draftData.color || 'white',
+                          size: 'Free Size',
+                          quantity: 1,
+                          cloudinaryUrl: draftData.designUrl || null,
+                          specialInstructions: draftData.notes || ''
+                        };
+                        localStorage.setItem('crazy_cloths_draft_order', JSON.stringify(draftState));
+                        window.location.href = 'product.html';
+                      };
+                    }
+
+                    if (dismissBtn) {
+                      dismissBtn.onclick = async () => {
+                        banner.classList.remove('active');
+                        try {
+                          await db.collection('users').doc(user.uid).collection('drafts').doc('current_draft').delete();
+                        } catch (err) { console.error("Failed to delete draft:", err); }
+                      };
+                    }
+                  }
+                }
+              })
+              .catch((err) => console.log("Draft check failed:", err));
 
           } else {
             // NOT LOGGED IN — show gate cards, hide grids

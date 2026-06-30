@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — My Wishlist</title>
+  
+  <!-- Inline Script to prevent theme flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cc_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- Top YouTube-style Loading Bar -->
+  <div class="top-loading-bar"></div>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="page-transition-overlay"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-container">
+      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+      
+      <nav class="desktop-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="product.html" class="nav-link">Shop</a></li>
+          <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="index.html#collection" class="nav-link">Products</a></li>
+          <li>
+            <!-- Logged out state (hidden by default) -->
+            <a href="login.html" id="header-login-btn" class="btn btn-accent" style="display:none; padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700;">
+              Login to Shop
+            </a>
+            <!-- Logged in state -->
+            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
+              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
+              <a href="orders.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+              <a href="wishlist.html" class="nav-link active" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+              <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                Logout
+              </button>
+            </div>
+          </li>
+          <li>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div style="display:flex; align-items:center; gap: 1rem;">
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <button class="menu-toggle" aria-label="Toggle Menu" onclick="document.querySelector('.mobile-drawer').classList.toggle('active')">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <nav class="mobile-drawer">
+    <ul>
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="product.html" class="nav-link">Shop</a></li>
+      <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+      <li><a href="index.html#collection" class="nav-link">Products</a></li>
+      <li>
+        <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
+        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
+          <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+          <a href="wishlist.html" class="nav-link active" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <main style="padding-top: var(--header-height); min-height: 80vh;">
+    <section class="page-section">
+      <div class="container">
+        
+        <h1 style="font-family: var(--font-display); font-size: 3rem; text-transform: uppercase; margin-bottom: 2rem; border-bottom: 2px solid var(--color-border); padding-bottom: 1rem;">
+          My Wishlist
+        </h1>
+
+        <!-- Wishlist Loader -->
+        <div id="wishlist-loader" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <div class="skeleton-card" style="height: 350px; width: 220px; background: var(--color-surface); opacity: 0.5; border-radius: 8px;"></div>
+          <div class="skeleton-card" style="height: 350px; width: 220px; background: var(--color-surface); opacity: 0.5; border-radius: 8px;"></div>
+        </div>
+
+        <!-- Wishlist Grid -->
+        <div class="products-grid" id="wishlist-grid" style="display:none;">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <!-- Empty Wishlist State -->
+        <div id="wishlist-empty-state" style="display: none; text-align: center; padding: 4rem 1rem;">
+          <h2 style="font-family: var(--font-display); font-size: 2rem; margin-bottom: 1rem; color: var(--color-text-secondary);">
+            Your Wishlist is Empty
+          </h2>
+          <p style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 2rem;">
+            Save your favorite catalog designs to buy them later.
+          </p>
+          <a href="index.html#collection" class="btn btn-accent" style="padding: 0.8rem 2rem;">
+            Browse The Collection
+          </a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">CRAZY<span>CLOTHS</span></div>
+          <p style="max-width:320px;font-size:0.9rem;">Streetwear-focused premium t-shirts customized with your uploaded graphics.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="product.html">Shop</a></li>
+            <li><a href="index.html#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="mailto:support@crazycloths.com">Contact Us</a></li>
+            <li><a href="login.html">My Account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Crazy Cloths. All rights reserved.</p>
+        <p style="color:var(--color-text-secondary);">Designed for the bold</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Store configs and modules -->
+  <script src="config.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/animations.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Theme toggle listeners
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+      const handleThemeToggle = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cc_theme', newTheme);
+      };
+      if (themeToggle) themeToggle.addEventListener('click', handleThemeToggle);
+      if (themeToggleMobile) themeToggleMobile.addEventListener('click', handleThemeToggle);
+
+      // 2. Auth Guard
+      if (typeof AuthService !== 'undefined') {
+        try {
+          const user = await AuthService.requireAuth();
+          initWishlist(user);
+          
+          // Header status sync
+          const name = AuthService.getDisplayName();
+          const loginBtn = document.getElementById('header-login-btn');
+          const userArea = document.getElementById('header-user-area');
+          const userName = document.getElementById('header-user-name');
+          const mLoginBtn = document.getElementById('mobile-login-btn');
+          const mUserArea = document.getElementById('mobile-user-area');
+          const mUserName = document.getElementById('mobile-user-name');
+
+          if (name) {
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (userArea) userArea.style.display = 'flex';
+            if (userName) userName.textContent = 'Hi, ' + name;
+            if (mLoginBtn) mLoginBtn.style.display = 'none';
+            if (mUserArea) mUserArea.style.display = 'flex';
+            if (mUserName) mUserName.textContent = 'Hi, ' + name;
+          }
+        } catch (e) {
+          console.error("Auth gate failed:", e);
+        }
+      }
+
+      // Page transition animation fadeout
+      const overlay = document.getElementById('page-transition-overlay');
+      if (overlay) {
+        overlay.classList.add('active-out');
+        setTimeout(() => { overlay.classList.remove('active-out'); }, 600);
+      }
+    });
+
+    // 3. Load wishlist items from Firestore
+    function initWishlist(user) {
+      if (typeof firebase === 'undefined' || !CONFIG.firebaseEnabled) return;
+      const db = firebase.firestore();
+
+      db.collection('users').doc(user.uid).collection('wishlist')
+        .onSnapshot((wishSnapshot) => {
+          document.getElementById('wishlist-loader').style.display = 'none';
+          
+          if (wishSnapshot.empty) {
+            document.getElementById('wishlist-grid').style.display = 'none';
+            document.getElementById('wishlist-empty-state').style.display = 'block';
+            return;
+          }
+
+          const wishIds = [];
+          wishSnapshot.forEach(doc => wishIds.push(doc.id));
+
+          // Fetch products matching wishIds
+          db.collection('products')
+            .where(firebase.firestore.FieldPath.documentId(), 'in', wishIds)
+            .get()
+            .then((prodSnapshot) => {
+              const grid = document.getElementById('wishlist-grid');
+              grid.innerHTML = '';
+
+              if (prodSnapshot.empty) {
+                grid.style.display = 'none';
+                document.getElementById('wishlist-empty-state').style.display = 'block';
+                return;
+              }
+
+              document.getElementById('wishlist-empty-state').style.display = 'none';
+              grid.style.display = 'grid';
+
+              prodSnapshot.forEach(doc => {
+                const product = { id: doc.id, ...doc.data() };
+                
+                // Render card using ProductsService renderer!
+                if (typeof ProductsService !== 'undefined') {
+                  const card = ProductsService._renderCard(product, (p) => {
+                    // Navigate to details page
+                    window.location.href = `product.html?productId=${p.id}&color=${p.color || ''}`;
+                  });
+                  grid.appendChild(card);
+                }
+              });
+            })
+            .catch(err => {
+              console.error("Failed to query wishlisted products:", err);
+            });
+
+        }, (err) => {
+          console.error("Wishlist listener error:", err);
+          document.getElementById('wishlist-loader').innerHTML = 
+            '<p style="color:var(--color-accent); text-align:center;">Failed to load wishlist.</p>';
+        });
+    }
+  </script>
+</body>
+</html>

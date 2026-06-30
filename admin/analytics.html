@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy Cloths — Analytics Dashboard</title>
+
+  <!-- Auth guard script loaded at the very top -->
+  <script src="js/admin-auth.js"></script>
+
+  <!-- External/Local Fonts and Styles -->
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin-theme.css">
+
+  <style>
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .full-width-card {
+      grid-column: 1 / -1;
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--admin-accent);
+      margin-top: 0.5rem;
+    }
+    .chart-container {
+      width: 100%;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.015);
+      border-radius: 6px;
+      border: 1px solid var(--admin-border);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    svg.analytics-chart {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+  </style>
+</head>
+<body data-page="analytics">
+
+  <!-- Top YouTube-style Loading Bar -->
+  <div class="top-loading-bar"></div>
+
+  <!-- Page Transition Overlay -->
+  <div class="page-transition-overlay" id="page-transition-overlay"></div>
+
+  <div class="admin-layout">
+    
+    <!-- FIXED LEFT SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-logo-area">
+        <div class="admin-sidebar-logo">CRAZY<span>CLOTHS</span></div>
+        <div class="admin-badge-red">Admin</div>
+      </div>
+      
+      <ul class="admin-nav-list">
+        <li class="admin-nav-item">
+          <a href="dashboard.html">
+            <span class="icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="orders.html">
+            <span class="icon">📦</span>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="products.html">
+            <span class="icon">👕</span>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="users.html">
+            <span class="icon">👥</span>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="admin-nav-item active">
+          <a href="analytics.html">
+            <span class="icon">📈</span>
+            <span>Analytics</span>
+          </a>
+        </li>
+        <li class="admin-nav-item">
+          <a href="#" onclick="AuthService.logout()">
+            <span class="icon">🚪</span>
+            <span>Logout</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Logged-in admin profile footer -->
+      <div class="admin-sidebar-profile">
+        <div class="admin-profile-avatar" id="admin-avatar-circle">A</div>
+        <div class="admin-profile-info">
+          <span class="admin-profile-name">Administrator</span>
+          <span class="admin-profile-email" id="admin-email-display">admin@crazycloths.com</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="admin-content-wrapper">
+      
+      <!-- FIXED TOPBAR -->
+      <header class="admin-topbar">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <button class="admin-mobile-toggle" onclick="toggleMobileSidebar(true)" aria-label="Open Sidebar">☰</button>
+          <h2 class="admin-page-title">Analytics</h2>
+        </div>
+
+        <div class="admin-topbar-right">
+          <div class="admin-live-clock" id="topbar-clock">Loading time...</div>
+          
+          <button class="admin-notification-bell" id="topbar-bell" aria-label="Notifications" onclick="window.location.href='orders.html'">
+            🔔
+            <span class="admin-notification-badge" id="topbar-bell-badge" style="display:none;">0</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="admin-main-content">
+        
+        <!-- HEADER CONTROL BAR -->
+        <div class="admin-card" style="margin-bottom: 2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <h3 class="admin-chart-title" style="margin:0;">Performance Analytics</h3>
+          <div>
+            <select id="date-range-filter" class="admin-select" style="min-width:180px;">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- STATS CARDS ROW -->
+        <div class="admin-stats-row" style="margin-bottom: 2rem;">
+          <!-- AOV -->
+          <div class="admin-stat-card accent-red">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Average Order Value</span>
+              <span class="admin-stat-icon">💰</span>
+            </div>
+            <div class="metric-value" id="stat-aov">₹0</div>
+            <div class="admin-stat-trend-label" style="font-size:0.75rem; margin-top:0.4rem; color:var(--admin-text-muted);">Mean revenue per order</div>
+          </div>
+
+          <!-- REPEAT CUSTOMERS -->
+          <div class="admin-stat-card accent-orange">
+            <div class="admin-stat-header">
+              <span class="admin-stat-title">Repeat Customer Rate</span>
+              <span class="admin-stat-icon">🔄</span>
+            </div>
+            <div class="metric-value" id="stat-repeat-rate">0%</div>
+            <div class="admin-stat-trend-label" style="font-size:0.75rem; margin-top:0.4rem; color:var(--admin-text-muted);">Customers with >1 orders</div>
+          </div>
+        </div>
+
+        <!-- CHARTS GRID -->
+        <div class="analytics-grid">
+          
+          <!-- Best Sellers Chart -->
+          <div class="admin-chart-card full-width-card">
+            <h3 class="admin-chart-title">Best Selling Product Types (Order Volume)</h3>
+            <div class="chart-container">
+              <svg id="bestsellers-svg-chart" class="analytics-chart" viewBox="0 0 800 280">
+                <!-- SVG dynamically drawn via JS -->
+              </svg>
+            </div>
+          </div>
+
+          <!-- Orders by Day of Week -->
+          <div class="admin-chart-card full-width-card">
+            <h3 class="admin-chart-title">Weekly Order Trends (Day of Week Distribution)</h3>
+            <div class="chart-container">
+              <svg id="weekly-trends-svg-chart" class="analytics-chart" viewBox="0 0 800 280">
+                <!-- SVG dynamically drawn via JS -->
+              </svg>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  
+  <script src="../config.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="js/admin-ui.js"></script>
+  
+  <!-- Orders controller handles the clock and topbar alert badges -->
+  <script src="js/admin-orders.js"></script>
+
+  <script>
+    // Navigation Clock and sidebar controls
+    function toggleMobileSidebar(show) {
+      const sidebar = document.getElementById('admin-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (show) {
+        sidebar.classList.add('active');
+        backdrop.classList.add('active');
+      } else {
+        sidebar.classList.remove('active');
+        backdrop.classList.remove('active');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sync Admin Profile Header
+      if (typeof AuthService !== 'undefined') {
+        const email = AuthService.getEmail() || 'admin@crazycloths.com';
+        document.getElementById('admin-email-display').textContent = email;
+        const initial = email.charAt(0).toUpperCase();
+        document.getElementById('admin-avatar-circle').textContent = initial;
+      }
+
+      // Initial stats query
+      initAnalytics();
+    });
+
+    let allOrders = [];
+
+    async function initAnalytics() {
+      if (typeof firebase === 'undefined' || !CONFIG.firebaseEnabled) return;
+      const db = firebase.firestore();
+
+      try {
+        const snap = await db.collection('orders').get();
+        allOrders = [];
+        snap.forEach(doc => {
+          allOrders.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Setup filter change listener
+        const filter = document.getElementById('date-range-filter');
+        filter.addEventListener('change', calculateMetrics);
+
+        // Initial compute
+        calculateMetrics();
+
+      } catch (err) {
+        console.error("Failed to load analytics orders database:", err);
+      }
+    }
+
+    function calculateMetrics() {
+      const days = document.getElementById('date-range-filter').value;
+      const now = new Date();
+      let filteredOrders = allOrders;
+
+      if (days !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(now.getDate() - parseInt(days));
+        filteredOrders = allOrders.filter(o => {
+          if (!o.createdAt) return false;
+          const oDate = new Date(o.createdAt);
+          return oDate >= cutoffDate;
+        });
+      }
+
+      // 1. Average Order Value (AOV)
+      let sumPrice = 0;
+      filteredOrders.forEach(o => {
+        sumPrice += (parseFloat(o.price) || 0);
+      });
+      const aovVal = filteredOrders.length > 0 ? Math.round(sumPrice / filteredOrders.length) : 0;
+      document.getElementById('stat-aov').textContent = `₹${aovVal.toLocaleString('en-IN')}`;
+
+      // 2. Repeat Customer Rate
+      const customerOrdersCount = {};
+      filteredOrders.forEach(o => {
+        const email = o.customerEmail || o.customerPhone || 'guest';
+        customerOrdersCount[email] = (customerOrdersCount[email] || 0) + 1;
+      });
+      const uniqueCustomers = Object.keys(customerOrdersCount).length;
+      let repeatCustomersCount = 0;
+      Object.values(customerOrdersCount).forEach(count => {
+        if (count > 1) repeatCustomersCount++;
+      });
+      const repeatRate = uniqueCustomers > 0 ? Math.round((repeatCustomersCount / uniqueCustomers) * 100) : 0;
+      document.getElementById('stat-repeat-rate').textContent = `${repeatRate}%`;
+
+      // 3. Best Selling Product Types
+      const productCounts = {};
+      filteredOrders.forEach(o => {
+        const type = o.productName || 'Custom T-Shirt';
+        productCounts[type] = (productCounts[type] || 0) + (o.quantity || 1);
+      });
+      drawBestsellersChart(productCounts);
+
+      // 4. Orders by Day of Week
+      const dayCounts = [0, 0, 0, 0, 0, 0, 0]; // Sun - Sat
+      filteredOrders.forEach(o => {
+        if (o.createdAt) {
+          const day = new Date(o.createdAt).getDay();
+          dayCounts[day]++;
+        }
+      });
+      drawWeeklyTrendsChart(dayCounts);
+    }
+
+    // ── PURE SVG BESTSELLERS HORIZONTAL CHART ───────────────────────
+    function drawBestsellersChart(productCounts) {
+      const svg = document.getElementById('bestsellers-svg-chart');
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      const items = Object.entries(productCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      if (items.length === 0) {
+        svg.innerHTML = `<text x="400" y="140" fill="var(--admin-text-muted)" text-anchor="middle" font-family="sans-serif" font-size="16">No sales data in this date range</text>`;
+        return;
+      }
+
+      const maxVal = Math.max(...items.map(i => i[1]), 1);
+      const startX = 200;
+      const chartWidth = 520;
+      const rowHeight = 45;
+      const barHeight = 22;
+
+      items.forEach((item, index) => {
+        const name = item[0];
+        const val = item[1];
+        const barWidth = (val / maxVal) * chartWidth;
+        const y = 30 + index * rowHeight;
+
+        // Label
+        const textLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textLabel.setAttribute("x", "180");
+        textLabel.setAttribute("y", (y + 16).toString());
+        textLabel.setAttribute("fill", "var(--admin-text-primary)");
+        textLabel.setAttribute("text-anchor", "end");
+        textLabel.setAttribute("font-size", "13");
+        textLabel.setAttribute("font-family", "sans-serif");
+        textLabel.setAttribute("font-weight", "500");
+        textLabel.textContent = name.length > 20 ? name.slice(0, 18) + '...' : name;
+        svg.appendChild(textLabel);
+
+        // Bar Container Background
+        const barBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        barBg.setAttribute("x", startX.toString());
+        barBg.setAttribute("y", y.toString());
+        barBg.setAttribute("width", chartWidth.toString());
+        barBg.setAttribute("height", barHeight.toString());
+        barBg.setAttribute("fill", "rgba(255,255,255,0.03)");
+        barBg.setAttribute("rx", "3");
+        svg.appendChild(barBg);
+
+        // Fill Bar
+        const barFill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        barFill.setAttribute("x", startX.toString());
+        barFill.setAttribute("y", y.toString());
+        barFill.setAttribute("width", "0");
+        barFill.setAttribute("height", barHeight.toString());
+        barFill.setAttribute("fill", "var(--admin-accent)");
+        barFill.setAttribute("rx", "3");
+        
+        // Anim fill
+        const animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animate.setAttribute("attributeName", "width");
+        animate.setAttribute("from", "0");
+        animate.setAttribute("to", barWidth.toString());
+        animate.setAttribute("dur", "0.6s");
+        animate.setAttribute("fill", "freeze");
+        barFill.appendChild(animate);
+        svg.appendChild(barFill);
+
+        // Value text
+        const textVal = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textVal.setAttribute("x", (startX + Math.max(10, barWidth) + 8).toString());
+        textVal.setAttribute("y", (y + 16).toString());
+        textVal.setAttribute("fill", "var(--admin-text-secondary)");
+        textVal.setAttribute("font-size", "12");
+        textVal.setAttribute("font-family", "monospace");
+        textVal.setAttribute("font-weight", "700");
+        textVal.textContent = val.toString();
+        svg.appendChild(textVal);
+      });
+    }
+
+    // ── PURE SVG WEEKLY TRENDS VERTICAL CHART ────────────────────────
+    function drawWeeklyTrendsChart(dayCounts) {
+      const svg = document.getElementById('weekly-trends-svg-chart');
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      const maxVal = Math.max(...dayCounts, 1);
+      const daysLabel = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const chartHeight = 180;
+      const chartWidth = 640;
+      const startX = 80;
+      const startY = 40;
+      const spacing = 90;
+      const barWidth = 40;
+
+      // Draw horizontal grid lines
+      for (let i = 0; i <= 4; i++) {
+        const lineY = startY + (chartHeight / 4) * i;
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", startX.toString());
+        line.setAttribute("y1", lineY.toString());
+        line.setAttribute("x2", (startX + chartWidth).toString());
+        line.setAttribute("y2", lineY.toString());
+        line.setAttribute("stroke", "var(--admin-border)");
+        line.setAttribute("stroke-opacity", "0.4");
+        line.setAttribute("stroke-width", "1");
+        svg.appendChild(line);
+
+        // Grid value label
+        const gridVal = Math.round(maxVal - (maxVal / 4) * i);
+        const gridText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        gridText.setAttribute("x", (startX - 15).toString());
+        gridText.setAttribute("y", (lineY + 4).toString());
+        gridText.setAttribute("fill", "var(--admin-text-muted)");
+        gridText.setAttribute("font-size", "11");
+        gridText.setAttribute("font-family", "monospace");
+        gridText.setAttribute("text-anchor", "end");
+        gridText.textContent = gridVal.toString();
+        svg.appendChild(gridText);
+      }
+
+      // Draw bars
+      dayCounts.forEach((val, index) => {
+        const barHeightVal = (val / maxVal) * chartHeight;
+        const x = startX + index * spacing + (spacing - barWidth) / 2;
+        const y = startY + (chartHeight - barHeightVal);
+
+        // Bar container bg
+        const barBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        barBg.setAttribute("x", x.toString());
+        barBg.setAttribute("y", startY.toString());
+        barBg.setAttribute("width", barWidth.toString());
+        barBg.setAttribute("height", chartHeight.toString());
+        barBg.setAttribute("fill", "rgba(255,255,255,0.01)");
+        svg.appendChild(barBg);
+
+        // Bar Fill
+        const barFill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        barFill.setAttribute("x", x.toString());
+        barFill.setAttribute("y", (startY + chartHeight).toString());
+        barFill.setAttribute("width", barWidth.toString());
+        barFill.setAttribute("height", "0");
+        barFill.setAttribute("fill", "var(--admin-accent)");
+        barFill.setAttribute("rx", "3");
+
+        const animHeight = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animHeight.setAttribute("attributeName", "height");
+        animHeight.setAttribute("from", "0");
+        animHeight.setAttribute("to", barHeightVal.toString());
+        animHeight.setAttribute("dur", "0.6s");
+        animHeight.setAttribute("fill", "freeze");
+        barFill.appendChild(animHeight);
+
+        const animY = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+        animY.setAttribute("attributeName", "y");
+        animY.setAttribute("from", (startY + chartHeight).toString());
+        animY.setAttribute("to", y.toString());
+        animY.setAttribute("dur", "0.6s");
+        animY.setAttribute("fill", "freeze");
+        barFill.appendChild(animY);
+
+        svg.appendChild(barFill);
+
+        // Day label text
+        const textDay = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textDay.setAttribute("x", (x + barWidth / 2).toString());
+        textDay.setAttribute("y", (startY + chartHeight + 20).toString());
+        textDay.setAttribute("fill", "var(--admin-text-primary)");
+        textDay.setAttribute("text-anchor", "middle");
+        textDay.setAttribute("font-size", "12");
+        textDay.setAttribute("font-family", "sans-serif");
+        textDay.setAttribute("font-weight", "500");
+        textDay.textContent = daysLabel[index];
+        svg.appendChild(textDay);
+
+        // Bar value overlay text
+        const textVal = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textVal.setAttribute("x", (x + barWidth / 2).toString());
+        textVal.setAttribute("y", (y - 8).toString());
+        textVal.setAttribute("fill", "var(--admin-text-secondary)");
+        textVal.setAttribute("text-anchor", "middle");
+        textVal.setAttribute("font-size", "12");
+        textVal.setAttribute("font-family", "monospace");
+        textVal.setAttribute("font-weight", "700");
+        textVal.textContent = val.toString();
+        svg.appendChild(textVal);
+      });
+    }
+  </script>
+</body>
+</html>

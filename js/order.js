@@ -188,8 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSummary();
   }
 
+  let draftTimeout = null;
   function saveCurrentDraft() {
-    CartManager.saveDraft({
+    const draftData = {
       color: selectedColor,
       size: selectedSize,
       quantity: parseInt((qtyInput && qtyInput.value) || 1) || 1,
@@ -199,7 +200,27 @@ document.addEventListener('DOMContentLoaded', () => {
       customerPhone: phoneInput   ? phoneInput.value   : '',
       customerAddress: addressInput ? addressInput.value : '',
       specialInstructions: notesInput ? notesInput.value : ''
-    });
+    };
+    CartManager.saveDraft(draftData);
+
+    if (typeof firebase !== 'undefined' && firebase.auth().currentUser && draftData.cloudinaryUrl) {
+      if (draftTimeout) clearTimeout(draftTimeout);
+      draftTimeout = setTimeout(async () => {
+        const user = firebase.auth().currentUser;
+        const db = firebase.firestore();
+        try {
+          await db.collection('users').doc(user.uid).collection('drafts').doc('current_draft').set({
+            color: draftData.color,
+            designUrl: draftData.cloudinaryUrl,
+            notes: draftData.specialInstructions,
+            updatedAt: new Date().toISOString()
+          });
+          console.log("Custom draft synced to Firestore.");
+        } catch (err) {
+          console.warn("Failed to sync draft:", err);
+        }
+      }, 3000);
+    }
   }
 
   // ── Submit handler ───────────────────────────────────────
@@ -299,6 +320,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (CONFIG.firebaseEnabled && typeof firebase !== 'undefined') {
       try {
         await firebase.firestore().collection('orders').add(finalOrder);
+        const user = firebase.auth().currentUser;
+        if (user) {
+          await firebase.firestore().collection('users').doc(user.uid).collection('drafts').doc('current_draft').delete();
+          console.log("Firestore custom draft cleared.");
+        }
       } catch (e) { console.error('Firestore order save failed:', e); }
     }
 

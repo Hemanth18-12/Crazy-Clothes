@@ -314,6 +314,9 @@ function focusAndHighlightProductCard(id) {
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     card.classList.add('row-flash-green');
     setTimeout(() => card.classList.remove('row-flash-green'), 1200);
+    if (typeof editProduct === 'function') {
+      editProduct(id);
+    }
   }
 }
 window.focusAndHighlightProductCard = focusAndHighlightProductCard;

@@ -515,3 +515,145 @@ html[data-theme="light"] .product-card .product-info {
   pointer-events: none;
   display: none;
 }
+
+/* Wishlist Heart Button overlay styles */
+.wishlist-heart-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 12;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+  color: #fff;
+}
+.wishlist-heart-btn:hover {
+  transform: scale(1.15);
+  background: rgba(0,0,0,0.7);
+}
+.wishlist-heart-btn .heart-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5px;
+  transition: fill 0.3s, stroke 0.3s;
+}
+.wishlist-heart-btn.wishlisted {
+  color: var(--color-accent);
+}
+.wishlist-heart-btn.wishlisted .heart-icon {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}
+.wishlist-heart-btn.pop-active {
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* Recovery Banner Styles */
+.draft-recovery-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-surface-2);
+  border-bottom: 2px solid var(--color-accent);
+  z-index: 9999;
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.draft-recovery-banner.active {
+  transform: translateY(0);
+}
+.draft-recovery-banner .banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+.draft-recovery-banner .banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.draft-recovery-banner .banner-close-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.2s;
+}
+.draft-recovery-banner .banner-close-btn:hover {
+  color: var(--color-accent);
+}
+
+/* Size Guide Modal Backdrop & Modal */
+.size-guide-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.size-guide-modal-backdrop.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.size-guide-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 95%;
+  max-width: 580px;
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.size-guide-modal-backdrop.active .size-guide-modal {
+  transform: scale(1);
+}
+.size-guide-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  transition: color 0.2s;
+}
+.size-guide-close-btn:hover {
+  color: var(--color-accent);
+}
+
