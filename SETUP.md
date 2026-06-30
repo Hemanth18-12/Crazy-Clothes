@@ -28,32 +28,54 @@ This document describes how to set up the external services (Firebase, Cloudinar
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Check if the requesting user is a registered administrator
+    // NOTE: keep this list in sync with ADMIN_EMAILS in js/auth.js
     function isAdmin() {
-      return request.auth != null && 
-        (request.auth.token.email == 'admin1@crazycloths.com' ||
+      return request.auth != null &&
+        (request.auth.token.email == 'hemanth.t18122005@gmail.com' ||
          request.auth.token.email == 'admin2@crazycloths.com' ||
          request.auth.token.email == 'admin3@crazycloths.com' ||
          request.auth.token.email == 'admin4@crazycloths.com' ||
          request.auth.token.email == 'admin5@crazycloths.com');
     }
 
-    // Products Collection
+    // Products Collection — anyone can browse, only admins can write
     match /products/{productId} {
-      allow read: if true; // anyone can browse
-      allow write: if isAdmin(); // only admins can add, edit, or delete
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Orders Collection
+    // FIX: customers can now read their OWN orders (My Orders page).
+    // Admins can still read ALL orders (admin dashboard).
     match /orders/{orderId} {
-      allow read: if isAdmin(); // only admins can read order details
-      allow write: if request.auth != null; // any logged-in user can submit an order
+      allow read: if isAdmin() ||
+                    (request.auth != null &&
+                     resource.data.customerEmail == request.auth.token.email);
+      allow write: if request.auth != null;
     }
 
-    // Users Collection
+    // Users Collection — each user can only access their own document
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      // FIX: Wishlist subcollection — must be explicitly covered.
+      // The parent /users/{uid} rule does NOT cascade to subcollections.
+      match /wishlist/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // Drafts subcollection (used by the order form)
+      match /drafts/{draftId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Reviews Collection — anyone can read; only authenticated users can write
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
