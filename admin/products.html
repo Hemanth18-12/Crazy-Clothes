@@ -17,6 +17,7 @@
   
   <!-- Admin Stylesheet -->
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin-theme.css">
 </head>
 <body data-page="products">
 
@@ -105,11 +106,18 @@
       <main class="admin-main-content">
         
         <!-- HEADER CONTROL BAR -->
-        <div class="admin-card" style="margin-bottom: 2rem; display:flex; justify-content:space-between; align-items:center;">
-          <h3 class="admin-chart-title" style="margin:0;">Products List</h3>
-          <button class="admin-btn admin-btn-primary" onclick="toggleProductPanel(true)">
-            ➕ Add New Product
-          </button>
+        <div class="admin-card" style="margin-bottom: 2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <h3 class="admin-chart-title" style="margin:0;">Products Catalog</h3>
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <!-- View Toggle -->
+            <div class="view-toggle">
+              <button class="active" id="btn-view-grid" onclick="setProductsView('grid')">Grid ⬜</button>
+              <button id="btn-view-list" onclick="setProductsView('list')">List ☰</button>
+            </div>
+            <button class="admin-btn admin-btn-primary" onclick="toggleProductPanel(true)">
+              ➕ Add New Product
+            </button>
+          </div>
         </div>
 
         <!-- PRODUCTS RESPONSIVE GRID -->
@@ -225,6 +233,8 @@
   <script src="../config.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="js/admin-ui.js"></script>
+  <script src="js/command-palette.js"></script>
   
   <!-- Orders controller handles the clock and topbar alert badges -->
   <script src="js/admin-orders.js"></script>

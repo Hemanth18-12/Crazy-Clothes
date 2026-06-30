@@ -1,11 +1,12 @@
 /**
- * Crazy Cloths — Admin Products Logic
+ * Crazy Cloths — Admin Products Logic (Redesigned with drag reorder, inline edit, and logging)
  */
 
 let editingProductId = null;
 let uploadedFile = null;
 let currentImageUrl = '';
 let currentCloudinaryPublicId = '';
+let currentProductsView = localStorage.getItem('cc_products_view') || 'grid';
 
 document.addEventListener('DOMContentLoaded', () => {
   const page = document.body.dataset.page;
@@ -22,24 +23,61 @@ function initProductsPage() {
   // Load products list in real-time
   const productsGrid = document.getElementById('products-grid');
   if (productsGrid) {
-    productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center;">Loading products...</div>';
+    productsGrid.innerHTML = `
+      <div style="grid-column: 1/-1; display:flex; flex-direction:column; gap:8px;">
+        <div class="skeleton-product-card skeleton">
+          <div class="skeleton-product-img skeleton"></div>
+          <div class="skeleton-product-body">
+            <div class="skeleton-line skeleton" style="width:60%;"></div>
+            <div class="skeleton-line skeleton" style="width:40%;"></div>
+          </div>
+        </div>
+      </div>
+    `;
 
+    // Listen to firestore snapshot (ordered by sortOrder if available, else by createdAt)
     db.collection('products')
-      .orderBy('createdAt', 'desc')
       .onSnapshot(snapshot => {
         productsGrid.innerHTML = '';
         if (snapshot.empty) {
-          productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--admin-text-muted);">No products found. Add one above!</div>';
+          productsGrid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem;">
+              <svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--admin-text-muted); margin-bottom:1rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <div style="font-weight:600; font-size:14px; margin-bottom:0.5rem; color:var(--admin-text-primary);">No products cataloged yet</div>
+              <p style="color:var(--admin-text-muted); font-size:12px; margin-bottom:1.5rem;">Create your first product to display on the storefront.</p>
+              <button class="admin-btn admin-btn-primary" onclick="toggleProductPanel(true)">Add First Product</button>
+            </div>
+          `;
           return;
         }
 
-        snapshot.forEach((doc, index) => {
-          const product = { id: doc.id, ...doc.data() };
+        // Convert snapshot docs to array and sort locally by sortOrder (asc) or createdAt (desc)
+        const productsList = [];
+        snapshot.forEach(doc => {
+          productsList.push({ id: doc.id, ...doc.data() });
+        });
+
+        productsList.sort((a, b) => {
+          const sortA = typeof a.sortOrder === 'number' ? a.sortOrder : 999999;
+          const sortB = typeof b.sortOrder === 'number' ? b.sortOrder : 999999;
+          if (sortA !== sortB) return sortA - sortB;
+          
+          const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : 0;
+          const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : 0;
+          return dateB - dateA;
+        });
+
+        productsList.forEach((product, index) => {
           createProductCard(product, productsGrid, index);
         });
+
+        // Re-apply view preference (grid / list)
+        setProductsView(currentProductsView);
       }, err => {
         console.error(err);
-        productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--admin-accent);">Failed to load products catalog.</div>';
+        productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--admin-danger);">Failed to load products catalog.</div>';
       });
   }
 
@@ -49,13 +87,179 @@ function initProductsPage() {
     form.addEventListener('submit', handleProductFormSubmit);
   }
 
-  // Setup Drag and Drop Zone
+  // Setup Drag and Drop Zone for image upload
   initDragAndDrop();
+
+  // Load view preference on startup
+  setProductsView(currentProductsView);
+
+  // Check if deep linked from command palette search
+  setTimeout(() => {
+    const deepScrollId = sessionStorage.getItem('cc_scroll_product_id');
+    if (deepScrollId) {
+      sessionStorage.removeItem('cc_scroll_product_id');
+      focusAndHighlightProductCard(deepScrollId);
+    }
+  }, 500);
 }
 
-// ────────────────────────────────────────────────────────────
-//  DRAG AND DROP ZONE
-// ────────────────────────────────────────────────────────────
+// ── PRODUCTS GRID / LIST VIEW TOGGLE ───────────────────────
+function setProductsView(view) {
+  currentProductsView = view;
+  localStorage.setItem('cc_products_view', view);
+  
+  const grid = document.getElementById('products-grid');
+  const gridBtn = document.getElementById('btn-view-grid');
+  const listBtn = document.getElementById('btn-view-list');
+  if (!grid || !gridBtn || !listBtn) return;
+  
+  if (view === 'list') {
+    grid.className = 'admin-products-list';
+    listBtn.classList.add('active');
+    gridBtn.classList.remove('active');
+  } else {
+    grid.className = 'admin-products-grid';
+    gridBtn.classList.add('active');
+    listBtn.classList.remove('active');
+  }
+}
+window.setProductsView = setProductsView;
+
+// ── DRAG AND DROP CATALOG REORDERING ────────────────────────
+let dragCardId = null;
+
+function initDragAndDropReorder(card, productId) {
+  card.setAttribute('draggable', 'true');
+  
+  card.addEventListener('dragstart', (e) => {
+    dragCardId = productId;
+    card.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', productId);
+  });
+  
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.admin-product-card').forEach(c => c.classList.remove('drag-over'));
+  });
+  
+  card.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    if (dragCardId !== productId) {
+      card.classList.add('drag-over');
+    }
+  });
+  
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+  
+  card.addEventListener('dragleave', () => {
+    card.classList.remove('drag-over');
+  });
+  
+  card.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    card.classList.remove('drag-over');
+    const droppedId = e.dataTransfer.getData('text/plain');
+    
+    if (droppedId && droppedId !== productId) {
+      await swapProductSortOrder(droppedId, productId);
+    }
+  });
+}
+
+async function swapProductSortOrder(id1, id2) {
+  if (typeof firebase === 'undefined') return;
+  const db = firebase.firestore();
+  
+  try {
+    const doc1 = await db.collection('products').doc(id1).get();
+    const doc2 = await db.collection('products').doc(id2).get();
+    if (!doc1.exists || !doc2.exists) return;
+    
+    const data1 = doc1.data();
+    const data2 = doc2.data();
+    
+    // Assign values if they don't exist yet
+    let sort1 = typeof data1.sortOrder === 'number' ? data1.sortOrder : Date.now();
+    let sort2 = typeof data2.sortOrder === 'number' ? data2.sortOrder : Date.now() - 5000;
+    
+    // Swap the sort values
+    const batch = db.batch();
+    batch.update(db.collection('products').doc(id1), { sortOrder: sort2 });
+    batch.update(db.collection('products').doc(id2), { sortOrder: sort1 });
+    
+    await batch.commit();
+    showAdminToast("Catalog Reordered", `Swapped product indices successfully.`);
+  } catch (err) {
+    console.error("Catalog reordering failed:", err);
+  }
+}
+
+// ── INLINE PRICE EDITING ────────────────────────────────────
+function togglePriceInlineEdit(event, productId, currentPrice) {
+  event.stopPropagation();
+  const priceEl = event.target;
+  if (priceEl.tagName === 'INPUT') return;
+
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.value = currentPrice;
+  input.className = 'price-edit-input';
+  
+  const parent = priceEl.parentElement;
+  priceEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  const commitPrice = async () => {
+    const newPrice = parseInt(input.value) || currentPrice;
+    if (newPrice !== currentPrice) {
+      try {
+        await firebase.firestore().collection('products').doc(productId).update({
+          price: newPrice
+        });
+        
+        const newPriceEl = document.createElement('div');
+        newPriceEl.className = 'admin-product-price price-save-flash';
+        newPriceEl.textContent = `₹${newPrice}`;
+        newPriceEl.addEventListener('click', (e) => togglePriceInlineEdit(e, productId, newPrice));
+        input.replaceWith(newPriceEl);
+        
+        const doc = await firebase.firestore().collection('products').doc(productId).get();
+        const name = doc.exists ? doc.data().name : 'Product';
+        logAdminAction("updated price", "products", productId, `of "${name}" to ₹${newPrice}`);
+        showAdminToast("Price Updated", `Price changed to ₹${newPrice}`);
+      } catch (err) {
+        alert("Failed to update price: " + err.message);
+        restoreOriginalPrice();
+      }
+    } else {
+      restoreOriginalPrice();
+    }
+  };
+
+  const restoreOriginalPrice = () => {
+    const originalPriceEl = document.createElement('div');
+    originalPriceEl.className = 'admin-product-price';
+    originalPriceEl.textContent = `₹${currentPrice}`;
+    originalPriceEl.addEventListener('click', (e) => togglePriceInlineEdit(e, productId, currentPrice));
+    input.replaceWith(originalPriceEl);
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      commitPrice();
+    } else if (e.key === 'Escape') {
+      restoreOriginalPrice();
+    }
+  });
+
+  input.addEventListener('blur', commitPrice);
+}
+window.togglePriceInlineEdit = togglePriceInlineEdit;
+
+// ── DRAG AND DROP ZONE FOR IMAGE UPLOAD ──────────────────────
 function initDragAndDrop() {
   const dropzone = document.getElementById('product-dropzone');
   const fileInput = document.getElementById('product-file-input');
@@ -64,7 +268,6 @@ function initDragAndDrop() {
 
   if (!dropzone || !fileInput) return;
 
-  // Click to select
   dropzone.addEventListener('click', () => {
     fileInput.click();
   });
@@ -73,7 +276,6 @@ function initDragAndDrop() {
     handleFiles(e.target.files);
   });
 
-  // Drag events
   ['dragenter', 'dragover'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
@@ -90,28 +292,24 @@ function initDragAndDrop() {
 
   dropzone.addEventListener('drop', (e) => {
     const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files);
+    handleFiles(dt.files);
   }, false);
 
   function handleFiles(files) {
     if (files.length === 0) return;
     const file = files[0];
 
-    // Check size limit (10MB)
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size exceeds the 10MB limit.');
+      alert('File size exceeds 10MB limit.');
       return;
     }
 
     uploadedFile = file;
 
-    // Show Preview
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImg.src = e.target.result;
       previewContainer.style.display = 'flex';
-      // Hide icon & instructions
       dropzone.querySelector('svg').style.display = 'none';
       dropzone.querySelector('span').style.display = 'none';
       dropzone.querySelector('p').style.display = 'none';
@@ -132,9 +330,7 @@ function clearDragAndDrop() {
   }
 }
 
-// ────────────────────────────────────────────────────────────
-//  FORM SUBMISSION (Add / Edit)
-// ────────────────────────────────────────────────────────────
+// ── FORM SUBMISSION (Add / Edit) ──────────────────────────
 async function handleProductFormSubmit(e) {
   e.preventDefault();
 
@@ -152,7 +348,6 @@ async function handleProductFormSubmit(e) {
   let imageUrl = currentImageUrl;
   let publicId = currentCloudinaryPublicId;
 
-  // 1. Upload image to Cloudinary if new file is selected
   if (uploadedFile) {
     try {
       const uploadPreset = CONFIG.cloudinary.productUploadPreset || CONFIG.cloudinary.uploadPreset;
@@ -160,7 +355,7 @@ async function handleProductFormSubmit(e) {
       imageUrl = result.secure_url;
       publicId = result.public_id;
     } catch (err) {
-      alert('Cloudinary upload failed: ' + err.message);
+      alert('Image upload failed: ' + err.message);
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Product';
       return;
@@ -174,7 +369,6 @@ async function handleProductFormSubmit(e) {
     return;
   }
 
-  // 2. Save to Firestore
   const db = firebase.firestore();
   try {
     const productData = {
@@ -185,21 +379,22 @@ async function handleProductFormSubmit(e) {
       stockStatus: inStock ? 'inStock' : 'outOfStock',
       isCustomizable: customizable,
       imageUrl,
-      publicId, // Cloudinary identifier
+      publicId,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     if (editingProductId) {
-      // Update
       await db.collection('products').doc(editingProductId).update(productData);
-      showAdminToast('Product Updated', `"${name}" has been updated successfully.`);
+      logAdminAction("updated product", "products", editingProductId, `"${name}"`);
+      showAdminToast("Product Updated", `"${name}" was successfully modified.`);
     } else {
-      // Add
-      await db.collection('products').add(productData);
-      showAdminToast('Product Added', `"${name}" has been added to catalog.`);
+      // For new products, set a default sortOrder
+      productData.sortOrder = Date.now();
+      const docRef = await db.collection('products').add(productData);
+      logAdminAction("added product", "products", docRef.id, `"${name}"`);
+      showAdminToast("Product Added", `"${name}" was added to the catalog.`);
     }
 
-    // Success: Close Panel & Reset Form
     toggleProductPanel(false);
   } catch (err) {
     alert('Firestore operation failed: ' + err.message);
@@ -209,9 +404,6 @@ async function handleProductFormSubmit(e) {
   }
 }
 
-// ────────────────────────────────────────────────────────────
-//  CLOUDINARY HELPER
-// ────────────────────────────────────────────────────────────
 function uploadToCloudinary(file, preset, folder) {
   return new Promise((resolve, reject) => {
     const url = `https://api.cloudinary.com/v1_1/${CONFIG.cloudinary.cloudName}/image/upload`;
@@ -229,22 +421,20 @@ function uploadToCloudinary(file, preset, folder) {
         reject(new Error(JSON.parse(xhr.responseText).error?.message || xhr.statusText));
       }
     };
-    xhr.onerror = () => reject(new Error('Network error during image upload.'));
+    xhr.onerror = () => reject(new Error('Network error uploading image.'));
     xhr.send(fd);
   });
 }
 
-// ────────────────────────────────────────────────────────────
-//  CREATE PRODUCT GRID CARDS
-// ────────────────────────────────────────────────────────────
+// ── CREATE PRODUCT CARD ────────────────────────────────────
 function createProductCard(product, container, index) {
   const card = document.createElement('div');
   card.className = 'admin-product-card';
   card.id = `product-card-${product.id}`;
-  // Staggered slide up or simple fade animation can be added
+  
   card.style.opacity = '0';
   card.style.transform = 'translateY(15px)';
-  card.style.transition = 'opacity 0.4s ease, transform 0.4s ease, border-color 0.3s, box-shadow 0.3s';
+  card.style.transition = 'opacity 0.4s var(--ease-admin), transform 0.4s var(--ease-admin), border-color 0.3s, box-shadow 0.3s';
 
   const priceVal = product.price || 499;
   const isCustom = product.isCustomizable === true;
@@ -254,14 +444,15 @@ function createProductCard(product, container, index) {
     <div class="admin-product-img">
       <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
       <div class="admin-product-badges">
-        ${isCustom ? '<span class="admin-card-badge customizable">Custom</span>' : ''}
+        ${isCustom ? '<span class="admin-card-badge customizable" style="background:var(--admin-accent-dim); color:var(--admin-accent);">Custom</span>' : ''}
       </div>
     </div>
     <div class="admin-product-details">
       <div class="admin-product-name" title="${product.name}">${product.name}</div>
       <div class="admin-product-meta">${product.type || 'T-Shirt'} · ${product.color || 'white'}</div>
-      <div class="admin-product-price">₹${priceVal}</div>
-      <div style="margin-top:0.25rem;">
+      <!-- Click price to edit -->
+      <div class="admin-product-price" style="cursor:pointer;" onclick="togglePriceInlineEdit(event, '${product.id}', ${priceVal})">₹${priceVal}</div>
+      <div style="margin-top:0.4rem;">
         <span class="badge ${isInStock ? 'stock-in' : 'stock-out'}">
           ${isInStock ? 'In Stock' : 'Out of Stock'}
         </span>
@@ -269,11 +460,11 @@ function createProductCard(product, container, index) {
     </div>
     <div class="admin-product-card-actions">
       <button onclick="editProduct('${product.id}')">✏️ Edit</button>
-      <button onclick="toggleStockStatus('${product.id}', '${product.stockStatus}')">📦 Stock</button>
+      <button onclick="toggleStockStatus('${product.id}', '${product.stockStatus}')">🔌 Stock</button>
       <button class="btn-delete" onclick="showDeleteConfirm('${product.id}', true)">🗑️ Delete</button>
     </div>
 
-    <!-- Inline Confirmation -->
+    <!-- Inline delete confirmations -->
     <div class="admin-product-delete-confirm" id="delete-confirm-${product.id}">
       <p>Are you sure?</p>
       <div class="admin-product-delete-confirm-btns">
@@ -285,25 +476,30 @@ function createProductCard(product, container, index) {
 
   container.appendChild(card);
   
-  // Animation delay trigger
+  // Attach Drag & Drop listener for list reordering
+  initDragAndDropReorder(card, product.id);
+
   setTimeout(() => {
     card.style.opacity = '1';
     card.style.transform = 'translateY(0)';
-  }, index * 50);
+  }, index * 45);
 }
 
-// ────────────────────────────────────────────────────────────
-//  CARD ACTIONS
-// ────────────────────────────────────────────────────────────
+// ── TOGGLE STOCK STATUS ────────────────────────────────────
 async function toggleStockStatus(id, currentStatus) {
   if (typeof firebase === 'undefined') return;
   const newStatus = currentStatus === 'inStock' ? 'outOfStock' : 'inStock';
 
   try {
+    const doc = await firebase.firestore().collection('products').doc(id).get();
+    const name = doc.exists ? doc.data().name : 'Product';
+    
     await firebase.firestore().collection('products').doc(id).update({
       stockStatus: newStatus
     });
-    // The onSnapshot listener handles real-time visual updates automatically
+    
+    logAdminAction("toggled stock", "products", id, `of "${name}" to ${newStatus === 'inStock' ? 'In Stock' : 'Out of Stock'}`);
+    showAdminToast("Stock Updated", `"${name}" marked as ${newStatus === 'inStock' ? 'In Stock' : 'Out of Stock'}.`);
   } catch (err) {
     alert('Stock toggle failed: ' + err.message);
   }
@@ -312,44 +508,36 @@ async function toggleStockStatus(id, currentStatus) {
 function showDeleteConfirm(id, show) {
   const confirmArea = document.getElementById(`delete-confirm-${id}`);
   if (confirmArea) {
-    if (show) {
-      confirmArea.classList.add('active');
-    } else {
-      confirmArea.classList.remove('active');
-    }
+    if (show) confirmArea.classList.add('active');
+    else confirmArea.classList.remove('active');
   }
 }
 
+// ── DELETE PRODUCT ─────────────────────────────────────────
 async function deleteProduct(id, publicId) {
   if (typeof firebase === 'undefined') return;
 
   try {
-    // Delete from Firestore
+    const doc = await firebase.firestore().collection('products').doc(id).get();
+    const name = doc.exists ? doc.data().name : 'Product';
+
     await firebase.firestore().collection('products').doc(id).delete();
 
-    // Scale 1->0 transition before card goes away
     const card = document.getElementById(`product-card-${id}`);
     if (card) {
-      card.style.transform = 'scale(0)';
+      card.style.transform = 'scale(0.8)';
       card.style.opacity = '0';
-      setTimeout(() => card.remove(), 300);
+      setTimeout(() => card.remove(), 250);
     }
 
-    // Cloudinary signature deletion limit note
-    if (publicId) {
-      console.log(`Cloudinary deletion requested for: ${publicId}. ` +
-                  `Note: Anonymous client side deletion of Cloudinary assets requires backend signed APIs.`);
-    }
-
-    showAdminToast('Product Deleted', 'The product was removed from catalog.');
+    logAdminAction("deleted product", "products", id, `"${name}"`);
+    showAdminToast("Product Deleted", `"${name}" was removed from the catalog.`);
   } catch (err) {
     alert('Failed to delete product: ' + err.message);
   }
 }
 
-// ────────────────────────────────────────────────────────────
-//  EDIT PRODUCT FILL PANEL
-// ────────────────────────────────────────────────────────────
+// ── EDIT PRODUCT FILL PANEL ────────────────────────────────
 async function editProduct(id) {
   if (typeof firebase === 'undefined') return;
 
@@ -363,7 +551,6 @@ async function editProduct(id) {
     const data = doc.data();
     editingProductId = id;
 
-    // Prefill form
     document.getElementById('panel-title').textContent = 'Edit Product';
     document.getElementById('product-name').value = data.name || '';
     document.getElementById('product-type').value = data.type || 'Oversized T-Shirt';
@@ -372,7 +559,6 @@ async function editProduct(id) {
     document.getElementById('product-stock').checked = data.stockStatus === 'inStock';
     document.getElementById('product-custom').checked = data.isCustomizable === true;
 
-    // Show current image preview
     currentImageUrl = data.imageUrl || '';
     currentCloudinaryPublicId = data.publicId || '';
 
@@ -388,16 +574,12 @@ async function editProduct(id) {
       dropzone.querySelector('p').style.display = 'none';
     }
 
-    // Open panel
     toggleProductPanel(true);
   } catch (err) {
     alert('Failed to load product details: ' + err.message);
   }
 }
 
-// ────────────────────────────────────────────────────────────
-//  UI HELPERS
-// ────────────────────────────────────────────────────────────
 function toggleProductPanel(show) {
   const panel = document.getElementById('product-slide-panel');
   const backdrop = document.getElementById('product-panel-backdrop');
@@ -410,7 +592,6 @@ function toggleProductPanel(show) {
     panel.classList.remove('active');
     if (backdrop) backdrop.classList.remove('active');
 
-    // Reset panel state & inputs after sliding out
     setTimeout(() => {
       editingProductId = null;
       uploadedFile = null;
@@ -419,20 +600,11 @@ function toggleProductPanel(show) {
       document.getElementById('panel-title').textContent = 'Add New Product';
       document.getElementById('product-form').reset();
       clearDragAndDrop();
-    }, 400);
+    }, 300);
   }
 }
 
-function showAdminToast(title, msg) {
-  // Leverage existing toast system in admin-orders.js
-  if (window.showToast) {
-    window.showToast(title, msg);
-  } else {
-    alert(`${title}: ${msg}`);
-  }
-}
-
-// Make globally available
+// Global exports
 window.toggleProductPanel = toggleProductPanel;
 window.editProduct = editProduct;
 window.toggleStockStatus = toggleStockStatus;

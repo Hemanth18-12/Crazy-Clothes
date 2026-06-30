@@ -17,6 +17,7 @@
   
   <!-- Admin Stylesheet -->
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin-theme.css">
 </head>
 <body data-page="orders">
 
@@ -106,7 +107,7 @@
         
         <!-- FILTERS BAR -->
         <div class="admin-card" style="margin-bottom: 1.5rem;">
-          <div class="admin-input-group" style="justify-content:space-between; width:100%;">
+          <div class="admin-input-group" style="justify-content:space-between; width:100%; align-items:center; flex-wrap:wrap; gap:1rem;">
             
             <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
               <input type="text" id="order-search" class="admin-input" placeholder="Search Order ID or Name...">
@@ -127,36 +128,55 @@
               </div>
             </div>
 
-            <button class="admin-btn admin-btn-primary" id="export-csv-btn" style="min-width:140px;">
-              📤 Export CSV
-            </button>
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <!-- Row Density Toggle -->
+              <div class="density-toggle">
+                <button class="active" id="btn-density-comfortable" onclick="setRowDensity('comfortable')">Comfortable</button>
+                <button id="btn-density-compact" onclick="setRowDensity('compact')">Compact</button>
+              </div>
+
+              <button class="admin-btn admin-btn-secondary" id="export-csv-btn" style="min-width:140px;">
+                📤 Export CSV
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- ORDERS TABLE CARD -->
-        <div class="admin-card">
+        <div class="admin-card" style="position:relative;">
           <div class="admin-table-container">
-            <table class="admin-table">
+            <table class="admin-table" id="orders-admin-table">
               <thead>
                 <tr>
-                  <th>Order ID</th>
-                  <th>Customer Name</th>
+                  <th class="cb-col"><input type="checkbox" id="select-all-orders" class="admin-cb"></th>
+                  <th class="sortable" data-sort="id">Order ID <span class="sort-arrow">▼</span></th>
+                  <th class="sortable" data-sort="customerName">Customer Name <span class="sort-arrow">▼</span></th>
                   <th>Phone</th>
                   <th>Product</th>
                   <th>Design</th>
-                  <th>Price</th>
-                  <th>Order Date</th>
-                  <th>Status</th>
+                  <th class="sortable" data-sort="price">Price <span class="sort-arrow">▼</span></th>
+                  <th class="sortable" data-sort="createdAt">Order Date <span class="sort-arrow">▼</span></th>
+                  <th class="sortable" data-sort="status">Status <span class="sort-arrow">▼</span></th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="orders-table-body">
                 <tr>
-                  <td colspan="9" style="text-align:center;">Loading orders database...</td>
+                  <td colspan="10" style="text-align:center;">Loading orders database...</td>
                 </tr>
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- FLOATING BULK ACTIONS BAR -->
+        <div class="bulk-action-bar" id="bulk-action-bar">
+          <span class="bulk-count-label"><span id="bulk-selected-count">0</span> orders selected</span>
+          <div class="bulk-divider"></div>
+          <button class="admin-btn admin-btn-secondary" onclick="bulkUpdateStatus('Confirmed')">Confirm Selected</button>
+          <button class="admin-btn admin-btn-secondary" onclick="bulkUpdateStatus('Dispatched')">Dispatch Selected</button>
+          <button class="admin-btn admin-btn-primary" onclick="bulkExportCSV()">Export Selected CSV</button>
+          <button class="admin-btn admin-btn-danger" onclick="bulkDeleteOrders()">Delete Selected</button>
         </div>
 
       </main>
@@ -178,6 +198,8 @@
   <script src="../config.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="js/admin-ui.js"></script>
+  <script src="js/command-palette.js"></script>
   
   <!-- Orders controller containing both the core logic and notification triggers -->
   <script src="js/admin-orders.js"></script>
