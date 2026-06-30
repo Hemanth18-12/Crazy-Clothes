@@ -1,5 +1,5 @@
 # Crazy Cloths ignored files
-config.js
-js/firebase-config.js
+# NOTE: config.js and js/firebase-config.js are intentionally tracked and deployed
+# They contain public Firebase client credentials (safe to commit per Firebase security model)
 .DS_Store
 Thumbs.db
