@@ -821,6 +821,72 @@
         alert("Failed to submit review: " + err.message);
       }
     }
-  </script>
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <a href="index.html" class="bottom-nav-item" data-nav="home">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="index.html#collection" class="bottom-nav-item" data-nav="collection">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="9"></rect>
+        <rect x="14" y="3" width="7" height="5"></rect>
+        <rect x="14" y="12" width="7" height="9"></rect>
+        <rect x="3" y="16" width="7" height="5"></rect>
+      </svg>
+      <span>Collection</span>
+    </a>
+    <a href="wishlist.html" class="bottom-nav-item" data-nav="wishlist">
+      <svg viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      <span>Wishlist</span>
+      <span class="bottom-nav-badge" id="wishlist-badge" style="display:none;"></span>
+    </a>
+    <a href="orders.html" class="bottom-nav-item" data-nav="orders">
+      <svg viewBox="0 0 24 24">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      <span>Orders</span>
+    </a>
+    <button class="bottom-nav-item" id="account-nav-btn" data-nav="account">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>Account</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Account Bottom Sheet -->
+  <div class="bottom-sheet-backdrop" id="account-sheet-backdrop"></div>
+  <div class="bottom-sheet" id="account-sheet">
+    <div class="bottom-sheet-header"></div>
+    <div class="bottom-sheet-content">
+      <div id="account-sheet-logged-in" style="display: none;">
+        <h3 class="bottom-sheet-greeting" id="account-sheet-name">Hi, User</h3>
+        <div class="bottom-sheet-row">
+          <span class="bottom-sheet-label">Theme Mode</span>
+          <button id="account-sheet-theme-toggle" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.8rem; border-radius: 4px; font-family: var(--font-mono); text-transform: uppercase;">Toggle Theme</button>
+        </div>
+        <button onclick="AuthService.logout()" class="btn btn-accent" style="width: 100%; margin-top: 1.5rem; padding: 0.8rem;">
+          Logout
+        </button>
+      </div>
+      <div id="account-sheet-logged-out" style="display: none; text-align: center; padding: 1rem 0;">
+        <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+          Access your profile, orders, and wishlist.
+        </p>
+        <a href="login.html" class="btn btn-accent" style="display: block; padding: 0.8rem; text-decoration: none; text-align: center;">
+          Login to Shop
+        </a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothNavLinks();
   initScrollSpy();
   initHashScroll();
+  initMobileBottomNav();
 });
 
 /**
@@ -323,3 +324,147 @@ function initActiveNavLink() {
     }
   });
 }
+
+/**
+ * Initialize Mobile Bottom Navigation & Account Sheet
+ */
+function initMobileBottomNav() {
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const currentHash = window.location.hash;
+  const navItems = document.querySelectorAll('.bottom-nav-item');
+  if (navItems.length === 0) return;
+
+  // 1. Highlight active tab
+  const highlightBottomNav = () => {
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    const hash = window.location.hash;
+    navItems.forEach(item => {
+      const navType = item.dataset.nav;
+      item.classList.remove('active');
+      if (
+        (navType === 'home' && path === 'index.html' && !hash) ||
+        (navType === 'collection' && hash === '#collection') ||
+        (navType === 'wishlist' && path === 'wishlist.html') ||
+        (navType === 'orders' && path === 'orders.html')
+      ) {
+        item.classList.add('active');
+      }
+    });
+  };
+
+  highlightBottomNav();
+
+  // Watch for intersection scroll on index.html to highlight collection vs home
+  if (currentPath === 'index.html') {
+    const collectionSec = document.getElementById('collection');
+    if (collectionSec && 'IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const homeItem = document.querySelector('.bottom-nav-item[data-nav="home"]');
+          const collItem = document.querySelector('.bottom-nav-item[data-nav="collection"]');
+          if (!homeItem || !collItem) return;
+          if (entry.isIntersecting) {
+            homeItem.classList.remove('active');
+            collItem.classList.add('active');
+          } else {
+            if (window.scrollY < collectionSec.offsetTop - 100) {
+              collItem.classList.remove('active');
+              homeItem.classList.add('active');
+            }
+          }
+        });
+      }, { threshold: 0.3 });
+      obs.observe(collectionSec);
+    }
+  }
+
+  // Intercept click on collection item (index.html)
+  const collItem = document.querySelector('.bottom-nav-item[data-nav="collection"]');
+  if (collItem) {
+    collItem.addEventListener('click', (e) => {
+      const isHomepage = window.location.pathname.endsWith('index.html')
+                      || window.location.pathname.endsWith('/')
+                      || window.location.pathname === '';
+      if (isHomepage) {
+        e.preventDefault();
+        window.scrollToSection('collection', true);
+        history.pushState(null, '', '#collection');
+        
+        document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
+        collItem.classList.add('active');
+      }
+    });
+  }
+
+  // 2. Account Sheet interactive functionality
+  const accountBtn = document.getElementById('account-nav-btn');
+  const sheet = document.getElementById('account-sheet');
+  const backdrop = document.getElementById('account-sheet-backdrop');
+
+  if (accountBtn && sheet && backdrop) {
+    const toggleSheet = (show) => {
+      sheet.classList.toggle('active', show);
+      backdrop.classList.toggle('active', show);
+      if (show) {
+        document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
+        accountBtn.classList.add('active');
+      } else {
+        highlightBottomNav();
+      }
+    };
+
+    accountBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isActive = sheet.classList.contains('active');
+      toggleSheet(!isActive);
+    });
+
+    backdrop.addEventListener('click', () => toggleSheet(false));
+  }
+
+  // 3. Sync Firebase auth state to Account sheet dynamically
+  if (typeof firebase !== 'undefined') {
+    firebase.auth().onAuthStateChanged((user) => {
+      const loggedInDiv = document.getElementById('account-sheet-logged-in');
+      const loggedOutDiv = document.getElementById('account-sheet-logged-out');
+      const nameEl = document.getElementById('account-sheet-name');
+
+      if (user) {
+        if (loggedInDiv) loggedInDiv.style.display = 'block';
+        if (loggedOutDiv) loggedOutDiv.style.display = 'none';
+        if (nameEl) {
+          const rawName = user.displayName || user.email.split('@')[0];
+          const firstName = rawName.split(' ')[0].split('@')[0].split('.')[0];
+          nameEl.textContent = 'Hi, ' + firstName;
+        }
+      } else {
+        if (loggedInDiv) loggedInDiv.style.display = 'none';
+        if (loggedOutDiv) loggedOutDiv.style.display = 'block';
+      }
+      
+      // Also update bottom nav wishlist badge instantly on load/change
+      const badge = document.getElementById('wishlist-badge');
+      if (badge && window.userWishlistSet) {
+        const count = window.userWishlistSet.size;
+        if (count > 0) {
+          badge.textContent = count;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  // 4. Sheet theme toggle action
+  const sheetThemeBtn = document.getElementById('account-sheet-theme-toggle');
+  if (sheetThemeBtn) {
+    sheetThemeBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('cc_theme', newTheme);
+    });
+  }
+}
+

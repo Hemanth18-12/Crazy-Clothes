@@ -49,12 +49,28 @@ if (typeof firebase !== 'undefined') {
               btn.classList.remove('wishlisted');
             }
           });
+          // Update mobile bottom nav wishlist badge count
+          const badge = document.getElementById('wishlist-badge');
+          if (badge) {
+            const count = window.userWishlistSet.size;
+            if (count > 0) {
+              badge.textContent = count;
+              badge.style.display = 'flex';
+            } else {
+              badge.style.display = 'none';
+            }
+          }
         });
     } else {
       window.userWishlistSet.clear();
       document.querySelectorAll('.wishlist-heart-btn').forEach(btn => {
         btn.classList.remove('wishlisted');
       });
+      // Clear mobile bottom nav wishlist badge
+      const badge = document.getElementById('wishlist-badge');
+      if (badge) {
+        badge.style.display = 'none';
+      }
     }
   });
 }

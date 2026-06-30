@@ -385,3 +385,180 @@ footer::before {
     flex-direction: row;
   }
 }
+
+/* ───────────────────────────────────────
+   MOBILE BOTTOM NAVIGATION BAR
+   ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px; /* Space so bottom nav doesn't cover content */
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    animation: bottomNavSlideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transform: translateY(100%);
+    transition: background-color 0.3s ease;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0.5rem 0;
+    flex: 1;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 500;
+    transition: color 0.2s ease, transform 0.2s ease;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-item svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    transition: stroke 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Active page indicator */
+  .bottom-nav-item.active {
+    color: var(--color-accent);
+  }
+
+  /* Touch click feedback bounce */
+  .bottom-nav-item:active svg {
+    transform: scale(1.2);
+  }
+
+  /* Wishlist badge */
+  .bottom-nav-badge {
+    position: absolute;
+    top: 2px;
+    right: calc(50% - 18px);
+    background-color: var(--color-accent);
+    color: var(--color-white);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 1.5px solid var(--color-surface);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: badgeScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* ───────────────────────────────────────
+     ACCOUNT BOTTOM SHEET
+     ─────────────────────────────────────── */
+  .bottom-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 98;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .bottom-sheet-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: 99;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease;
+    padding: 1.5rem 1.5rem calc(1.5rem + 60px + env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .bottom-sheet.active {
+    transform: translateY(0);
+  }
+
+  .bottom-sheet-header {
+    width: 40px;
+    height: 4px;
+    background-color: var(--color-border);
+    border-radius: 2px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .bottom-sheet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .bottom-sheet-greeting {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .bottom-sheet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .bottom-sheet-label {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+  }
+}
+
+@keyframes bottomNavSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes badgeScaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
