@@ -4,13 +4,11 @@
   =========================================
 */
 
-/* ─── Black T-Shirt card: 25% smaller image ─────────────
-   Only the image wrapper shrinks; text info is unchanged. */
-.product-card--black .product-image-wrapper img {
-  transform: scale(0.75);
-}
-.product-card--black:hover .product-image-wrapper img {
-  transform: scale(0.82);
+/* ─── Black T-Shirt card: slightly brighter bg so the black tee
+   reads clearly against the card surface. Image is NOT scaled
+   down — object-fit: cover handles all orientations correctly. */
+.product-card--black .product-image-wrapper {
+  background-color: #1a1a1a;
 }
 
 /* ─── Buttons ─── */
@@ -93,17 +91,27 @@
   box-shadow: none !important;
 }
 
-/* ─── Premium Product Cards ─── */
+/* ─────────────────────────────────────────────────────────
+   PRODUCT CARD — Two-zone layout
+   Zone 1: .product-image-wrapper  (image + overlays)
+   Zone 2: .product-info           (details below image)
+   ───────────────────────────────────────────────────────── */
 .product-card {
   position: relative;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
-  aspect-ratio: 3/4;
+  /* No aspect-ratio here — the image wrapper owns the ratio */
+  transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow 0.4s ease,
+              transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Card hover: subtle lift */
+.product-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
 }
 
 /* Card hover border trace effect */
@@ -121,98 +129,141 @@
   opacity: 1;
 }
 
+/* ── Zone 1: Image Container ───────────────────────────── */
 .product-image-wrapper {
-  position: relative;
+  position: relative;          /* anchor for badge & heart overlays */
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 5;         /* fixed portrait ratio — never distorts */
+  overflow: hidden;            /* KEY FIX: clips image within this box */
   background-color: var(--color-bg-2);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;              /* never squash when card height is constrained */
   transition: background-color 0.3s;
 }
 
 .product-image-wrapper img {
+  display: block;              /* removes inline-image bottom gap */
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover;           /* fills ratio box, crops intelligently */
+  object-position: center top; /* favour the top (face/logo) of the shirt */
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Hover zoom — contained by overflow:hidden on the wrapper */
 .product-card:hover .product-image-wrapper img {
-  transform: scale(1.08);
+  transform: scale(1.07);
 }
 
-/* Price tag in top right corner */
-.product-card .product-price {
+/* ── Zone 1 Overlay: Stock badge (top-left of image) ───── */
+.product-badges {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background-color: var(--color-black);
-  color: var(--color-white);
-  padding: 0.4rem 0.8rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 700;
-  border: 1px solid var(--color-border);
-  z-index: 15;
-  margin: 0 !important;
-}
-html[data-theme="light"] .product-card .product-price {
-  background-color: var(--color-white);
-  color: var(--color-black);
-}
-
-/* Product Info Overlay (initially hidden or sliding up on hover) */
-.product-card .product-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(to top, rgba(8,8,8,0.98) 0%, rgba(8,8,8,0.75) 65%, transparent 100%);
-  padding: var(--spacing-lg);
+  top: 10px;
+  left: 10px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  transform: translateY(calc(100% - 95px)); /* Show title/meta, hide button */
-  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
-  z-index: 8;
+  gap: 6px;
 }
-html[data-theme="light"] .product-card .product-info {
-  background: linear-gradient(to top, rgba(250,250,250,0.98) 0%, rgba(250,250,250,0.85) 65%, transparent 100%);
+
+.stock-badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.60);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.12);
+  line-height: 1.4;
 }
-.product-card:hover .product-info {
-  transform: translateY(0);
+
+.stock-badge.in-stock  { color: #a7f3d0; }
+.stock-badge.out-stock { color: #fca5a5; }
+
+.custom-badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.60);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.10);
+  line-height: 1.4;
+}
+
+/* ── Zone 2: Details block (below the image, never overlapping) */
+.product-card .product-info {
+  /* Static block — not absolute, not overlapping the image */
+  position: static;
+  background: var(--color-surface);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* No transform, no gradient — clean separation from image */
+}
+
+/* Top row inside details: type label + price side-by-side */
+.product-card .product-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .product-title {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 1.05rem;
+  line-height: 1.25;
   color: var(--color-text-primary);
-  margin-bottom: 2px;
+  margin: 2px 0 0;
+  /* Prevent very long names from blowing the card */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-meta {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   color: var(--color-text-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Quick Add Button / Action inside Card */
-.product-card .product-info .btn {
-  opacity: 0;
-  transform: translateY(15px);
-  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s;
-  margin-top: 0.5rem !important;
-  width: 100%;
-  padding: 0.6rem !important;
-  font-size: 0.95rem;
+/* Price — now lives in the details block, right-aligned */
+.product-card .product-price {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  /* No absolute positioning — it's in the flex meta-row */
 }
-.product-card:hover .product-info .btn {
-  opacity: 1;
-  transform: translateY(0);
+
+/* CTA button inside details */
+.product-card .product-info .btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 0.55rem 0.8rem !important;
+  font-size: 0.82rem;
+  /* Always visible — no hover-reveal needed in the new layout */
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* ─── Custom Selector Toggles (Color & Size) ─── */

@@ -347,9 +347,11 @@ const ProductsService = {
         </button>
       </div>
       <div class="product-info">
-        <span class="product-meta">${product.type || 'T-Shirt'} · ${colorLabel}</span>
+        <div class="product-meta-row">
+          <span class="product-meta">${product.type || 'T-Shirt'} · ${colorLabel}</span>
+          <span class="product-price">₹${product.price || 499}</span>
+        </div>
         <h3 class="product-title">${product.name}</h3>
-        <div class="product-price">₹${product.price || 499}</div>
         <button class="btn btn-accent btn-press-feedback" style="margin-top:auto;">
           Order Now
         </button>
@@ -385,9 +387,11 @@ const ProductsService = {
         </div>
       </div>
       <div class="product-info">
-        <span class="product-meta">Blank Tee · ${product.color ? product.color.charAt(0).toUpperCase() + product.color.slice(1) : ''}</span>
+        <div class="product-meta-row">
+          <span class="product-meta">Blank Tee · ${product.color ? product.color.charAt(0).toUpperCase() + product.color.slice(1) : ''}</span>
+          <span class="product-price">₹${product.price || 499}</span>
+        </div>
         <h3 class="product-title">${product.name || (isBlack ? 'Black Vision Tee' : 'White Vision Tee')}</h3>
-        <div class="product-price">₹${product.price || 499}</div>
         <button class="btn btn-accent btn-press-feedback" style="margin-top:auto;">
           Customize &amp; Order
         </button>
