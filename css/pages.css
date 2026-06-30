@@ -16,7 +16,7 @@
   align-items: center;
   overflow: hidden;
   padding-top: var(--header-height);
-  background-color: var(--color-bg);
+  background-color: transparent;
   transition: background-color 0.3s;
 }
 
@@ -28,8 +28,7 @@
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.12;
-  mix-blend-mode: luminosity;
+  opacity: 0.45;
 }
 
 .hero-bg-overlay {
@@ -526,7 +525,7 @@ html[data-theme="light"] .summary-card-premium {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xxl) var(--spacing-md);
-  background-color: var(--color-bg);
+  background-color: transparent;
 }
 
 .success-card {

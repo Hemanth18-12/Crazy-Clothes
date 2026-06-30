@@ -52,47 +52,60 @@
   <!-- HEADER -->
   <header>
     <div class="container header-container">
-      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
-      
-      <!-- Desktop Navigation -->
-      <nav class="desktop-nav">
-        <ul>
-          <li><a href="index.html" class="nav-link active">Home</a></li>
-          <li><a href="#the-collection" class="nav-link">Collection</a></li>
-          <li><a href="#customize-your-own" class="nav-link">Customize</a></li>
-          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
-          <li>
+      <!-- LEFT ZONE: Brand Logo & Primary Nav -->
+      <div class="header-left">
+        <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+        <nav class="desktop-nav">
+          <ul>
+            <li><a href="index.html" class="nav-link active" data-section-link="home">Home</a></li>
+            <li><a href="#collection" class="nav-link" data-section-link="collection">Collection</a></li>
+            <li><a href="#customize" class="nav-link" data-section-link="customize">Customize</a></li>
+            <li><a href="#how-it-works" class="nav-link" data-section-link="how-it-works">How It Works</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- RIGHT ZONE: Account & Utilities -->
+      <div class="header-right">
+        <!-- Desktop Utility Navigation -->
+        <nav class="desktop-nav">
+          <ul>
             <!-- Logged out state -->
-            <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
-              Login to Shop
-            </a>
+            <li id="header-logged-out-container">
+              <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
+                Login to Shop
+              </a>
+            </li>
             <!-- Logged in state (hidden by default) -->
-            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
-              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
-              <a href="orders.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
-              <a href="wishlist.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+            <li id="header-user-area" style="display:none; align-items:center; gap: 2rem;">
+              <a href="wishlist.html" class="nav-link" style="font-size: 0.95rem; font-family: var(--font-display); font-weight: 600; text-transform: uppercase;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.2rem;">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                Wishlist
+              </a>
+              <a href="orders.html" class="nav-link">My Orders</a>
+              <span id="header-user-name" class="nav-greeting">Hi, Guest</span>
               <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                 Logout
               </button>
-            </div>
-          </li>
-          <li>
+            </li>
             <!-- Theme Toggle -->
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
-              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-              </svg>
-              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            </button>
-          </li>
-        </ul>
-      </nav>
+            <li>
+              <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              </button>
+            </li>
+          </ul>
+        </nav>
 
-      <!-- Hamburger toggle on Mobile -->
-      <div style="display:flex; align-items:center; gap: 1rem;">
-        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+        <!-- Mobile controls -->
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme">
           <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
           </svg>
@@ -112,20 +125,26 @@
   <!-- Mobile Drawer -->
   <nav class="mobile-drawer">
     <ul>
-      <li><a href="index.html" class="nav-link active">Home</a></li>
-      <li><a href="#the-collection" class="nav-link">Collection</a></li>
-      <li><a href="#customize-your-own" class="nav-link">Customize</a></li>
-      <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
-      <li>
-        <!-- Mobile Logged out state -->
+      <li><a href="index.html" class="nav-link active" data-section-link="home">Home</a></li>
+      <li><a href="#collection" class="nav-link" data-section-link="collection">Collection</a></li>
+      <li><a href="#customize" class="nav-link" data-section-link="customize">Customize</a></li>
+      <li><a href="#how-it-works" class="nav-link" data-section-link="how-it-works">How It Works</a></li>
+      
+      <!-- Mobile Logged out state -->
+      <li id="mobile-logged-out-state">
         <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
-        <!-- Mobile Logged in state (hidden by default) -->
-        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
-          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
-          <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
-          <a href="wishlist.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
-          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
-        </div>
+      </li>
+      <!-- Mobile Logged in state (hidden by default) -->
+      <li id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+        <a href="wishlist.html" class="nav-link" style="display: inline-flex; align-items: center; gap: 0.4rem; justify-content: center; color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 18px; height: 18px;">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Wishlist
+        </a>
+        <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+        <span id="mobile-user-name" class="nav-greeting" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary); text-align: center;"></span>
+        <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
       </li>
     </ul>
   </nav>
@@ -139,8 +158,8 @@
       <!-- Slow-drifting radial blob -->
       <div class="hero-blob"></div>
 
-      <!-- Background mockup image -->
-      <div class="hero-bg" style="background-image: url('assets/images/black-t-shirt.png');"></div>
+      <!-- Background wallpaper -->
+      <div class="hero-bg" style="background-image: url('assets/images/hero-wallpaper.png');"></div>
       <div class="hero-bg-overlay"></div>
 
       <div class="container hero-content">
@@ -230,7 +249,7 @@
     </section>
 
     <!-- SECTION A: THE COLLECTION (catalog products from Firestore) -->
-    <section id="the-collection" class="page-section reveal-on-scroll">
+    <section id="collection" class="page-section reveal-on-scroll">
       <div class="container">
         <div style="text-align: center; margin-bottom: 3rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
           <h2 style="font-size: 4.5rem; margin-bottom: 0.5rem; text-transform: uppercase;">THE COLLECTION</h2>
@@ -267,7 +286,7 @@
     </section>
 
     <!-- SECTION B: CUSTOMIZE YOUR OWN (blank tees for customer design upload) -->
-    <section id="customize-your-own" class="page-section reveal-on-scroll" style="background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%); border-top: 1px solid var(--color-border);">
+    <section id="customize" class="page-section reveal-on-scroll" style="background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%); border-top: 1px solid var(--color-border);">
       <div class="container">
         <div style="text-align: center; margin-bottom: 3rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
           <h2 style="font-size: 3.5rem; margin-bottom: 0.5rem; text-transform: uppercase;">CUSTOMIZE YOUR OWN</h2>
@@ -541,13 +560,15 @@
       const mUserName = document.getElementById('mobile-user-name');
 
       if (name) {
+        const firstName = name.split(' ')[0].split('@')[0].split('.')[0];
+        
         if (loginBtn) loginBtn.style.display = 'none';
         if (userArea) userArea.style.display = 'flex';
-        if (userName) userName.textContent = 'Hi, ' + name;
+        if (userName) userName.textContent = 'Hi, ' + firstName;
 
         if (mLoginBtn) mLoginBtn.style.display = 'none';
         if (mUserArea) mUserArea.style.display = 'flex';
-        if (mUserName) mUserName.textContent = 'Hi, ' + name;
+        if (mUserName) mUserName.textContent = 'Hi, ' + firstName;
       }
     });
   </script>

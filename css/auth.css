@@ -9,7 +9,7 @@
   min-height: 100vh;
   width: 100%;
   overflow: hidden;
-  background-color: var(--color-bg);
+  background-color: transparent;
 }
 
 /* Left Brand Panel (Always Dark) */
@@ -93,7 +93,7 @@
   justify-content: center;
   padding: 2rem;
   width: 100%;
-  background-color: var(--color-bg);
+  background-color: transparent;
   transition: background-color 0.3s;
 }
 

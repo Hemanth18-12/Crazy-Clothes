@@ -33,44 +33,60 @@
   <!-- HEADER -->
   <header>
     <div class="container header-container">
-      <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
-      
-      <nav class="desktop-nav">
-        <ul>
-          <li><a href="index.html" class="nav-link">Home</a></li>
-          <li><a href="product.html" class="nav-link active">Shop</a></li>
-          <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
-          <li><a href="index.html#collection" class="nav-link">Products</a></li>
-          <li>
+      <!-- LEFT ZONE: Brand Logo & Primary Nav -->
+      <div class="header-left">
+        <a href="index.html" class="logo">CRAZY<span>CLOTHS</span></a>
+        <nav class="desktop-nav">
+          <ul>
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="index.html#collection" class="nav-link">Collection</a></li>
+            <li><a href="index.html#customize" class="nav-link">Customize</a></li>
+            <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- RIGHT ZONE: Account & Utilities -->
+      <div class="header-right">
+        <!-- Desktop Utility Navigation -->
+        <nav class="desktop-nav">
+          <ul>
             <!-- Logged out state -->
-            <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
-              Login to Shop
-            </a>
+            <li id="header-logged-out-container">
+              <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
+                Login to Shop
+              </a>
+            </li>
             <!-- Logged in state (hidden by default) -->
-            <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
-              <span id="header-user-name" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-text-primary);"></span>
-              <a href="orders.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
-              <a href="wishlist.html" class="nav-link" style="font-size: 0.9rem; font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
+            <li id="header-user-area" style="display:none; align-items:center; gap: 2rem;">
+              <a href="wishlist.html" class="nav-link" style="font-size: 0.95rem; font-family: var(--font-display); font-weight: 600; text-transform: uppercase;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.2rem;">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                Wishlist
+              </a>
+              <a href="orders.html" class="nav-link">My Orders</a>
+              <span id="header-user-name" class="nav-greeting">Hi, Guest</span>
               <button onclick="AuthService.logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                 Logout
               </button>
-            </div>
-          </li>
-          <li>
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
-              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-              </svg>
-              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            </button>
-          </li>
-        </ul>
-      </nav>
+            </li>
+            <!-- Theme Toggle -->
+            <li>
+              <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              </button>
+            </li>
+          </ul>
+        </nav>
 
-      <div style="display:flex; align-items:center; gap: 1rem;">
-        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme" style="display: flex; @media (min-width: 768px) { display: none; }">
+        <!-- Mobile controls -->
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" aria-label="Toggle Theme">
           <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
           </svg>
@@ -79,28 +95,37 @@
           </svg>
         </button>
         <button class="menu-toggle" aria-label="Toggle Menu">
-          <span></span><span></span><span></span>
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
     </div>
   </header>
 
+  <!-- Mobile Drawer -->
   <nav class="mobile-drawer">
     <ul>
       <li><a href="index.html" class="nav-link">Home</a></li>
-      <li><a href="product.html" class="nav-link active">Shop</a></li>
+      <li><a href="index.html#collection" class="nav-link">Collection</a></li>
+      <li><a href="index.html#customize" class="nav-link">Customize</a></li>
       <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
-      <li><a href="index.html#collection" class="nav-link">Products</a></li>
-      <li>
-        <!-- Mobile Logged out state -->
+      
+      <!-- Mobile Logged out state -->
+      <li id="mobile-logged-out-state">
         <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
-        <!-- Mobile Logged in state (hidden by default) -->
-        <div id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
-          <span id="mobile-user-name" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary);"></span>
-          <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
-          <a href="wishlist.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">Wishlist</a>
-          <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
-        </div>
+      </li>
+      <!-- Mobile Logged in state (hidden by default) -->
+      <li id="mobile-user-area" style="display:none; flex-direction:column; gap:0.5rem; padding: 0.5rem 1.5rem;" class="mobile-user-area">
+        <a href="wishlist.html" class="nav-link" style="display: inline-flex; align-items: center; gap: 0.4rem; justify-content: center; color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 18px; height: 18px;">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Wishlist
+        </a>
+        <a href="orders.html" class="nav-link" style="color: var(--color-text-primary); font-family: var(--font-mono); text-transform: uppercase;">My Orders</a>
+        <span id="mobile-user-name" class="nav-greeting" style="font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-text-secondary); text-align: center;"></span>
+        <a href="#" onclick="AuthService.logout()" class="nav-link" style="color: var(--color-accent); font-family: var(--font-mono); text-transform: uppercase;">Logout</a>
       </li>
     </ul>
   </nav>
@@ -190,7 +215,7 @@
               </form>
             </div>
 
-            <a href="index.html#the-collection" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;margin-top:1rem;">
+            <a href="index.html#collection" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;margin-top:1rem;">
               ← Back to Collection
             </a>
           </div>
@@ -478,6 +503,7 @@
   <!-- Remaining store scripts -->
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/products.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/uploader.js"></script>
   <script src="js/whatsapp.js"></script>
@@ -625,13 +651,15 @@
       const mUserName = document.getElementById('mobile-user-name');
 
       if (name) {
+        const firstName = name.split(' ')[0].split('@')[0].split('.')[0];
+        
         if (loginBtn) loginBtn.style.display = 'none';
         if (userArea) userArea.style.display = 'flex';
-        if (userName) userName.textContent = 'Hi, ' + name;
+        if (userName) userName.textContent = 'Hi, ' + firstName;
 
         if (mLoginBtn) mLoginBtn.style.display = 'none';
         if (mUserArea) mUserArea.style.display = 'flex';
-        if (mUserName) mUserName.textContent = 'Hi, ' + name;
+        if (mUserName) mUserName.textContent = 'Hi, ' + firstName;
       }
 
       // 6. Product branching: catalog vs customizable

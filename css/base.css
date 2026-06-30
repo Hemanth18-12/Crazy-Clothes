@@ -162,6 +162,24 @@ body.home-page::before {
   background-size: 28px 28px;
 }
 
+/* Section landing highlight animation */
+@keyframes navSectionFlashAnim {
+  0%   { background-color: var(--color-accent-dim); box-shadow: 0 0 0 8px var(--color-accent-dim); }
+  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
+}
+.nav-section-flash {
+  animation: navSectionFlashAnim 0.9s ease-out forwards;
+  border-radius: 6px;
+}
+
+/* Active nav link underline (ScrollSpy) */
+.nav-link.scroll-active {
+  color: var(--color-accent) !important;
+}
+.nav-link.scroll-active::after {
+  width: 100% !important;
+}
+
 
 a, button, select, input[type="submit"], input[type="button"], input[type="file"], .color-btn, .type-pill, .upload-zone {
   cursor: pointer;

@@ -59,6 +59,67 @@ if (typeof firebase !== 'undefined') {
   });
 }
 
+function showWishlistToast(title, message, isError = false) {
+  let container = document.getElementById('wishlist-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'wishlist-toast-container';
+    container.style.cssText = `
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+      max-width: 340px;
+      width: 100%;
+    `;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    background: ${isError ? '#1f0d0d' : '#0d1f11'};
+    border: 1px solid ${isError ? '#ef4444' : '#10b981'};
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  `;
+
+  toast.innerHTML = `
+    <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: ${isError ? '#fca5a5' : '#a7f3d0'}; text-transform: uppercase; letter-spacing: 0.05em;">
+      ${title}
+    </div>
+    <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4;">
+      ${message}
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 4000);
+}
+
 window.toggleProductWishlist = async function(event, productId) {
   if (event) {
     event.stopPropagation();
@@ -73,8 +134,13 @@ window.toggleProductWishlist = async function(event, productId) {
     return;
   }
 
-  const btn = event ? event.currentTarget : null;
+  // event.currentTarget is null in inline onclick; use closest() instead
+  const btn = event ? event.target.closest('.wishlist-heart-btn') : null;
+
+  // Optimistic UI: toggle immediately so the user sees instant feedback
+  const isCurrentlyWishlisted = window.userWishlistSet.has(productId);
   if (btn) {
+    btn.classList.toggle('wishlisted', !isCurrentlyWishlisted);
     btn.classList.add('pop-active');
     setTimeout(() => btn.classList.remove('pop-active'), 300);
   }
@@ -82,15 +148,23 @@ window.toggleProductWishlist = async function(event, productId) {
   const wishRef = firebase.firestore().collection('users').doc(user.uid).collection('wishlist').doc(productId);
   
   try {
-    if (window.userWishlistSet.has(productId)) {
+    if (isCurrentlyWishlisted) {
       await wishRef.delete();
+      window.userWishlistSet.delete(productId);
+      showWishlistToast('Wishlist Update', 'Product removed from your wishlist.');
     } else {
-      await wishRef.set({
-        addedAt: new Date().toISOString()
-      });
+      await wishRef.set({ addedAt: new Date().toISOString() });
+      window.userWishlistSet.add(productId);
+      showWishlistToast('Wishlist Update', 'Product added to your wishlist.');
     }
   } catch (err) {
-    console.error("Wishlist operation failed:", err);
+    console.error('Wishlist operation failed:', err);
+    showWishlistToast('Wishlist Error', `Failed to update wishlist: ${err.message}`, true);
+    // Revert optimistic update on error
+    if (btn) btn.classList.toggle('wishlisted', isCurrentlyWishlisted);
+    if (window.userWishlistSet.has(productId) !== isCurrentlyWishlisted) {
+      isCurrentlyWishlisted ? window.userWishlistSet.add(productId) : window.userWishlistSet.delete(productId);
+    }
   }
 };
 
@@ -266,7 +340,7 @@ const ProductsService = {
       </div>
     `;
 
-    card.querySelector('button').addEventListener('click', (e) => {
+    card.querySelector('.product-info button').addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof onSelect === 'function') onSelect(product);
     });
@@ -305,7 +379,7 @@ const ProductsService = {
     `;
 
     const handler = () => { if (typeof onSelect === 'function') onSelect(product); };
-    card.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); handler(); });
+    card.querySelector('.product-info button').addEventListener('click', (e) => { e.stopPropagation(); handler(); });
     card.addEventListener('click', handler);
 
     return card;
