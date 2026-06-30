@@ -334,26 +334,40 @@ function clearDragAndDrop() {
 async function handleProductFormSubmit(e) {
   e.preventDefault();
 
-  const name = document.getElementById('product-name').value.trim();
-  const type = document.getElementById('product-type').value;
-  const color = document.getElementById('product-color').value;
-  const price = parseInt(document.getElementById('product-price').value) || 499;
-  const inStock = document.getElementById('product-stock').checked;
-  const customizable = document.getElementById('product-custom').checked;
+  const categoryEl     = document.getElementById('product-category');
+  const category       = categoryEl ? categoryEl.value : 'catalog';
+  const isCustomizable = category === 'customizable';
+
+  // For customizable blanks, name and type are auto-generated from color
+  const colorEl  = document.getElementById('product-color');
+  const color    = colorEl ? colorEl.value : 'white';
+  const name     = isCustomizable
+    ? `${color.charAt(0).toUpperCase() + color.slice(1)} Vision Tee`
+    : (document.getElementById('product-name').value.trim() || '');
+  const type     = isCustomizable
+    ? 'Blank T-Shirt'
+    : (document.getElementById('product-type').value || 'Oversized T-Shirt');
+  const price    = parseInt(document.getElementById('product-price').value) || 499;
+  const inStock  = document.getElementById('product-stock').checked;
+
+  if (!isCustomizable && !name) {
+    alert('Product name is required for catalog items.');
+    return;
+  }
 
   const saveBtn = document.getElementById('product-save-btn');
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving...';
 
-  let imageUrl = currentImageUrl;
-  let publicId = currentCloudinaryPublicId;
+  let imageUrl              = currentImageUrl;
+  let cloudinaryPublicId    = currentCloudinaryPublicId;
 
   if (uploadedFile) {
     try {
       const uploadPreset = CONFIG.cloudinary.productUploadPreset || CONFIG.cloudinary.uploadPreset;
       const result = await uploadToCloudinary(uploadedFile, uploadPreset, 'products');
-      imageUrl = result.secure_url;
-      publicId = result.public_id;
+      imageUrl           = result.secure_url;
+      cloudinaryPublicId = result.public_id;
     } catch (err) {
       alert('Image upload failed: ' + err.message);
       saveBtn.disabled = false;
@@ -362,8 +376,9 @@ async function handleProductFormSubmit(e) {
     }
   }
 
-  if (!imageUrl) {
-    alert('Please upload a product image.');
+  // Catalog items always require an image; customizable blanks can fall back to static
+  if (!isCustomizable && !imageUrl) {
+    alert('Please upload a product image for catalog items.');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Product';
     return;
@@ -376,11 +391,12 @@ async function handleProductFormSubmit(e) {
       type,
       color,
       price,
-      stockStatus: inStock ? 'inStock' : 'outOfStock',
-      isCustomizable: customizable,
-      imageUrl,
-      publicId,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      stockStatus:        inStock ? 'inStock' : 'outOfStock',
+      isCustomizable,
+      category,
+      imageUrl:           imageUrl || '',
+      cloudinaryPublicId: cloudinaryPublicId || '',
+      createdAt:          firebase.firestore.FieldValue.serverTimestamp()
     };
 
     if (editingProductId) {
@@ -388,10 +404,9 @@ async function handleProductFormSubmit(e) {
       logAdminAction("updated product", "products", editingProductId, `"${name}"`);
       showAdminToast("Product Updated", `"${name}" was successfully modified.`);
     } else {
-      // For new products, set a default sortOrder
       productData.sortOrder = Date.now();
       const docRef = await db.collection('products').add(productData);
-      logAdminAction("added product", "products", docRef.id, `"${name}"`);
+      logAdminAction("added product", "products", docRef.id, `"${name}" (${category})`);
       showAdminToast("Product Added", `"${name}" was added to the catalog.`);
     }
 
@@ -432,19 +447,22 @@ function createProductCard(product, container, index) {
   card.className = 'admin-product-card';
   card.id = `product-card-${product.id}`;
   
-  card.style.opacity = '0';
+  card.style.opacity   = '0';
   card.style.transform = 'translateY(15px)';
   card.style.transition = 'opacity 0.4s var(--ease-admin), transform 0.4s var(--ease-admin), border-color 0.3s, box-shadow 0.3s';
 
-  const priceVal = product.price || 499;
-  const isCustom = product.isCustomizable === true;
+  const priceVal  = product.price || 499;
   const isInStock = product.stockStatus === 'inStock';
+  const category  = product.category || 'catalog';
+  const catColor  = category === 'customizable' ? 'var(--admin-warning)' : 'var(--admin-accent)';
+  const catLabel  = category === 'customizable' ? '✏️ Custom Blank' : '📦 Catalog';
+  const imgSrc    = product.imageUrl || (product.color === 'black' ? '../assets/images/black-t-shirt.png' : '../assets/images/white-t-shirt.png');
 
   card.innerHTML = `
     <div class="admin-product-img">
-      <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
+      <img src="${imgSrc}" alt="${product.name}" loading="lazy">
       <div class="admin-product-badges">
-        ${isCustom ? '<span class="admin-card-badge customizable" style="background:var(--admin-accent-dim); color:var(--admin-accent);">Custom</span>' : ''}
+        <span class="admin-card-badge" style="background:${catColor}22; color:${catColor};">${catLabel}</span>
       </div>
     </div>
     <div class="admin-product-details">
@@ -468,19 +486,17 @@ function createProductCard(product, container, index) {
     <div class="admin-product-delete-confirm" id="delete-confirm-${product.id}">
       <p>Are you sure?</p>
       <div class="admin-product-delete-confirm-btns">
-        <button class="admin-btn admin-btn-primary" style="padding:0.4rem 0.8rem; font-size:0.75rem;" onclick="deleteProduct('${product.id}', '${product.publicId || ''}')">Yes</button>
+        <button class="admin-btn admin-btn-primary" style="padding:0.4rem 0.8rem; font-size:0.75rem;" onclick="deleteProduct('${product.id}', '${product.cloudinaryPublicId || product.publicId || ''}')">Yes</button>
         <button class="admin-btn admin-btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.75rem;" onclick="showDeleteConfirm('${product.id}', false)">Cancel</button>
       </div>
     </div>
   `;
 
   container.appendChild(card);
-  
-  // Attach Drag & Drop listener for list reordering
   initDragAndDropReorder(card, product.id);
 
   setTimeout(() => {
-    card.style.opacity = '1';
+    card.style.opacity   = '1';
     card.style.transform = 'translateY(0)';
   }, index * 45);
 }
@@ -552,15 +568,22 @@ async function editProduct(id) {
     editingProductId = id;
 
     document.getElementById('panel-title').textContent = 'Edit Product';
-    document.getElementById('product-name').value = data.name || '';
-    document.getElementById('product-type').value = data.type || 'Oversized T-Shirt';
+    document.getElementById('product-name').value  = data.name  || '';
+    document.getElementById('product-type').value  = data.type  || 'Oversized T-Shirt';
     document.getElementById('product-color').value = data.color || 'white';
     document.getElementById('product-price').value = data.price || 499;
-    document.getElementById('product-stock').checked = data.stockStatus === 'inStock';
+    document.getElementById('product-stock').checked  = data.stockStatus === 'inStock';
     document.getElementById('product-custom').checked = data.isCustomizable === true;
 
-    currentImageUrl = data.imageUrl || '';
-    currentCloudinaryPublicId = data.publicId || '';
+    // Category selector
+    const catEl = document.getElementById('product-category');
+    if (catEl) catEl.value = data.category || 'catalog';
+
+    // Trigger form field visibility update
+    if (window._updateCategoryFormFields) window._updateCategoryFormFields(data.category || 'catalog');
+
+    currentImageUrl           = data.imageUrl || '';
+    currentCloudinaryPublicId = data.cloudinaryPublicId || data.publicId || '';
 
     const previewContainer = document.getElementById('dropzone-preview-container');
     const previewImg = document.getElementById('dropzone-preview-img');

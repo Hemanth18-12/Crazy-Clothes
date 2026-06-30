@@ -142,10 +142,10 @@
             <span class="success-details-label">Order Reference</span>
             <span id="ref-order-id" class="success-details-val">#CC-XXXXXXXXXX</span>
           </div>
-          
+
           <div class="success-details-row">
-            <span class="success-details-label">Custom Garment</span>
-            <span id="ref-color-size" class="success-details-val">WHITE / M</span>
+            <span class="success-details-label" id="ref-garment-label">Product</span>
+            <span id="ref-color-size" class="success-details-val">—</span>
           </div>
 
           <div class="success-details-row">
@@ -214,12 +214,36 @@
         const orderData = localStorage.getItem('crazy_cloths_last_order');
         if (orderData) {
           const order = JSON.parse(orderData);
-          document.getElementById('ref-order-id').textContent = '#' + order.orderId;
-          document.getElementById('ref-color-size').textContent = `${order.color.toUpperCase()} / ${order.size}`;
-          document.getElementById('ref-qty').textContent = order.quantity;
-          document.getElementById('ref-total').textContent = order.total;
+
+          // Order reference
+          const refId = document.getElementById('ref-order-id');
+          if (refId) refId.textContent = '#' + (order.orderId || '—');
+
+          // Garment detail — differs by order type
+          const refGarment   = document.getElementById('ref-color-size');
+          const garmentLabel = document.getElementById('ref-garment-label');
+          if (order.category === 'catalog') {
+            // Catalog product: show product name
+            if (garmentLabel) garmentLabel.textContent = 'Product';
+            if (refGarment)   refGarment.textContent   = order.productName || '—';
+          } else {
+            // Customizable: show color / size
+            if (garmentLabel) garmentLabel.textContent = 'Custom Garment';
+            const colorStr = order.color ? order.color.toUpperCase() : '';
+            const sizeStr  = order.size  || '';
+            if (refGarment) refGarment.textContent = [colorStr, sizeStr].filter(Boolean).join(' / ') || '—';
+          }
+
+          const refQty   = document.getElementById('ref-qty');
+          const refTotal = document.getElementById('ref-total');
+          if (refQty)   refQty.textContent   = order.quantity ?? 1;
+          if (refTotal) refTotal.textContent  = order.total || '—';
+
+          // Clear so refresh doesn't re-show stale data
+          // (leave in localStorage for a brief window in case user navigates back)
         } else {
-          document.getElementById('receipt-details').style.display = 'none';
+          const rd = document.getElementById('receipt-details');
+          if (rd) rd.style.display = 'none';
         }
       } catch (e) {
         console.error('Failed to load order receipt:', e);

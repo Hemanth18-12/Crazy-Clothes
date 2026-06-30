@@ -139,14 +139,26 @@
 
     <form id="product-form" style="display:flex; flex-direction:column; gap:1.25rem;">
       
-      <!-- Product Name -->
+      <!-- Category (new) -->
       <div class="admin-form-group">
+        <label class="admin-form-label" for="product-category">Category *</label>
+        <select id="product-category" class="admin-select" style="width:100%;" onchange="_updateCategoryFormFields(this.value)">
+          <option value="catalog">📦 Catalog Item (pre-designed, admin uploads image)</option>
+          <option value="customizable">✏️ Customizable Blank (White or Black tee for customer upload)</option>
+        </select>
+        <p style="font-size:0.72rem; color:var(--admin-text-muted); margin-top:0.35rem;">
+          Choose <strong>Catalog Item</strong> for products you've fully designed. Choose <strong>Customizable Blank</strong> for the plain white/black tee customers can personalize.
+        </p>
+      </div>
+
+      <!-- Product Name (catalog only) -->
+      <div class="admin-form-group" id="field-name">
         <label class="admin-form-label" for="product-name">Product Name *</label>
         <input type="text" id="product-name" class="admin-input" style="width:100%;" placeholder="e.g. Classic Oversized Tee" required>
       </div>
 
-      <!-- Product Type -->
-      <div class="admin-form-group">
+      <!-- Product Type (catalog only) -->
+      <div class="admin-form-group" id="field-type">
         <label class="admin-form-label" for="product-type">Product Type *</label>
         <select id="product-type" class="admin-select" style="width:100%;">
           <option value="Oversized T-Shirt">Oversized T-Shirt</option>
@@ -163,6 +175,9 @@
         <select id="product-color" class="admin-select" style="width:100%;">
           <option value="white">White</option>
           <option value="black">Black</option>
+          <option value="navy">Navy Blue</option>
+          <option value="grey">Grey</option>
+          <option value="red">Red</option>
         </select>
       </div>
 
@@ -185,20 +200,20 @@
           </div>
         </div>
 
-        <!-- Customizable Toggle -->
-        <div class="admin-form-group">
+        <!-- Customizable Toggle (visual only, driven by category) -->
+        <div class="admin-form-group" id="field-custom-toggle">
           <label class="admin-form-label" style="margin-bottom:0.4rem;">Customizable</label>
           <div class="admin-toggle-wrapper">
             <label class="admin-toggle-switch">
-              <input type="checkbox" id="product-custom" checked>
+              <input type="checkbox" id="product-custom">
               <span class="admin-toggle-slider"></span>
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Drag & Drop Zone for Image Upload -->
-      <div class="admin-form-group">
+      <!-- Drag & Drop Zone for Image Upload (catalog only) -->
+      <div class="admin-form-group" id="field-image">
         <label class="admin-form-label">Product Image *</label>
         
         <div class="admin-dropzone" id="product-dropzone">
@@ -224,6 +239,27 @@
 
     </form>
   </div>
+
+  <!-- Category form field toggler (inline) -->
+  <script>
+    function _updateCategoryFormFields(category) {
+      const isCatalog = category !== 'customizable';
+      const fields    = ['field-name', 'field-type', 'field-image'];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = isCatalog ? '' : 'none';
+      });
+      // Auto-set the customizable checkbox
+      const customCheck = document.getElementById('product-custom');
+      if (customCheck) customCheck.checked = !isCatalog;
+    }
+    window._updateCategoryFormFields = _updateCategoryFormFields;
+
+    // Run on page load to default to catalog
+    document.addEventListener('DOMContentLoaded', () => {
+      _updateCategoryFormFields('catalog');
+    });
+  </script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

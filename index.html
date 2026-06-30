@@ -19,6 +19,14 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
+
+  <style>
+    /* Auth gate button pulse */
+    @keyframes gatePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.3); }
+      50%       { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+    }
+  </style>
 </head>
 <body>
 
@@ -39,13 +47,13 @@
       <nav class="desktop-nav">
         <ul>
           <li><a href="index.html" class="nav-link active">Home</a></li>
-          <li><a href="product.html" class="nav-link">Shop</a></li>
+          <li><a href="#the-collection" class="nav-link">Collection</a></li>
+          <li><a href="#customize-your-own" class="nav-link">Customize</a></li>
           <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
-          <li><a href="#collection" class="nav-link">Products</a></li>
           <li>
             <!-- Logged out state -->
-            <a href="login.html" id="header-login-btn" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-              Login
+            <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
+              Login to Shop
             </a>
             <!-- Logged in state (hidden by default) -->
             <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
@@ -92,9 +100,9 @@
   <nav class="mobile-drawer">
     <ul>
       <li><a href="index.html" class="nav-link active">Home</a></li>
-      <li><a href="product.html" class="nav-link">Shop</a></li>
+      <li><a href="#the-collection" class="nav-link">Collection</a></li>
+      <li><a href="#customize-your-own" class="nav-link">Customize</a></li>
       <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
-      <li><a href="#collection" class="nav-link">Products</a></li>
       <li>
         <!-- Mobile Logged out state -->
         <a href="login.html" id="mobile-login-btn" class="nav-link">Login</a>
@@ -206,40 +214,62 @@
       </div>
     </section>
 
-    <!-- PRODUCT CATALOG SHOWCASE -->
-    <section id="collection" class="page-section reveal-on-scroll">
+    <!-- SECTION A: THE COLLECTION (catalog products from Firestore) -->
+    <section id="the-collection" class="page-section reveal-on-scroll">
       <div class="container">
-        <div style="text-align: center; margin-bottom: 5rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
+        <div style="text-align: center; margin-bottom: 3rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
           <h2 style="font-size: 4.5rem; margin-bottom: 0.5rem; text-transform: uppercase;">THE COLLECTION</h2>
+          <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-text-secondary);margin-top:0.5rem;">Pre-designed styles, ready to order</p>
           <div style="width: 80px; height: 2px; background-color: var(--color-accent); margin: 1rem auto 0;"></div>
         </div>
 
-        <!-- Dynamic product grid from Firestore (2 col mobile, 4 col desktop) -->
-        <div class="grid-4" id="product-grid" style="margin: 0 auto;">
-          <!-- Fallback static cards (shown when Firebase not configured) -->
-          <div class="product-card reveal-on-scroll stagger-1" id="static-card-white">
-            <div class="product-image-wrapper">
-              <img src="assets/images/white-t-shirt.png" alt="Crazy Cloths White Custom T-Shirt" loading="lazy">
-              <div class="product-price">₹499</div>
-            </div>
-            <div class="product-info">
-              <span class="product-meta">100% Cotton · 220 GSM · White</span>
-              <h3 class="product-title">White Vision T-Shirt</h3>
-              <button onclick="window.location.href='product.html?color=white'" class="btn btn-accent btn-press-feedback">Customize &amp; Order</button>
-            </div>
+        <!-- Auth gate: shown to logged-out users instead of the grid -->
+        <div id="collection-auth-gate" style="display:none; text-align:center; padding:3rem 1rem;">
+          <div style="
+            display:inline-block;
+            background: linear-gradient(135deg, rgba(255,59,48,0.08) 0%, rgba(255,59,48,0.03) 100%);
+            border: 1px solid rgba(255,59,48,0.25);
+            border-radius: 16px;
+            padding: 2.5rem 3rem;
+            max-width: 480px;
+          ">
+            <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+            <h3 style="font-family:var(--font-display);font-size:1.6rem;text-transform:uppercase;margin-bottom:0.75rem;">Members Only</h3>
+            <p style="font-family:var(--font-mono);font-size:0.82rem;color:var(--color-text-secondary);margin-bottom:1.75rem;line-height:1.6;">
+              Login to view our full collection and place orders.
+            </p>
+            <a href="login.html" id="gate-login-btn" class="btn btn-accent shimmer-btn" style="padding:0.85rem 2rem;font-size:1rem;font-weight:700;animation:gatePulse 2s ease-in-out infinite;">
+              Login to View Collection
+            </a>
           </div>
+        </div>
 
-          <div class="product-card product-card--black reveal-on-scroll stagger-2" id="static-card-black">
-            <div class="product-image-wrapper">
-              <img src="assets/images/black-t-shirt.png" alt="Crazy Cloths Black Custom T-Shirt" loading="lazy">
-              <div class="product-price">₹499</div>
-            </div>
-            <div class="product-info">
-              <span class="product-meta">100% Cotton · 240 GSM · Black</span>
-              <h3 class="product-title">Black Vision T-Shirt</h3>
-              <button onclick="window.location.href='product.html?color=black'" class="btn btn-accent btn-press-feedback">Customize &amp; Order</button>
-            </div>
-          </div>
+        <!-- Live product grid from Firestore (catalog items) -->
+        <div class="grid-4" id="product-grid" style="margin: 0 auto;">
+          <!-- Loaded dynamically via products.js onSnapshot -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION B: CUSTOMIZE YOUR OWN (blank tees for customer design upload) -->
+    <section id="customize-your-own" class="page-section reveal-on-scroll" style="background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%); border-top: 1px solid var(--color-border);">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 3rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%);">
+          <h2 style="font-size: 3.5rem; margin-bottom: 0.5rem; text-transform: uppercase;">CUSTOMIZE YOUR OWN</h2>
+          <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-text-secondary);margin-top:0.5rem;">Upload your design. We print it on a blank tee.</p>
+          <div style="width: 80px; height: 2px; background-color: var(--color-accent); margin: 1rem auto 0;"></div>
+        </div>
+
+        <!-- Auth gate for customizable section (shown when not logged in) -->
+        <div id="customize-auth-gate" style="display:none; text-align:center; padding:2rem 1rem;">
+          <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-text-secondary);">
+            <a href="login.html" style="color:var(--color-accent);">Login</a> to access the customization flow.
+          </p>
+        </div>
+
+        <!-- Live customizable product grid from Firestore -->
+        <div class="grid-4" id="customize-grid" style="margin: 0 auto; max-width: 720px;">
+          <!-- Loaded dynamically via products.js onSnapshot -->
         </div>
       </div>
     </section>
@@ -408,14 +438,40 @@
         });
       });
 
-      // 5. Hide / Load Firestore Products
+      // 5. Product Grid Loading with Auth Gate
       if (CONFIG.firebaseEnabled && typeof firebase !== 'undefined') {
-        ['static-card-white','static-card-black'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = 'none';
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            // LOGGED IN — show both grids
+            document.getElementById('collection-auth-gate').style.display  = 'none';
+            document.getElementById('customize-auth-gate').style.display   = 'none';
+
+            // Load catalog products — live listener
+            ProductsService.loadCatalog('product-grid', (product) => {
+              if (product.category === 'customizable') {
+                window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
+              } else {
+                window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
+              }
+            });
+
+            // Load customizable products — live listener
+            ProductsService.loadCustomizable('customize-grid', (product) => {
+              window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
+            });
+
+          } else {
+            // NOT LOGGED IN — show gate cards, hide grids
+            document.getElementById('collection-auth-gate').style.display = 'block';
+            document.getElementById('customize-auth-gate').style.display  = 'block';
+            document.getElementById('product-grid').style.display          = 'none';
+            document.getElementById('customize-grid').style.display        = 'none';
+          }
         });
-        ProductsService.load('product-grid', (product) => {
-          window.location.href = `product.html?productId=${product.id}&color=${product.color}`;
+      } else {
+        // Firebase not configured — use static fallback (always visible)
+        ProductsService.loadCustomizable('customize-grid', (product) => {
+          window.location.href = `product.html?color=${product.color}`;
         });
       }
 

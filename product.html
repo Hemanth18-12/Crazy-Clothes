@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crazy Cloths — Customize Your T-Shirt</title>
+  <title>Crazy Cloths — Shop</title>
   
   <!-- Inline Script to prevent theme flash -->
   <script>
@@ -43,8 +43,8 @@
           <li><a href="index.html#collection" class="nav-link">Products</a></li>
           <li>
             <!-- Logged out state -->
-            <a href="login.html" id="header-login-btn" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-              Login
+            <a href="login.html" id="header-login-btn" class="btn btn-accent shimmer-btn" style="padding: 0.5rem 1.2rem; font-size: 0.88rem; font-weight:700; letter-spacing:0.03em;">
+              Login to Shop
             </a>
             <!-- Logged in state (hidden by default) -->
             <div id="header-user-area" style="display:none; align-items:center; gap: 1rem;" class="header-user-area">
@@ -102,7 +102,83 @@
   </nav>
 
   <main>
-    <section class="page-section designer-section">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         CATALOG PRODUCT DETAIL VIEW
+         Shown when ?productId= refers to a category=='catalog' product.
+         Completely replaces the customization UI for those items.
+         Hidden by default; JS reveals it and hides .designer-section.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <section id="catalog-detail-section" style="display:none;" class="page-section">
+      <div class="container" style="max-width:900px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:3rem; align-items:start;">
+
+          <!-- Product Image -->
+          <div>
+            <div class="designer-mockup-container" style="max-width:420px;">
+              <img id="catalog-product-img" src="" alt="Product" class="mockup-base" style="width:100%;border-radius:8px;">
+            </div>
+          </div>
+
+          <!-- Product Info + Order -->
+          <div style="display:flex;flex-direction:column;gap:1.5rem;padding-top:1rem;">
+            <div>
+              <p id="catalog-product-meta" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--color-text-secondary);margin-bottom:0.5rem;"></p>
+              <h1 id="catalog-product-name" style="font-family:var(--font-display);font-size:2.5rem;text-transform:uppercase;margin-bottom:0.5rem;"></h1>
+              <div id="catalog-product-price" style="font-family:var(--font-display);font-size:2rem;color:var(--color-accent);font-weight:800;"></div>
+            </div>
+
+            <p style="font-family:var(--font-mono);font-size:0.82rem;color:var(--color-text-secondary);line-height:1.7;">
+              Premium 100% organic cotton. Heavyweight 240 GSM combed weave. DTF print that holds through 50+ washes.
+            </p>
+
+            <!-- Simple order form for catalog items -->
+            <div class="designer-card" style="background:var(--color-surface-2);border:1px solid var(--color-border);padding:1.5rem;border-radius:8px;">
+              <h3 style="font-size:1.1rem;text-transform:uppercase;margin-bottom:1.25rem;font-family:var(--font-display);letter-spacing:0.05em;">Place Order</h3>
+
+              <form id="catalog-order-form" style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="form-group">
+                  <input type="text" id="catalog-name" class="form-input" placeholder=" ">
+                  <label class="form-label">Full Name *</label>
+                </div>
+                <div class="form-group">
+                  <input type="email" id="catalog-email" class="form-input" placeholder=" ">
+                  <label class="form-label">Email Address</label>
+                </div>
+                <div class="form-group">
+                  <input type="tel" id="catalog-phone" class="form-input" placeholder=" ">
+                  <label class="form-label">WhatsApp Number *</label>
+                </div>
+                <div class="form-group">
+                  <textarea id="catalog-address" class="form-input" rows="2" style="resize:vertical;" placeholder=" "></textarea>
+                  <label class="form-label">Delivery Address *</label>
+                </div>
+                <div class="form-group">
+                  <input type="number" id="catalog-qty" class="form-input" min="1" value="1" placeholder=" " style="font-family:var(--font-mono);">
+                  <label class="form-label">Quantity *</label>
+                </div>
+                <div class="form-group">
+                  <textarea id="catalog-notes" class="form-input" rows="2" style="resize:vertical;" placeholder=" "></textarea>
+                  <label class="form-label">Special Instructions (Optional)</label>
+                </div>
+
+                <button type="submit" id="catalog-order-btn" class="btn btn-accent btn-premium" style="width:100%;margin-top:0.5rem;">
+                  Place Order via WhatsApp
+                </button>
+                <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--color-text-secondary);text-align:center;">
+                  Clicking Place Order opens WhatsApp to send your order details.
+                </p>
+              </form>
+            </div>
+
+            <a href="index.html#the-collection" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;">
+              ← Back to Collection
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="customize-section" class="page-section">
       <div class="container">
 
         <div class="designer-grid">
@@ -342,9 +418,28 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <!-- Store scripts -->
+  <!-- config.js MUST load before the auth guard so CONFIG is defined -->
   <script src="config.js"></script>
   <script src="js/firebase-config.js"></script>
+
+  <!-- Auth Guard: redirect to login if not authenticated -->
+  <script>
+    // Runs after config.js + firebase-config.js are parsed.
+    // We defer via onAuthStateChanged so Firebase has time to initialise.
+    (function authGuard() {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (typeof firebase === 'undefined' || typeof CONFIG === 'undefined' || !CONFIG.firebaseEnabled) return;
+        firebase.auth().onAuthStateChanged((user) => {
+          if (!user) {
+            sessionStorage.setItem('cc_redirect_after_login', window.location.href);
+            window.location.href = 'login.html';
+          }
+        });
+      });
+    })();
+  </script>
+
+  <!-- Remaining store scripts -->
   <script src="js/cart.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/animations.js"></script>
@@ -484,7 +579,7 @@
       }
 
       // 5. Header Login / Greeting State Handler
-      const name = sessionStorage.getItem('cc_user_name');
+      const name    = sessionStorage.getItem('cc_user_name');
       const loginBtn = document.getElementById('header-login-btn');
       const userArea = document.getElementById('header-user-area');
       const userName = document.getElementById('header-user-name');
@@ -501,6 +596,114 @@
         if (mLoginBtn) mLoginBtn.style.display = 'none';
         if (mUserArea) mUserArea.style.display = 'flex';
         if (mUserName) mUserName.textContent = 'Hi, ' + name;
+      }
+
+      // 6. Product branching: catalog vs customizable
+      const urlParams   = new URLSearchParams(window.location.search);
+      const productId   = urlParams.get('productId');
+
+      if (productId && typeof CONFIG !== 'undefined' && CONFIG.firebaseEnabled && typeof firebase !== 'undefined') {
+        firebase.firestore().collection('products').doc(productId).get()
+          .then((doc) => {
+            if (!doc.exists) return; // unknown ID — fall through to customizable flow
+            const data = { id: doc.id, ...doc.data() };
+
+            if (data.category === 'catalog') {
+              // ── CATALOG PRODUCT: show detail view, hide customization UI
+              document.getElementById('catalog-detail-section').style.display = 'block';
+              document.getElementById('customize-section').style.display       = 'none';
+
+              // Populate product detail fields
+              const imgEl   = document.getElementById('catalog-product-img');
+              const nameEl  = document.getElementById('catalog-product-name');
+              const metaEl  = document.getElementById('catalog-product-meta');
+              const priceEl = document.getElementById('catalog-product-price');
+
+              if (imgEl)   imgEl.src              = data.imageUrl || 'assets/images/white-t-shirt.png';
+              if (nameEl)  nameEl.textContent      = data.name     || 'Product';
+              if (metaEl)  metaEl.textContent      = `${data.type || 'T-Shirt'} · ${(data.color || 'White').charAt(0).toUpperCase() + (data.color || 'White').slice(1)}`;
+              if (priceEl) priceEl.textContent     = `₹${data.price || 499}`;
+
+              document.title = `Crazy Cloths — ${data.name || 'Product'}`;
+
+              // Wire up catalog order form
+              const catalogForm = document.getElementById('catalog-order-form');
+              if (catalogForm) {
+                catalogForm.addEventListener('submit', async (e) => {
+                  e.preventDefault();
+
+                  // Auth double-check (defense in depth)
+                  const user = await new Promise(resolve => firebase.auth().onAuthStateChanged(u => resolve(u)));
+                  if (!user) {
+                    sessionStorage.setItem('cc_redirect_after_login', window.location.href);
+                    window.location.href = 'login.html';
+                    return;
+                  }
+
+                  const nameVal    = document.getElementById('catalog-name').value.trim();
+                  const emailVal   = document.getElementById('catalog-email').value.trim();
+                  const phoneVal   = document.getElementById('catalog-phone').value.trim();
+                  const addressVal = document.getElementById('catalog-address').value.trim();
+                  const qtyVal     = parseInt(document.getElementById('catalog-qty').value) || 1;
+                  const notesVal   = document.getElementById('catalog-notes').value.trim();
+
+                  if (!nameVal || !phoneVal || !addressVal) {
+                    alert('Please fill in Name, Phone, and Address.');
+                    return;
+                  }
+
+                  const btn = document.getElementById('catalog-order-btn');
+                  btn.disabled = true;
+                  btn.textContent = 'Opening WhatsApp...';
+
+                  const orderId   = `CC-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+                  const total     = (data.price || 499) * qtyVal;
+
+                  const finalOrder = {
+                    orderId,
+                    productName:   data.name,
+                    productId:     data.id,
+                    category:      'catalog',
+                    color:         data.color,
+                    size:          'Standard',
+                    quantity:      qtyVal,
+                    price:         total,
+                    customerName:  nameVal,
+                    customerEmail: emailVal,
+                    customerPhone: phoneVal,
+                    customerAddress: addressVal,
+                    specialInstructions: notesVal,
+                    createdAt:     new Date().toISOString()
+                  };
+
+                  // Save to Firestore
+                  try {
+                    await firebase.firestore().collection('orders').add(finalOrder);
+                  } catch (err) { console.error('Order save failed:', err); }
+
+                  // Save for success page
+                  localStorage.setItem('crazy_cloths_last_order', JSON.stringify({
+                    orderId, total: `₹${total}`,
+                    productName: data.name, color: data.color, size: 'Standard', quantity: qtyVal
+                  }));
+
+                  // Send WhatsApp message
+                  if (window.WhatsAppService) {
+                    window.WhatsAppService.sendOrderNotification(finalOrder, orderId, `₹${total}`);
+                  }
+
+                  // Email confirmation
+                  if (window.EmailService) {
+                    window.EmailService.sendConfirmation(finalOrder, orderId, `₹${total}`);
+                  }
+
+                  setTimeout(() => { window.location.href = 'success.html'; }, 1200);
+                });
+              }
+            }
+            // If category == 'customizable' or unrecognized: fall through to existing designer flow
+          })
+          .catch(err => console.warn('Product fetch error:', err));
       }
     });
   </script>
