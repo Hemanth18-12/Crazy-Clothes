@@ -1,0 +1,357 @@
+/*
+  =========================================
+  CRAZY CLOTHS — AUTH PAGE STYLES (REBUILD)
+  =========================================
+*/
+
+.auth-split-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+/* Left Brand Panel (Always Dark) */
+.auth-brand-panel {
+  display: none; /* Mobile default: brand panel hidden */
+}
+
+/* Desktop layout rules */
+@media (min-width: 1024px) {
+  .auth-split-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .auth-brand-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem;
+    background: #080808; /* Always dark background */
+    border-right: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-brand-logo {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 6vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    margin-bottom: 2rem;
+  }
+
+  .auth-brand-logo span {
+    color: var(--color-accent);
+  }
+
+  .auth-brand-tagline {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: auto;
+  }
+
+  .auth-brand-pills {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+
+  .auth-brand-pill {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .auth-brand-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+  }
+}
+
+/* Right Form Panel */
+.auth-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+  background-color: transparent;
+  transition: background-color 0.3s;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px; /* Max-width 400px for the form */
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateX(60px);
+  animation: auth-card-slide-in 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes auth-card-slide-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile only brand title */
+.auth-mobile-logo {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+.auth-mobile-logo span {
+  color: var(--color-accent);
+}
+
+@media (min-width: 1024px) {
+  .auth-mobile-logo {
+    display: none; /* Hide on desktop */
+  }
+}
+
+/* Tabs: Separated, Bold White text + Red Underline */
+.auth-tabs-container {
+  margin-bottom: 2rem;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.auth-tab {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary); /* Inactive tab: muted gray */
+  background: none;
+  border: none;
+  padding: 0.85rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.25s ease;
+  text-align: center;
+  text-transform: uppercase;
+  min-height: 44px; /* Minimum tap target height */
+  z-index: 2;
+}
+
+.auth-tab.active {
+  color: var(--color-text-primary); /* Active: bold white/primary text */
+  font-weight: 700;
+}
+
+/* Sliding tab indicator */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 50%;
+  background-color: var(--color-accent); /* Active: Red underline */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 1;
+}
+
+/* Form panels */
+.form-panel {
+  display: none;
+  flex-direction: column;
+}
+
+.form-panel.active {
+  display: flex;
+  animation: form-slide-in 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes form-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Input groups & Floating Labels */
+.input-group {
+  position: relative;
+  margin-top: 1.8rem; /* Extra top margin to accommodate label floating ABOVE the box */
+  margin-bottom: 0.5rem;
+}
+
+.form-input-premium {
+  height: 52px;
+  width: 100%;
+  padding: 0 1rem;
+  padding-right: 3rem; /* Space for eye icon */
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  outline: none;
+  transition: border-color 0.25s ease;
+  font-family: var(--font-body);
+  display: block;
+}
+
+.form-input-premium::placeholder {
+  color: transparent; /* space placeholder keeps :not(:placeholder-shown) working */
+}
+
+.form-input-premium:focus {
+  border-color: var(--color-accent);
+}
+
+.form-label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text-muted); /* Resting state: looks like placeholder text */
+  pointer-events: none;
+  transition: top 0.18s ease, font-size 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  line-height: 1;
+  white-space: nowrap;
+  background: transparent;
+}
+
+/* FLOATING STATE: label moves ABOVE the input border — no overlap with typed text */
+.form-input-premium:focus ~ .form-label,
+.form-input-premium:not(:placeholder-shown) ~ .form-label {
+  top: -10px;            /* Sits ABOVE the input border */
+  transform: translateY(0);
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Password Eye Toggle */
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.25s;
+}
+.password-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+.password-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* Buttons */
+.btn-premium {
+  height: 52px; /* Height: 52px */
+  width: 100%; /* Full width */
+  font-family: var(--font-display);
+  font-size: 1.1rem; /* Font size: 1rem */
+  letter-spacing: 0.1em; /* Bebas Neue letter spacing */
+  text-transform: uppercase;
+  background-color: var(--color-accent); /* Accent red background */
+  color: #ffffff; /* Clear white text */
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-premium:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.btn-premium:active {
+  transform: scale(0.97); /* Scale down 0.97 on click */
+}
+
+/* Messages */
+.auth-message {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-left: 3px solid;
+  display: none;
+}
+
+.auth-message.error {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-dim);
+}
+
+.auth-message.success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+.auth-message.visible {
+  display: block;
+}
+
+.auth-toggle-link {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.auth-toggle-link span {
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.auth-toggle-link span:hover {
+  color: var(--color-accent-hover);
+}

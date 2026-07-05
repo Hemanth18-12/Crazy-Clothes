@@ -1,0 +1,710 @@
+/* 
+  =========================================
+  CRAZY CLOTHS — UI COMPONENTS
+  =========================================
+*/
+
+/* ─── Black T-Shirt card: slightly brighter bg so the black tee
+   reads clearly against the card surface. Image is NOT scaled
+   down — object-fit: cover handles all orientations correctly. */
+.product-card--black .product-image-wrapper {
+  background-color: #1a1a1a;
+}
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1.1rem 2.2rem;
+  border-radius: 0;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  width: auto;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Primary Button: Solid Accent + Shimmer Sweep */
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border-color: var(--color-accent);
+}
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  box-shadow: 0 8px 24px var(--color-accent-dim);
+}
+
+/* Secondary Button: Outlined + Wipe Fill */
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-text-primary);
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.btn-secondary:hover::before {
+  transform: scaleX(1);
+}
+.btn-secondary:hover {
+  color: var(--color-black);
+  border-color: var(--color-text-primary);
+}
+
+/* Accent Button: Solid Accent */
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border-color: var(--color-accent);
+}
+.btn-accent:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  box-shadow: 0 8px 24px var(--color-accent-dim);
+}
+
+.btn:disabled {
+  background-color: var(--color-border) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   PRODUCT CARD — Two-zone layout
+   Zone 1: .product-image-wrapper  (image + overlays)
+   Zone 2: .product-info           (details below image)
+   ───────────────────────────────────────────────────────── */
+.product-card {
+  position: relative;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  /* No aspect-ratio here — the image wrapper owns the ratio */
+  transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow 0.4s ease,
+              transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Card hover: subtle lift */
+.product-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
+}
+
+/* Card hover border trace effect */
+.product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+.product-card:hover::before {
+  opacity: 1;
+}
+
+/* ── Zone 1: Image Container ───────────────────────────── */
+.product-image-wrapper {
+  position: relative;          /* anchor for badge & heart overlays */
+  width: 100%;
+  aspect-ratio: 4 / 5;         /* fixed portrait ratio — never distorts */
+  overflow: hidden;            /* KEY FIX: clips image within this box */
+  background-color: var(--color-bg-2);
+  flex-shrink: 0;              /* never squash when card height is constrained */
+  transition: background-color 0.3s;
+}
+
+.product-image-wrapper img {
+  display: block;              /* removes inline-image bottom gap */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* fills ratio box, crops intelligently */
+  object-position: center top; /* favour the top (face/logo) of the shirt */
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Hover zoom — contained by overflow:hidden on the wrapper */
+.product-card:hover .product-image-wrapper img {
+  transform: scale(1.07);
+}
+
+/* ── Zone 1 Overlay: Stock badge (top-left of image) ───── */
+.product-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stock-badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.60);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.12);
+  line-height: 1.4;
+}
+
+.stock-badge.in-stock  { color: #a7f3d0; }
+.stock-badge.out-stock { color: #fca5a5; }
+
+.custom-badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.60);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.10);
+  line-height: 1.4;
+}
+
+/* ── Zone 2: Details block (below the image, never overlapping) */
+.product-card .product-info {
+  /* Static block — not absolute, not overlapping the image */
+  position: static;
+  background: var(--color-surface);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* No transform, no gradient — clean separation from image */
+}
+
+/* Top row inside details: type label + price side-by-side */
+.product-card .product-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.product-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+  margin: 2px 0 0;
+  /* Prevent very long names from blowing the card */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Price — now lives in the details block, right-aligned */
+.product-card .product-price {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  /* No absolute positioning — it's in the flex meta-row */
+}
+
+/* CTA button inside details */
+.product-card .product-info .btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 0.55rem 0.8rem !important;
+  font-size: 0.82rem;
+  /* Always visible — no hover-reveal needed in the new layout */
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ─── Custom Selector Toggles (Color & Size) ─── */
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.selector-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.selector-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+/* Color Swatches (Circular with Ring Animation) */
+.color-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.25s, transform 0.25s;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.color-btn::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: transform 0.25s;
+}
+.color-btn[data-color="white"]::before {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.color-btn[data-color="black"]::before {
+  background-color: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.color-btn:hover {
+  border-color: var(--color-text-secondary);
+  transform: scale(1.05);
+}
+.color-btn.active {
+  border-color: var(--color-accent);
+}
+
+/* ─── Size Box Buttons (Square Grid) ─── */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .size-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.size-box-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.size-box-btn:hover {
+  border-color: var(--color-text-primary);
+  color: var(--color-text-primary);
+}
+
+.size-box-btn.active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
+}
+
+
+/* ─── Custom Design Uploader ─── */
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--color-border);
+  background-color: var(--color-surface);
+  padding: var(--spacing-xl) var(--spacing-md);
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.upload-zone.dragover {
+  border-color: var(--color-accent) !important;
+  background-color: var(--color-accent-dim) !important;
+}
+
+.upload-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--spacing-md);
+  stroke: var(--color-text-secondary);
+  transition: stroke 0.3s;
+}
+.upload-zone:hover .upload-icon {
+  stroke: var(--color-accent);
+}
+
+.upload-text {
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-primary);
+}
+
+.upload-subtext {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.upload-preview-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.upload-preview-container.active {
+  display: flex;
+}
+
+.preview-thumbnail {
+  max-width: 130px;
+  max-height: 130px;
+  object-fit: contain;
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  padding: 6px;
+  background-color: #000;
+}
+
+.upload-progress-bar {
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-border);
+  margin-top: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--color-accent);
+  transition: width 0.15s linear;
+}
+
+.upload-error {
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  margin-top: var(--spacing-sm);
+  display: none;
+}
+
+/* Optional badge */
+.upload-optional-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--color-bg-3);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  text-transform: uppercase;
+}
+
+/* ─── Premium Form Styles ─── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-bottom: 1.75rem;
+}
+
+.form-label {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), font-size 0.25s, color 0.25s;
+  z-index: 1;
+}
+
+/* Float label above on focus or input filled */
+.form-input:focus ~ .form-label,
+.form-input:not(:placeholder-shown) ~ .form-label {
+  transform: translateY(-24px);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+}
+
+.form-input {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.8rem 0;
+  color: var(--color-text-primary);
+  transition: border-color 0.3s;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.form-input::placeholder {
+  color: transparent; /* Needed for :placeholder-shown trick */
+}
+.form-input:focus {
+  outline: none;
+}
+
+.form-input-note {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-top: 6px;
+}
+
+.form-input-error {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  margin-top: 6px;
+  display: none;
+}
+
+.input-invalid {
+  border-bottom-color: var(--color-accent) !important;
+}
+
+/* Live updating designer mockup view */
+.designer-mockup-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  background-color: var(--color-bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s;
+}
+
+.mockup-base {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.mockup-design-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32%;
+  aspect-ratio: 1;
+  z-index: 5;
+  object-fit: contain;
+  opacity: 0.85;
+  pointer-events: none;
+  display: none;
+}
+
+/* Wishlist Heart Button overlay styles */
+.wishlist-heart-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 12;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+  color: #fff;
+}
+.wishlist-heart-btn:hover {
+  transform: scale(1.15);
+  background: rgba(0,0,0,0.7);
+}
+.wishlist-heart-btn .heart-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5px;
+  transition: fill 0.3s, stroke 0.3s;
+}
+.wishlist-heart-btn.wishlisted {
+  color: var(--color-accent);
+}
+.wishlist-heart-btn.wishlisted .heart-icon {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}
+.wishlist-heart-btn.pop-active {
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* Recovery Banner Styles */
+.draft-recovery-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-surface-2);
+  border-bottom: 2px solid var(--color-accent);
+  z-index: 9999;
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.draft-recovery-banner.active {
+  transform: translateY(0);
+}
+.draft-recovery-banner .banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+.draft-recovery-banner .banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.draft-recovery-banner .banner-close-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.2s;
+}
+.draft-recovery-banner .banner-close-btn:hover {
+  color: var(--color-accent);
+}
+
+/* Size Guide Modal Backdrop & Modal */
+.size-guide-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.size-guide-modal-backdrop.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.size-guide-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 95%;
+  max-width: 580px;
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.size-guide-modal-backdrop.active .size-guide-modal {
+  transform: scale(1);
+}
+.size-guide-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  transition: color 0.2s;
+}
+.size-guide-close-btn:hover {
+  color: var(--color-accent);
+}
+
