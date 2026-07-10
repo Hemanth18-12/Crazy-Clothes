@@ -1,14 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
   onAuthStateChanged,
-  updateProfile 
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { CONFIG } from '../config';
 
@@ -43,29 +41,28 @@ export function AuthProvider({ children }) {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Google Sign-in
+  // Google Sign-in — handles both new and returning users.
+  // For new users, automatically creates their Firestore profile.
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
-  };
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-  // Customer registration
-  const registerCustomer = async (name, email, password, phone) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    // Check if this is a first-time Google user
+    const userDocRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userDocRef);
 
-    // Update display name
-    await updateProfile(user, { displayName: name });
+    if (!userSnap.exists()) {
+      // New user — create their Firestore profile
+      await setDoc(userDocRef, {
+        name: user.displayName || '',
+        email: user.email || '',
+        phone: '',
+        createdAt: serverTimestamp(),
+      });
+    }
 
-    // Save user profile metadata to Firestore users collection
-    await setDoc(doc(db, 'users', user.uid), {
-      name,
-      email,
-      phone,
-      createdAt: new Date().toISOString()
-    });
-
-    return userCredential;
+    return result;
   };
 
   // Logout
@@ -81,18 +78,17 @@ export function AuthProvider({ children }) {
     loginCustomer,
     loginAdmin,
     loginWithGoogle,
-    registerCustomer,
-    logout
+    logout,
   };
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: 'var(--color-bg, #080808)' 
+        backgroundColor: 'var(--color-bg, #080808)'
       }}>
         <div style={{
           width: '40px',

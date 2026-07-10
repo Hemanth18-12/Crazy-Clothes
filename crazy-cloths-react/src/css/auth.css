@@ -355,3 +355,177 @@
 .auth-toggle-link span:hover {
   color: var(--color-accent-hover);
 }
+
+/* Left panel glow blob */
+.auth-brand-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-brand-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,45,45,0.3) 0%,
+    transparent 70%);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+  animation: blobDrift 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.auth-brand-glow-2 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,45,45,0.15) 0%,
+    transparent 70%);
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+  animation: blobDrift 14s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
+}
+
+@keyframes blobDrift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, 40px) scale(1.1); }
+}
+
+/* Floating T-shirt */
+.auth-tshirt-float {
+  animation: tshirtFloat 3s ease-in-out infinite;
+}
+
+@keyframes tshirtFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* Tagline underline draw */
+.auth-brand-tagline::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: drawLine 0.8s ease 0.5s forwards;
+}
+
+@keyframes drawLine {
+  to { transform: scaleX(1); }
+}
+
+/* Card entrance */
+.auth-card-enter {
+  animation: cardSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)
+    forwards;
+}
+
+@keyframes cardSlideIn {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Card shake on error */
+.auth-card-shake {
+  animation: cardShake 0.4s ease;
+}
+
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+/* Form transition */
+.form-exit {
+  animation: formOut 0.25s ease forwards;
+}
+
+.form-enter {
+  animation: formIn 0.25s ease 0.1s both;
+}
+
+@keyframes formOut {
+  to { transform: translateX(-40px); opacity: 0; }
+}
+
+@keyframes formIn {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Input underline grow */
+.input-underline {
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  margin-top: -2px; /* Pull up to overlay input boundary */
+}
+
+.form-input-premium:focus ~ .input-underline {
+  transform: scaleX(1);
+}
+
+/* Button success state */
+.btn-success-state {
+  background: #22C55E !important;
+  border-color: #22C55E !important;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Register Google button — large and prominent */
+.google-register-btn {
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: white;
+  color: #1A1A1A;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 16px 0;
+}
+
+.google-register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.google-register-description {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Pill stagger animations */
+.auth-brand-pill:nth-child(1) {
+  animation: pillFadeIn 0.4s ease 0.6s both;
+}
+.auth-brand-pill:nth-child(2) {
+  animation: pillFadeIn 0.4s ease 0.8s both;
+}
+.auth-brand-pill:nth-child(3) {
+  animation: pillFadeIn 0.4s ease 1.0s both;
+}
+
+@keyframes pillFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
