@@ -76,7 +76,8 @@ function NavItem({ icon, label, to, onClick, badge }) {
   const handleClick = (e) => {
     if (onClick) {
       onClick(e);
-    } else if (to) {
+    }
+    if (to) {
       navigate(to);
     }
   };
@@ -165,18 +166,6 @@ export default function MobileBottomNav() {
     setAccountSheetOpen(false);
   };
 
-  const handleCollection = () => {
-    closeBottomSheet();
-    if (location.pathname === '/') {
-      document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/');
-      setTimeout(() => {
-        document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    }
-  };
-
   const handleLogout = async () => {
     closeBottomSheet();
     await logout();
@@ -186,7 +175,7 @@ export default function MobileBottomNav() {
     <>
       <nav className="mobile-bottom-nav">
         <NavItem icon={<HomeIcon />} label="Home" to="/" onClick={closeBottomSheet} />
-        <NavItem icon={<ShirtIcon />} label="Collection" onClick={handleCollection} />
+        <NavItem icon={<ShirtIcon />} label="Collection" to="/collection" onClick={closeBottomSheet} />
         <NavItem icon={<HeartIcon />} label="Wishlist" to="/wishlist" badge={wishlistCount} onClick={closeBottomSheet} />
         <NavItem icon={<PackageIcon />} label="Orders" to="/orders" onClick={closeBottomSheet} />
         <button
@@ -206,6 +195,32 @@ export default function MobileBottomNav() {
             <div className="bottom-sheet-greeting">
               Hi, {getFirstName()}
             </div>
+
+            {currentUser && (
+              <div className="bottom-sheet-row">
+                <span className="bottom-sheet-label">Profile Details</span>
+                <button
+                  onClick={() => {
+                    closeBottomSheet();
+                    navigate('/profile');
+                  }}
+                  style={{
+                    padding: '0.4rem 1.2rem',
+                    fontSize: '0.85rem',
+                    background: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-display)',
+                    textTransform: 'uppercase',
+                    width: 'auto'
+                  }}
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
 
             <div className="bottom-sheet-row">
               <span className="bottom-sheet-label">Session</span>

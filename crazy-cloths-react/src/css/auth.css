@@ -27,7 +27,6 @@
   .auth-brand-panel {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     padding: 4rem;
     background: #080808; /* Always dark background */
     border-right: 1px solid var(--color-border);

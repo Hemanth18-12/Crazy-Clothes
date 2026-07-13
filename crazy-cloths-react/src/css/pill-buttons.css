@@ -1,0 +1,345 @@
+/*
+  =====================================================
+  CRAZY CLOTHS — RED SEMICIRCLE PILL BUTTONS
+  New .cc-pill class + targeted overrides for:
+    .type-pill, .wishlist-heart-btn, .btn-accent, .btn-premium
+  Imported LAST in App.jsx so cascade takes effect.
+  =====================================================
+*/
+
+/* ── Base pill shape ───────────────────────────────── */
+.cc-pill {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(15,15,15,0.85);
+  color: rgba(255,255,255,0.9);
+  cursor: pointer;
+  isolation: isolate;
+  transition: color 350ms ease, transform 120ms ease, border-color 350ms ease;
+}
+
+/* Red circle that floods from left-center */
+.cc-pill::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  top: 50%;
+  /* Start tiny */
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background: var(--color-accent, #dc2626);
+  border-radius: 50%;
+  transform: translateY(-50%) scale(0);
+  transform-origin: center center;
+  transition: transform 430ms cubic-bezier(.2,.85,.3,1.3);
+  z-index: -1;
+}
+
+.cc-pill:hover::before,
+.cc-pill:focus-visible::before {
+  /* 6px circle scaled 35x = 210px diameter → covers ~200% width */
+  transform: translateY(-50%) scale(35);
+}
+
+.cc-pill:hover,
+.cc-pill:focus-visible {
+  color: #ffffff;
+  border-color: var(--color-accent, #dc2626);
+}
+
+.cc-pill:active {
+  transform: scale(0.98);
+}
+
+/* Text/icons sit above the ::before pseudo */
+.cc-pill > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── .type-pill overrides ──────────────────────────── */
+.type-pill {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px !important;
+  isolation: isolate;
+  transition:
+    color 350ms ease,
+    background-color 300ms ease,
+    border-color 350ms ease,
+    transform 120ms ease !important;
+}
+
+.type-pill::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background: var(--color-accent, #dc2626);
+  border-radius: 50%;
+  transform: translateY(-50%) scale(0);
+  transform-origin: center center;
+  transition: transform 430ms cubic-bezier(.2,.85,.3,1.3);
+  z-index: 0;
+}
+
+.type-pill:not(.active):hover::before,
+.type-pill:focus-visible::before {
+  transform: translateY(-50%) scale(35);
+}
+
+.type-pill:not(.active):hover,
+.type-pill:focus-visible {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  border-color: var(--color-accent, #dc2626) !important;
+}
+
+.type-pill:active {
+  transform: scale(0.98) !important;
+}
+
+/* Keep active pill solid red */
+.type-pill.active {
+  border-radius: 999px !important;
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #ffffff !important;
+}
+
+/* ── Wishlist heart pill ───────────────────────────── */
+.wishlist-heart-btn {
+  transition: background 300ms ease, border-color 300ms ease, transform 150ms ease !important;
+}
+
+/* Persistent red fill when active/wishlisted */
+.wishlist-heart-btn.wishlisted {
+  background: rgba(220,38,38,0.85) !important;
+  border-color: var(--color-accent) !important;
+}
+
+/* Heart icon colour */
+.wishlist-heart-btn.wishlisted .heart-icon {
+  stroke: #fff !important;
+  fill: #fff !important;
+}
+
+/* Heart pop bounce on activation */
+.wishlist-heart-btn.wishlisted .heart-icon {
+  animation: heartPop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.wishlist-heart-btn:not(.wishlisted):hover {
+  background: rgba(220,38,38,0.25) !important;
+  border-color: rgba(220,38,38,0.6) !important;
+}
+
+.wishlist-heart-btn:active {
+  transform: scale(0.93) !important;
+}
+
+/* ── Primary CTA: .btn-accent pill style ──────────── */
+.btn-accent {
+  border-radius: 999px !important;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--color-accent);
+  transition: color 350ms ease, transform 120ms ease !important;
+}
+
+.btn-accent::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background: #ff1a1a;
+  border-radius: 50%;
+  transform: translateY(-50%) scale(0);
+  transform-origin: center center;
+  transition: transform 430ms cubic-bezier(.2,.85,.3,1.3);
+  z-index: -1;
+}
+
+.btn-accent:hover::before,
+.btn-accent:focus-visible::before {
+  transform: translateY(-50%) scale(40);
+}
+
+.btn-accent:hover,
+.btn-accent:focus-visible {
+  color: #ffffff !important;
+  background-color: var(--color-accent) !important;
+}
+
+.btn-accent:active {
+  transform: scale(0.98) !important;
+}
+
+/* ── Auth page Sign-In: .btn-premium pill style ───── */
+.btn-premium {
+  border-radius: 999px !important;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 350ms ease, transform 120ms ease !important;
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background: #cc0000;
+  border-radius: 50%;
+  transform: translateY(-50%) scale(0);
+  transform-origin: center center;
+  transition: transform 430ms cubic-bezier(.2,.85,.3,1.3);
+  z-index: -1;
+}
+
+.btn-premium:hover::before,
+.btn-premium:focus-visible::before {
+  transform: translateY(-50%) scale(40);
+}
+
+.btn-premium:hover,
+.btn-premium:focus-visible {
+  color: #ffffff !important;
+  background-color: var(--color-accent) !important;
+}
+
+.btn-premium:active {
+  transform: scale(0.98) !important;
+}
+
+/* ── prefers-reduced-motion: remove scale animation ── */
+@media (prefers-reduced-motion: reduce) {
+  .type-pill::before,
+  .btn-accent::before,
+  .btn-premium::before,
+  .cc-pill::before {
+    transition: opacity 300ms ease !important;
+    transform: translateY(-50%) scale(35) !important;
+    opacity: 0;
+  }
+  .type-pill:not(.active):hover::before,
+  .btn-accent:hover::before,
+  .btn-premium:hover::before,
+  .cc-pill:hover::before {
+    opacity: 1;
+  }
+  .wishlist-heart-btn.wishlisted .heart-icon {
+    animation: none !important;
+  }
+}
+
+/* ── Desktop header nav links — red pill wipe ─────── */
+.desktop-nav .nav-link {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px !important;
+  isolation: isolate;
+  padding: 0.38rem 1rem !important;
+  border: 1px solid transparent;
+  transition:
+    color 320ms ease,
+    border-color 320ms ease,
+    background-color 300ms ease,
+    transform 100ms ease !important;
+  /* Remove the default underline/::after bar */
+}
+
+.desktop-nav .nav-link::after {
+  display: none !important;
+}
+
+.desktop-nav .nav-link::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background: var(--color-accent, #dc2626);
+  border-radius: 50%;
+  transform: translateY(-50%) scale(0);
+  transform-origin: center center;
+  transition: transform 420ms cubic-bezier(.2,.85,.3,1.3);
+  z-index: -1;
+}
+
+/* Hover / focus: flood with red */
+.desktop-nav .nav-link:hover::before,
+.desktop-nav .nav-link:focus-visible::before {
+  transform: translateY(-50%) scale(40);
+}
+
+.desktop-nav .nav-link:hover,
+.desktop-nav .nav-link:focus-visible {
+  color: #ffffff !important;
+  border-color: var(--color-accent, #dc2626) !important;
+  background-color: transparent !important;
+}
+
+/* Active route — solid red pill */
+.desktop-nav .nav-link.active {
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #ffffff !important;
+}
+
+.desktop-nav .nav-link.active::before {
+  transform: translateY(-50%) scale(40) !important;
+}
+
+.desktop-nav .nav-link:active {
+  transform: scale(0.97) !important;
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .desktop-nav .nav-link::before {
+    transition: opacity 300ms ease !important;
+    transform: translateY(-50%) scale(40) !important;
+    opacity: 0;
+  }
+  .desktop-nav .nav-link:hover::before,
+  .desktop-nav .nav-link:focus-visible::before,
+  .desktop-nav .nav-link.active::before {
+    opacity: 1;
+  }
+}
+
+/* ── Nav link font override — smaller, cleaner ─────── */
+.desktop-nav .nav-link {
+  font-family: 'Inter', 'Outfit', var(--font-body), sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}

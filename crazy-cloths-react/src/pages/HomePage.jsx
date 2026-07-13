@@ -1,17 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { useProducts } from '../hooks/useProducts';
-import { useWishlist } from '../hooks/useWishlist';
-import { useAuth } from '../context/AuthContext';
-import ProductCard from '../components/ProductCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+﻿import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import CartDrawer from '../components/CartDrawer';
 
 export default function HomePage() {
-  const { catalogProducts, customizableProducts, loading: productsLoading } = useProducts();
-  const { toggleWishlist, isWishlisted } = useWishlist();
-  const { currentUser } = useAuth();
-  const location = useLocation();
   const [heroLoaded, setHeroLoaded] = useState(false);
 
   // Scroll animations IntersectionObserver
@@ -33,21 +24,7 @@ export default function HomePage() {
     return () => {
       elements.forEach((el) => observer.unobserve(el));
     };
-  }, [catalogProducts, customizableProducts, currentUser]);
-
-  // Scroll to hash section
-  useEffect(() => {
-    if (location.hash) {
-      const id = location.hash.substring(1);
-      const element = document.getElementById(id);
-      if (element) {
-        const timer = setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }, 300);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [location.hash, productsLoading]);
+  }, []);
 
   // Magnetic button hover effect
   useEffect(() => {
@@ -121,28 +98,20 @@ export default function HomePage() {
               Premium heavyweight cotton t-shirts customized with your uploaded graphics. No templates, no limits. Engineered for the street, tailored for the bold.
             </p>
             <div className="hero-ctas fade-up-anim delay-ctas" style={{ marginBottom: '4rem' }}>
-              <a
-                href="#collection"
+              <Link
+                to="/collection"
                 id="hero-btn-primary"
                 className="btn btn-primary shimmer-btn"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
-                }}
               >
                 Shop Collection
-              </a>
-              <a
-                href="#customize"
+              </Link>
+              <Link
+                to="/customize"
                 id="hero-btn-secondary"
                 className="btn btn-secondary wipe-btn"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('customize')?.scrollIntoView({ behavior: 'smooth' });
-                }}
               >
                 Customize Yours
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -215,94 +184,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION A: THE COLLECTION */}
-      <section id="collection" className="page-section reveal-on-scroll">
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem', position: 'relative', display: 'inline-block', left: '50%', transform: 'translateX(-50%)' }}>
-            <h2 style={{ fontSize: '4.5rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>THE COLLECTION</h2>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
-              Pre-designed styles, ready to order
-            </p>
-            <div style={{ width: '80px', height: '2px', backgroundColor: 'var(--color-accent)', margin: '1rem auto 0' }}></div>
-          </div>
-
-          {!currentUser ? (
-            /* Auth Gate Card */
-            <div id="collection-auth-gate" style={{ display: 'block', textAlign: 'center', padding: '3rem 1rem' }}>
-              <div style={{
-                display: 'inline-block',
-                background: 'linear-gradient(135deg, rgba(255, 59, 48, 0.08) 0%, rgba(255, 59, 48, 0.03) 100%)',
-                border: '1px solid rgba(255, 59, 48, 0.25)',
-                borderRadius: '16px',
-                padding: '2.5rem 3rem',
-                maxWidth: '480px'
-              }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Members Only</h3>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginBottom: '1.75rem', lineHeight: '1.6' }}>
-                  Login to view our full collection and place orders.
-                </p>
-                <Link to="/login" className="btn btn-accent shimmer-btn" style={{ padding: '0.85rem 2rem', fontSize: '1rem', fontWeight: 700, display: 'inline-block' }}>
-                  Login to View Collection
-                </Link>
-              </div>
-            </div>
-          ) : productsLoading ? (
-            <LoadingSpinner />
-          ) : catalogProducts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem' }}>
-              <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)' }}>No products in the collection yet.</p>
-            </div>
-          ) : (
-            <div className="grid-4" id="product-grid" style={{ margin: '0 auto' }}>
-              {catalogProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isWishlisted={isWishlisted(product.id)}
-                  onWishlistToggle={toggleWishlist}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* SECTION B: CUSTOMIZE YOUR OWN */}
-      <section id="customize" className="page-section reveal-on-scroll" style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%)', borderTop: '1px solid var(--color-border)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem', position: 'relative', display: 'inline-block', left: '50%', transform: 'translateX(-50%)' }}>
-            <h2 style={{ fontSize: '3.5rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>CUSTOMIZE YOUR OWN</h2>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
-              Upload your design. We print it on a blank tee.
-            </p>
-            <div style={{ width: '80px', height: '2px', backgroundColor: 'var(--color-accent)', margin: '1rem auto 0' }}></div>
-          </div>
-
-          {!currentUser ? (
-            /* Auth Gate Text */
-            <div id="customize-auth-gate" style={{ display: 'block', textAlign: 'center', padding: '2rem 1rem' }}>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
-                <Link to="/login" style={{ color: 'var(--color-accent)' }}>Login</Link> to access the customization flow.
-              </p>
-            </div>
-          ) : productsLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <div className="grid-4" id="customize-grid" style={{ margin: '0 auto', maxWidth: '720px' }}>
-              {customizableProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isWishlisted={isWishlisted(product.id)}
-                  onWishlistToggle={null}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* BRAND STRIP SECTION */}
       <section className="brand-strip reveal-on-scroll">
         <div className="container">
@@ -344,7 +225,7 @@ export default function HomePage() {
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--color-accent)', fontWeight: 700 }}>— ARYAN M.</span>
           </div>
           <div className="testimonial-card-premium">
-            <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>"WhatsApp ordering was super simple, got order confirmed in minutes. Amazing customer service."</p>
+            <p style={{ fontStyle: 'italic', marginBottom: '1rem' }}>"WhatsApp ordering was simple, got order confirmed in minutes. Amazing customer service."</p>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--color-accent)', fontWeight: 700 }}>— SIMRAN S.</span>
           </div>
           <div className="testimonial-card-premium">

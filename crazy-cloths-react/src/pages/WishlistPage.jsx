@@ -177,7 +177,7 @@ export default function WishlistPage() {
               >
                 Save your favorite catalog designs to buy them later.
               </p>
-              <Link to="/#collection" className="btn btn-accent" style={{ padding: '0.8rem 2rem', textDecoration: 'none', display: 'inline-block' }}>
+              <Link to="/collection" className="btn btn-accent" style={{ padding: '0.8rem 2rem', textDecoration: 'none', display: 'inline-block' }}>
                 Browse The Collection
               </Link>
             </div>

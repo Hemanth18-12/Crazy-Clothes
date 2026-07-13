@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LogoMark from '../components/LogoMark';
 
 export default function LoginPage() {
   const {
@@ -187,28 +188,88 @@ export default function LoginPage() {
     <div className="auth-split-container">
       {/* LEFT: Animated Brand Panel (Desktop Only) */}
       <div className="auth-brand-panel">
+        {/* Background ambient glows (existing) */}
         <div className="auth-brand-glow"></div>
         <div className="auth-brand-glow-2"></div>
-        
-        <div className="auth-brand-logo" style={{ zIndex: 2 }}>
-          CRAZY<br /><span>CLOTHS</span>
-        </div>
-        <div className="auth-brand-tagline" style={{ zIndex: 2 }}>Wear Your Vision</div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '3rem 0', zIndex: 2 }}>
-          <svg className="auth-tshirt-float" width="120" height="100"
-            viewBox="0 0 120 100" fill="none" stroke="white"
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            opacity="0.3">
-            <path d="M30 10 L10 30 L25 35 L25 90 L95 90 L95 35
-              L110 30 L90 10 Q75 20 60 20 Q45 20 30 10Z"/>
-          </svg>
-        </div>
+        {/* New hero radial glow — fades in first, behind everything */}
+        <div className="auth-hero-glow"></div>
 
-        <div className="auth-brand-pills" style={{ zIndex: 2 }}>
-          <div className="auth-brand-pill">Custom Prints</div>
-          <div className="auth-brand-pill">Fast Delivery</div>
-          <div className="auth-brand-pill">Premium Cotton</div>
+        <div className="auth-hero-content">
+          {/* Top: Logo */}
+          <div className="auth-brand-logo cc-logo-word">
+            <span style={{ display: 'block' }}>
+              {"CRAZY".split("").map((char, i) => (
+                <span key={i} className="cc-logo-letter" style={{ "--i": i }}>{char}</span>
+              ))}
+            </span>
+            <span className="cc-logo-word--accent" style={{ display: 'block' }}>
+              {"CLOTHS".split("").map((char, i) => (
+                <span key={i} className="cc-logo-letter" style={{ "--i": 5 + i + 1 }}>{char}</span>
+              ))}
+            </span>
+          </div>
+
+          {/* Mid: Streetwear model photo with animated motion trails overlay */}
+          <div className="auth-hero-figure-wrap">
+            <img
+              className="auth-hero-svg auth-hero-img"
+              src="/assets/images/hardik-cutout.png"
+              alt="Streetwear model in bold athletic outfit"
+            />
+
+            {/* Speed-trail SVG overlay — absolute, pointer-events none */}
+            <svg
+              className="auth-trails-overlay"
+              viewBox="0 0 200 320"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              {/* Trail 1 — long horizontal speed line */}
+              <line className="auth-trail auth-trail--1"
+                x1="5" y1="130" x2="100" y2="130"
+                stroke="rgba(220,38,38,0.65)" strokeWidth="2.8" strokeLinecap="round"
+              />
+              {/* Trail 2 — medium line, upper */}
+              <line className="auth-trail auth-trail--2"
+                x1="18" y1="100" x2="90" y2="100"
+                stroke="rgba(220,38,38,0.48)" strokeWidth="2" strokeLinecap="round"
+              />
+              {/* Trail 3 — medium line, mid */}
+              <line className="auth-trail auth-trail--3"
+                x1="22" y1="158" x2="85" y2="158"
+                stroke="rgba(220,38,38,0.42)" strokeWidth="1.6" strokeLinecap="round"
+              />
+              {/* Trail 4 — short, lower */}
+              <line className="auth-trail auth-trail--4"
+                x1="30" y1="200" x2="80" y2="188"
+                stroke="rgba(220,38,38,0.32)" strokeWidth="1.3" strokeLinecap="round"
+              />
+              {/* Trail 5 — subtle, near top */}
+              <line className="auth-trail auth-trail--5"
+                x1="28" y1="68" x2="72" y2="58"
+                stroke="rgba(220,38,38,0.25)" strokeWidth="1.1" strokeLinecap="round"
+              />
+            </svg>
+          </div>
+
+          {/* Bottom: Staggered headline + subline + pills */}
+          <div style={{ marginTop: 'auto' }}>
+            <div className="auth-hero-headline">
+              WEAR YOUR<span>VISION</span>
+            </div>
+            <p className="auth-hero-subline">
+              Premium custom streetwear, printed to order.
+              No templates. No limits. Bold by design.
+            </p>
+
+            <div className="auth-brand-pills" style={{ marginTop: '1.5rem' }}>
+              <div className="auth-brand-pill">Custom Prints</div>
+              <div className="auth-brand-pill">Fast Delivery</div>
+              <div className="auth-brand-pill">Premium Cotton</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -217,7 +278,7 @@ export default function LoginPage() {
         <div className={`auth-card ${cardEnter ? 'auth-card-enter' : ''} ${isShaking ? 'auth-card-shake' : ''}`}>
           {/* Mobile Logo */}
           <div className="auth-mobile-logo">
-            CRAZY <span>CLOTHS</span>
+            <LogoMark />
           </div>
 
           {/* Tabs */}

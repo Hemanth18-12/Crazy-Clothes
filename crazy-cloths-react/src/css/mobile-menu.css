@@ -1,0 +1,216 @@
+/*
+  =====================================================
+  CRAZY CLOTHS — NAUGHTY BOYZ STYLE MOBILE MENU
+  Scoped to .cc-mobile-menu-* only
+  =====================================================
+*/
+
+/* Fullscreen backdrop */
+.cc-mobile-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s ease;
+}
+
+.cc-mobile-menu-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Slide-in drawer — right side */
+.cc-mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1101;
+  width: min(320px, 88vw);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.34s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.cc-mobile-menu.open {
+  transform: translateX(0);
+}
+
+/* Header row */
+.cc-mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.cc-mobile-menu-brand {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.cc-mobile-menu-brand span {
+  color: var(--color-accent);
+}
+
+.cc-mobile-menu-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.cc-mobile-menu-close:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-accent);
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* Nav links */
+.cc-mobile-menu-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+
+.cc-mobile-menu-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.4rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.18s, color 0.18s;
+}
+
+.cc-mobile-menu-link:last-child {
+  border-bottom: none;
+}
+
+.cc-mobile-menu-link:hover,
+.cc-mobile-menu-link.active {
+  background: rgba(220, 38, 38, 0.06);
+  color: var(--color-accent);
+}
+
+.cc-mobile-menu-link.active::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 50%;
+}
+
+/* Bottom account section */
+.cc-mobile-menu-footer {
+  border-top: 1px solid var(--color-border);
+  padding: 1.2rem 1.4rem;
+  flex-shrink: 0;
+}
+
+.cc-mobile-menu-greeting {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.85rem;
+}
+
+.cc-mobile-menu-footer-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.cc-mobile-menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.85rem 0.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+
+.cc-mobile-menu-btn:hover {
+  border-color: var(--color-accent);
+  background: rgba(220,38,38,0.06);
+}
+
+.cc-mobile-menu-btn-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.cc-mobile-menu-btn-sub {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--color-text-secondary);
+}
+
+.cc-mobile-menu-btn--accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  grid-column: 1 / -1;
+}
+
+.cc-mobile-menu-btn--accent .cc-mobile-menu-btn-label { color: #fff; }
+.cc-mobile-menu-btn--accent .cc-mobile-menu-btn-sub { color: rgba(255,255,255,0.75); }
+
+.cc-mobile-menu-btn--accent:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* Only show on mobile */
+@media (min-width: 769px) {
+  .cc-mobile-menu,
+  .cc-mobile-menu-backdrop {
+    display: none !important;
+  }
+}
+

@@ -1,0 +1,191 @@
+/*
+  =====================================================
+  CRAZY CLOTHS — LOGIN HERO ANIMATION (ISOLATED)
+  auth-hero-* classes only — does NOT touch shared CSS
+  =====================================================
+*/
+
+/* ── Radial glow — fades in FIRST ─────────────────── */
+.auth-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 60%,
+    rgba(220, 38, 38, 0.22) 0%,
+    rgba(220, 38, 38, 0.06) 45%,
+    transparent 72%
+  );
+  opacity: 0;
+  animation: heroGlowIn 0.55s ease-out 0.05s forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes heroGlowIn {
+  to { opacity: 1; }
+}
+
+/* ── SVG figure wrapper ────────────────────────────── */
+.auth-hero-figure-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  margin: 1.5rem 0;
+}
+
+.auth-hero-svg {
+  width: min(240px, 80%);
+  height: auto;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: heroFigureIn 0.72s cubic-bezier(0.34, 1.56, 0.64, 1) 0.68s forwards;
+}
+
+@keyframes heroFigureIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Motion-trail lines (stroke-dashoffset draw-in) ── */
+.auth-trail {
+  stroke-dasharray: var(--trail-len, 80);
+  stroke-dashoffset: var(--trail-len, 80);
+  animation: trailDraw var(--trail-dur, 1.3s) ease-out var(--trail-delay, 0.1s) forwards;
+}
+
+@keyframes trailDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.auth-trail--1 { --trail-len: 95; --trail-dur: 1.25s; --trail-delay: 0.12s; }
+.auth-trail--2 { --trail-len: 70; --trail-dur: 1.30s; --trail-delay: 0.22s; }
+.auth-trail--3 { --trail-len: 55; --trail-dur: 1.35s; --trail-delay: 0.30s; }
+.auth-trail--4 { --trail-len: 40; --trail-dur: 1.40s; --trail-delay: 0.38s; }
+.auth-trail--5 { --trail-len: 28; --trail-dur: 1.20s; --trail-delay: 0.18s; }
+
+/* ── Headline + sub stagger ────────────────────────── */
+.auth-hero-headline {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroTextIn 0.65s ease-out 1.10s forwards;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5.5vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  z-index: 2;
+  position: relative;
+}
+.auth-hero-headline span {
+  color: var(--color-accent);
+  display: block;
+}
+
+.auth-hero-subline {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: heroTextIn 0.65s ease-out 1.28s forwards;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.48);
+  line-height: 1.55;
+  margin-top: 0.85rem;
+  z-index: 2;
+  position: relative;
+  max-width: 280px;
+}
+
+@keyframes heroTextIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layout */
+.auth-hero-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* prefers-reduced-motion: collapse all motion to simple fade */
+@media (prefers-reduced-motion: reduce) {
+  .auth-hero-glow {
+    animation: heroGlowIn 0.4s ease forwards;
+  }
+  .auth-hero-svg {
+    animation: heroFadeOnly 0.5s ease 0.1s forwards;
+    transform: none !important;
+  }
+  .auth-hero-headline {
+    animation: heroFadeOnly 0.5s ease 0.2s forwards;
+    transform: none !important;
+  }
+  .auth-hero-subline {
+    animation: heroFadeOnly 0.5s ease 0.3s forwards;
+    transform: none !important;
+  }
+  .auth-trail {
+    stroke-dashoffset: 0 !important;
+    animation: heroFadeOnly 0.4s ease 0.1s forwards;
+  }
+  @keyframes heroFadeOnly {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ── Streetwear photo hero ─────────────────────────── */
+.auth-hero-img {
+  width: min(280px, 88%);
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+  /* Subtle bottom vignette blends photo into dark panel */
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  filter: drop-shadow(0 8px 32px rgba(220,38,38,0.28));
+  display: block;
+}
+
+/* Overlay SVG sits on top of the photo, pointer-events none */
+.auth-trails-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Figure-wrap must be relative for overlay to align */
+.auth-hero-figure-wrap {
+  position: relative;
+}
+
+/* ── Bigger hero image ─────────────────────────────── */
+.auth-hero-img {
+  width: min(360px, 95%) !important;
+  max-height: 440px;
+  object-fit: contain !important;
+}
+
+/* ── Cutout image — no mask or border-radius needed ── */
+.auth-hero-img {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  border-radius: 0 !important;
+  filter: drop-shadow(0 12px 40px rgba(220,38,38,0.35)) !important;
+  width: min(380px, 98%) !important;
+  object-fit: contain !important;
+}

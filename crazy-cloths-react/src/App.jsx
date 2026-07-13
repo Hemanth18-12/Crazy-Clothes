@@ -11,6 +11,8 @@ import MobileBottomNav from './components/MobileBottomNav';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
+import ScrollToTop from './components/ScrollToTop';
+import ScrollProgress from './components/ScrollProgress';
 
 // CSS Imports (in exact required order)
 import './css/base.css';
@@ -20,6 +22,13 @@ import './css/components.css';
 import './css/pages.css';
 import './css/auth.css';
 import './css/mobile-nav.css';
+// Feature-isolated CSS — imported last so they cascade over shared styles
+import './css/login-hero.css';
+import './css/pill-buttons.css';
+import './css/logo.css';
+import './css/search.css';
+import './css/mobile-menu.css';
+import './css/premium-effects.css';
 
 // Lazy Loaded Pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -28,6 +37,9 @@ const ProductPage = lazy(() => import('./pages/ProductPage'));
 const WishlistPage = lazy(() => import('./pages/WishlistPage'));
 const OrdersPage = lazy(() => import('./pages/OrdersPage'));
 const SuccessPage = lazy(() => import('./pages/SuccessPage'));
+const CollectionPage = lazy(() => import('./pages/CollectionPage'));
+const CustomizePage = lazy(() => import('./pages/CustomizePage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -51,8 +63,18 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/collection" element={<CollectionPage />} />
+          <Route path="/customize" element={<CustomizePage />} />
 
           {/* Customer Private Routes */}
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/wishlist" 
             element={
@@ -123,6 +145,8 @@ export default function App() {
     <AuthProvider>
       <CartProvider>
         <BrowserRouter>
+          <ScrollToTop />
+          <ScrollProgress />
           <AppContent />
         </BrowserRouter>
       </CartProvider>

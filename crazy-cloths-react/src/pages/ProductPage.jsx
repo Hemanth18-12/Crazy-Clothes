@@ -33,6 +33,9 @@ export default function ProductPage() {
   const [orderLoading, setOrderLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState('white');
   const [selectedSize, setSelectedSize] = useState('');
+  // Image-load states — start hidden; reveal on load to prevent progressive-JPEG grayscale flash
+  const [catalogImgLoaded, setCatalogImgLoaded] = useState(false);
+  const [customImgLoaded, setCustomImgLoaded] = useState(false);
   
   // Reviews state (for catalog products)
   const [reviews, setReviews] = useState([]);
@@ -60,15 +63,35 @@ export default function ProductPage() {
 
   // Prefill details from currentUser
   useEffect(() => {
-    if (currentUser) {
-      const savedPhone = sessionStorage.getItem('cc_user_phone') || '';
-      setFormData((prev) => ({
-        ...prev,
-        name: currentUser.displayName || '',
-        email: currentUser.email || '',
-        phone: savedPhone
-      }));
-    }
+    if (!currentUser) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      name: currentUser.displayName || '',
+      email: currentUser.email || ''
+    }));
+
+    const fetchUserProfile = async () => {
+      try {
+        const { doc, getDoc } = await import('firebase/firestore');
+        const { db } = await import('../firebase/config');
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setFormData((prev) => ({
+            ...prev,
+            name: data.name || prev.name,
+            phone: data.phone || prev.phone,
+            address: data.address || prev.address
+          }));
+        }
+      } catch (err) {
+        console.error('Error prefilling product page details from profile:', err);
+      }
+    };
+
+    fetchUserProfile();
   }, [currentUser]);
 
   // Fetch product from Firestore on mount/id change
@@ -340,12 +363,28 @@ export default function ProductPage() {
               
               {/* Left Column: Product Image */}
               <div>
-                <div className="designer-mockup-container" style={{ maxWidth: '420px', overflow: 'hidden', borderRadius: '8px' }}>
+                {/* aspect-ratio:3/4 fixes layout shift; opacity start at 0 prevents grayscale flash */}
+                <div
+                  className="designer-mockup-container"
+                  style={{
+                    maxWidth: '420px',
+                    overflow: 'hidden',
+                    borderRadius: '8px',
+                    aspectRatio: '3/4',
+                    backgroundColor: 'var(--color-bg-2)'
+                  }}
+                >
                   <img
                     src={product.imageUrl || '/assets/images/white-t-shirt.png'}
                     alt={product.name}
                     className="mockup-base"
-                    style={{ width: '100%', borderRadius: '8px', transition: 'transform 0.4s ease' }}
+                    onLoad={() => setCatalogImgLoaded(true)}
+                    style={{
+                      width: '100%',
+                      borderRadius: '8px',
+                      transition: 'opacity 0.45s ease, transform 0.4s ease',
+                      opacity: catalogImgLoaded ? 1 : 0,
+                    }}
                     onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                   />
@@ -557,11 +596,18 @@ export default function ProductPage() {
                 </h2>
                 
                 <div className="designer-mockup-container">
+                  {/* Start at opacity:0 on src-swap to prevent grayscale progressive-JPEG flash */}
                   <img
                     id="base-mockup"
+                    key={selectedColor}
                     src={selectedColor === 'black' ? '/assets/images/black-t-shirt.png' : '/assets/images/white-t-shirt.png'}
                     alt="Base Mockup T-Shirt"
                     className="mockup-base"
+                    onLoad={() => setCustomImgLoaded(true)}
+                    style={{
+                      opacity: customImgLoaded ? 1 : 0,
+                      transition: 'opacity 0.35s ease',
+                    }}
                   />
                   {(localPreviewUrl || cloudinaryUrl) && (
                     <img
@@ -591,7 +637,7 @@ export default function ProductPage() {
                       <button
                         type="button"
                         className={`color-card-btn ${selectedColor === 'white' ? 'active' : ''}`}
-                        onClick={() => setSelectedColor('white')}
+                        onClick={() => { setSelectedColor('white'); setCustomImgLoaded(false); }}
                       >
                         {selectedColor === 'white' && (
                           <div className="checkmark-icon">
@@ -613,7 +659,7 @@ export default function ProductPage() {
                       <button
                         type="button"
                         className={`color-card-btn ${selectedColor === 'black' ? 'active' : ''}`}
-                        onClick={() => setSelectedColor('black')}
+                        onClick={() => { setSelectedColor('black'); setCustomImgLoaded(false); }}
                       >
                         {selectedColor === 'black' && (
                           <div className="checkmark-icon">

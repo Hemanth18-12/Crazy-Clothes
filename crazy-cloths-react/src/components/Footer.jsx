@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CONFIG } from '../config';
+import LogoMark from './LogoMark';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,7 +12,7 @@ export default function Footer() {
         <div className="footer-grid">
           <div className="footer-col">
             <div className="footer-logo">
-              {CONFIG.storeName.split(' ')[0]}<span>{CONFIG.storeName.split(' ')[1] || ''}</span>
+              <LogoMark />
             </div>
             <p style={{ maxWidth: '320px', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
               Streetwear-focused premium t-shirts customized with your uploaded graphics. No templates, no limits.
@@ -21,8 +22,8 @@ export default function Footer() {
             <h4>Navigate</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><a href="/#collection">Collection</a></li>
-              <li><a href="/#customize">Customize</a></li>
+              <li><Link to="/collection">Collection</Link></li>
+              <li><Link to="/customize">Customize</Link></li>
               <li><a href="/#how-it-works">How It Works</a></li>
             </ul>
           </div>

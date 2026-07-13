@@ -1,0 +1,155 @@
+﻿/*
+  =====================================================
+  CRAZY CLOTHS — ANIMATED LOGO (ISOLATED)
+  Scoped to .cc-logomark only — no shared style changes
+  =====================================================
+*/
+
+.cc-logomark {
+  display: inline-flex;
+  align-items: baseline;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  user-select: none;
+  outline: none;
+}
+
+.cc-logo-word {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.cc-logo-sep {
+  display: inline-block;
+  width: 0.42em;
+}
+
+/* ── Individual letters ────────────────────────── */
+.cc-logo-letter {
+  display: inline-block;
+  color: #ffffff;
+  /* Each letter cycles through its own glow phase */
+  animation: cc-letter-glow 4s ease-in-out infinite;
+  /* Stagger: 0.18s per letter index */
+  animation-delay: calc(var(--i, 0) * 0.18s);
+  transition: transform 0.25s ease;
+}
+
+/* Second word ("CLOTHS") uses accent red as base */
+.cc-logo-word--accent .cc-logo-letter {
+  color: var(--color-accent, #dc2626);
+  animation-name: cc-letter-glow-red;
+  animation-duration: 3.5s;
+}
+
+/* ── Glow keyframes for white letters ─────────── */
+@keyframes cc-letter-glow {
+  0%, 100% {
+    color: #ffffff;
+    text-shadow: none;
+    transform: translateY(0);
+  }
+  /* Mini flicker up */
+  18% {
+    color: #ff5555;
+    text-shadow:
+      0 0 6px rgba(220, 38, 38, 0.95),
+      0 0 18px rgba(220, 38, 38, 0.65),
+      0 0 40px rgba(220, 38, 38, 0.35);
+    transform: translateY(-1px);
+  }
+  /* Brief white reset */
+  24% {
+    color: #ffffff;
+    text-shadow: 0 0 3px rgba(220, 38, 38, 0.25);
+    transform: translateY(0);
+  }
+  /* Deeper glow pulse */
+  42% {
+    color: #ff3333;
+    text-shadow:
+      0 0 10px rgba(220, 38, 38, 1),
+      0 0 28px rgba(220, 38, 38, 0.7),
+      0 0 60px rgba(220, 38, 38, 0.4),
+      0 0 100px rgba(220, 38, 38, 0.15);
+    transform: translateY(-1.5px);
+  }
+  55% {
+    color: #ffffff;
+    text-shadow: none;
+    transform: translateY(0);
+  }
+}
+
+/* ── Glow keyframes for red letters ──────────── */
+@keyframes cc-letter-glow-red {
+  0%, 100% {
+    color: var(--color-accent, #dc2626);
+    text-shadow:
+      0 0 6px rgba(220, 38, 38, 0.4),
+      0 0 14px rgba(220, 38, 38, 0.2);
+    transform: translateY(0);
+  }
+  20% {
+    color: #ff6666;
+    text-shadow:
+      0 0 10px rgba(220, 38, 38, 1),
+      0 0 30px rgba(220, 38, 38, 0.75),
+      0 0 70px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px);
+  }
+  28% {
+    color: #ff2222;
+    text-shadow:
+      0 0 4px rgba(255, 80, 80, 0.9),
+      0 0 12px rgba(220, 38, 38, 0.5);
+    transform: translateY(0);
+  }
+  50% {
+    color: #cc1111;
+    text-shadow:
+      0 0 16px rgba(220, 38, 38, 1),
+      0 0 50px rgba(220, 38, 38, 0.6),
+      0 0 100px rgba(220, 38, 38, 0.25);
+    transform: translateY(-1px);
+  }
+  65% {
+    color: var(--color-accent, #dc2626);
+    text-shadow:
+      0 0 6px rgba(220, 38, 38, 0.3);
+    transform: translateY(0);
+  }
+}
+
+/* ── Hover: all letters light up together ──── */
+.cc-logomark:hover .cc-logo-letter {
+  animation-play-state: paused;
+  color: var(--color-accent, #dc2626);
+  text-shadow:
+    0 0 10px rgba(220, 38, 38, 0.9),
+    0 0 30px rgba(220, 38, 38, 0.55),
+    0 0 60px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+  transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* ── Light mode: invert so it still pops ─── */
+[data-theme="light"] .cc-logo-letter {
+  color: #111111;
+}
+
+[data-theme="light"] .cc-logo-word--accent .cc-logo-letter {
+  color: var(--color-accent, #dc2626);
+}
+
+/* ── Reduced motion: static with subtle shadow ─ */
+@media (prefers-reduced-motion: reduce) {
+  .cc-logo-letter {
+    animation: none !important;
+    text-shadow: 0 0 8px rgba(220, 38, 38, 0.35) !important;
+  }
+}

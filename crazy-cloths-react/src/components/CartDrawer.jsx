@@ -32,13 +32,29 @@ export default function CartDrawer() {
 
   // Prefill details from currentUser if available
   useEffect(() => {
-    if (currentUser) {
-      setName(currentUser.displayName || '');
-      setEmail(currentUser.email || '');
-      // Try to recover phone from Firestore or user metadata if possible
-      const savedPhone = sessionStorage.getItem('cc_user_phone');
-      if (savedPhone) setPhone(savedPhone);
-    }
+    if (!currentUser) return;
+
+    setName(currentUser.displayName || "");
+    setEmail(currentUser.email || "");
+
+    const fetchUserProfile = async () => {
+      try {
+        const { doc, getDoc } = await import("firebase/firestore");
+        const { db } = await import("../firebase/config");
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.name) setName(data.name);
+          if (data.phone) setPhone(data.phone);
+          if (data.address) setAddress(data.address);
+        }
+      } catch (err) {
+        console.error("Error prefilling cart details from profile:", err);
+      }
+    };
+
+    fetchUserProfile();
   }, [currentUser]);
 
   if (!isOpen) return null;

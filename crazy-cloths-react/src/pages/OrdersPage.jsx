@@ -423,7 +423,7 @@ export default function OrdersPage() {
               >
                 Explore our collection or design your own custom fit.
               </p>
-              <Link to="/#collection" className="btn btn-accent" style={{ padding: '0.8rem 2rem', textDecoration: 'none', display: 'inline-block' }}>
+              <Link to="/collection" className="btn btn-accent" style={{ padding: '0.8rem 2rem', textDecoration: 'none', display: 'inline-block' }}>
                 Go to Shop
               </Link>
             </div>

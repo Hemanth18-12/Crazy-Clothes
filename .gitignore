@@ -3,3 +3,4 @@
 # They contain public Firebase client credentials (safe to commit per Firebase security model)
 .DS_Store
 Thumbs.db
+node_modules/

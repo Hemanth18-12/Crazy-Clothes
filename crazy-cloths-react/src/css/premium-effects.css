@@ -1,0 +1,97 @@
+﻿/*
+  =====================================================
+  CRAZY CLOTHS — PREMIUM INTERACTIONS (ISOLATED)
+  Scoped classes to enhance user experience & polish UI
+  =====================================================
+*/
+
+/* ── 1. Glitch & Flicker Hover for Buttons ──────── */
+.btn-primary:hover,
+.btn-accent:hover,
+.shimmer-btn:hover {
+  animation: cc-btn-flicker 0.4s ease infinite alternate;
+}
+
+@keyframes cc-btn-flicker {
+  0% {
+    box-shadow: 
+      0 0 4px rgba(220, 38, 38, 0.4),
+      0 0 10px rgba(220, 38, 38, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 14px rgba(220, 38, 38, 0.85),
+      0 0 24px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+/* ── 2. Interactive 3D Product Card Hover ──────── */
+/* Scoped to cards inside collection/customize lists */
+.product-card {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: 
+    transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.product-card:hover {
+  /* Subtle 3D perspective shift on hover */
+  transform: translateY(-8px) rotateX(4deg) rotateY(-2deg) !important;
+  box-shadow: 
+    0 16px 36px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(220, 38, 38, 0.18) !important;
+}
+
+/* Image inside product card has a subtle scale and dynamic overlay glow */
+.product-card-img-wrap {
+  overflow: hidden;
+  position: relative;
+}
+
+.product-card-img-wrap img {
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.product-card:hover .product-card-img-wrap img {
+  transform: scale(1.06);
+}
+
+/* ── 3. Wishlist Toggle Spring Bounce ────────── */
+.wishlist-heart-btn.wishlisted svg {
+  animation: cc-wishlist-bounce 0.48s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes cc-wishlist-bounce {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.48);
+    fill: #dc2626;
+  }
+  60% {
+    transform: scale(0.82);
+  }
+  100% {
+    transform: scale(1);
+    fill: #dc2626;
+  }
+}
+
+/* ── 4. Prefers Reduced Motion Fallbacks ─────── */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:hover,
+  .btn-accent:hover,
+  .shimmer-btn:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+  .product-card:hover {
+    transform: translateY(-4px) !important;
+  }
+  .wishlist-heart-btn.wishlisted svg {
+    animation: none !important;
+  }
+}
