@@ -8,6 +8,7 @@ const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/Crazy-Clothes/',
   plugins: [react()],
   server: {
     port: 5173,
@@ -18,3 +19,4 @@ export default defineConfig({
     },
   },
 });
+
