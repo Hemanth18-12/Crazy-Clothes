@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "predeploy": "vite build",
+    "predeploy": "cross-env VITE_BASE_PATH=/Crazy-Clothes/ vite build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "cross-env": "^10.1.0",
     "gh-pages": "^6.3.0",
     "oxlint": "^1.71.0",
     "sharp": "^0.35.3",

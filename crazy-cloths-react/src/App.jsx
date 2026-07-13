@@ -144,7 +144,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <BrowserRouter basename="/Crazy-Clothes">
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
           <ScrollProgress />
           <AppContent />

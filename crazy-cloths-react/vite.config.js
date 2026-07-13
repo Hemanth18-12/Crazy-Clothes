@@ -8,7 +8,9 @@ const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Crazy-Clothes/',
+  // Use VITE_BASE_PATH env var — set to '/Crazy-Clothes/' for GitHub Pages,
+  // leave unset (defaults to '/') for Vercel or local dev
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [react()],
   server: {
     port: 5173,
@@ -19,4 +21,5 @@ export default defineConfig({
     },
   },
 });
+
 
