@@ -1,5 +1,5 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index.esm-DAkVgagw.js","assets/jsx-runtime-CdD58A1P.js","assets/config-DnGv81i9.js"])))=>i.map(i=>d[i]);
-import{c as e,d as t,m as n,t as r,u as i}from"./jsx-runtime-CdD58A1P.js";import{a,o,s}from"./index-Dg_ekYGx.js";var c=n(t(),1);function l(){let e=()=>`CC-${Date.now()}-${Math.floor(1e3+Math.random()*9e3)}`,t=(e,t,n)=>{let r=(s.whatsappNumber||`919505700178`).replace(/[^0-9]/g,``),i=new Date().toLocaleDateString(`en-IN`,{day:`2-digit`,month:`2-digit`,year:`numeric`,hour:`2-digit`,minute:`2-digit`,hour12:!0}),a=e.cloudinaryUrl?e.cloudinaryUrl:`No custom design`,o=`🛍️ *NEW ORDER — ${s.storeName}*
+import{c as e,d as t,m as n,t as r,u as i}from"./jsx-runtime-CdD58A1P.js";import{a,o,s}from"./index-CPaNGAGE.js";var c=n(t(),1);function l(){let e=()=>`CC-${Date.now()}-${Math.floor(1e3+Math.random()*9e3)}`,t=(e,t,n)=>{let r=(s.whatsappNumber||`919505700178`).replace(/[^0-9]/g,``),i=new Date().toLocaleDateString(`en-IN`,{day:`2-digit`,month:`2-digit`,year:`numeric`,hour:`2-digit`,minute:`2-digit`,hour12:!0}),a=e.cloudinaryUrl?e.cloudinaryUrl:`No custom design`,o=`🛍️ *NEW ORDER — ${s.storeName}*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 *Order ID   :* #${t}
 *Date       :* ${i}
