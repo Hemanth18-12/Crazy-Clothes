@@ -144,7 +144,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/Crazy-Clothes">
           <ScrollToTop />
           <ScrollProgress />
           <AppContent />
