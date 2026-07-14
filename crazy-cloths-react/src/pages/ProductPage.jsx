@@ -94,6 +94,17 @@ export default function ProductPage() {
     fetchUserProfile();
   }, [currentUser]);
 
+  // Clear design image error once a design is uploaded
+  useEffect(() => {
+    if (cloudinaryUrl && formErrors.designImage) {
+      setFormErrors((prev) => {
+        const nextErrors = { ...prev };
+        delete nextErrors.designImage;
+        return nextErrors;
+      });
+    }
+  }, [cloudinaryUrl, formErrors.designImage]);
+
   // Fetch product from Firestore on mount/id change
   useEffect(() => {
     if (!id) return;
@@ -211,6 +222,13 @@ export default function ProductPage() {
     if (!formData.phone.trim()) errors.phone = 'WhatsApp Number is required.';
     if (!formData.address.trim()) errors.address = 'Delivery Address is required.';
     if (formData.quantity <= 0) errors.quantity = 'Quantity must be at least 1.';
+
+    if (product && product.category === 'customizable') {
+      if (!cloudinaryUrl) {
+        errors.designImage = 'Please upload your design image before placing the order';
+      }
+    }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -266,22 +284,34 @@ export default function ProductPage() {
       );
 
       // 3. Trigger WhatsApp notifications
-      sendOrderNotification(
-        {
-          productName: product.name,
-          color: selectedColor,
-          size: selectedSize,
-          quantity: formData.quantity,
-          cloudinaryUrl: orderData.cloudinaryUrl,
-          customerName: formData.name,
-          customerEmail: formData.email,
-          customerPhone: formData.phone,
-          customerAddress: formData.address,
-          specialInstructions: formData.notes
-        },
-        orderId,
-        totalFormatted
-      );
+      if (product.category === 'customizable') {
+        const message = `Name: ${formData.name}
+Phone: ${formData.phone}
+Size: ${selectedSize || 'Standard'}
+Quantity: ${formData.quantity}
+Color: ${selectedColor}
+Special Instructions: ${formData.notes || 'None'}
+Design URL: ${cloudinaryUrl}`;
+        const whatsappUrl = `https://wa.me/919505700178?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      } else {
+        sendOrderNotification(
+          {
+            productName: product.name,
+            color: selectedColor,
+            size: selectedSize,
+            quantity: formData.quantity,
+            cloudinaryUrl: orderData.cloudinaryUrl,
+            customerName: formData.name,
+            customerEmail: formData.email,
+            customerPhone: formData.phone,
+            customerAddress: formData.address,
+            specialInstructions: formData.notes
+          },
+          orderId,
+          totalFormatted
+        );
+      }
 
       // 4. Send Confirmation Email
       await sendConfirmation(
@@ -772,6 +802,11 @@ export default function ProductPage() {
                       )}
                     </div>
                     {uploadError && <div id="upload-error" className="upload-error" style={{ display: 'block', color: 'var(--color-accent)' }}>{uploadError}</div>}
+                    {formErrors.designImage && (
+                      <div id="design-image-error" className="form-input-error" style={{ display: 'block', color: 'var(--color-accent)', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                        {formErrors.designImage}
+                      </div>
+                    )}
                   </div>
                 </div>
 
