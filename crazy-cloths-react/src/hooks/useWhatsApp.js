@@ -8,7 +8,7 @@ export function useWhatsApp() {
   };
 
   const sendOwnerNotification = (order, orderId, totalFormatted) => {
-    const ownerNumber = CONFIG.whatsappNumber || '919505700178';
+    const ownerNumber = CONFIG.whatsappNumber || '918019101606';
     const cleanOwnerNumber = ownerNumber.replace(/[^0-9]/g, '');
 
     const now = new Date();
@@ -87,4 +87,76 @@ Questions? Reply to this chat anytime.
     sendCustomerNotification,
     sendOrderNotification
   };
+}
+
+/**
+ * Send an automated status update WhatsApp message to the customer.
+ * Called when admin changes an order status in the Orders page.
+ */
+export function sendStatusUpdateToCustomer(order, newStatus) {
+  const phone = (order.customerPhone || '').replace(/\D/g, '');
+  if (!phone) return;
+
+  const firstName = order.customerName?.split(' ')[0] || 'there';
+  const orderIdStr = order.orderId || order.id?.slice(0, 8) || 'N/A';
+
+  const messages = {
+    confirmed: `Hi ${firstName}! 🎉
+
+Your Crazy Cloths order has been confirmed!
+
+Order ID  : #${orderIdStr}
+Product   : ${order.productName || 'T-Shirt'}
+Amount    : ₹${order.price || order.total || ''}
+
+We're getting it ready for dispatch. You'll hear from us soon!
+
+— Crazy Cloths 🖤
+crazy-clothes.vercel.app`,
+
+    dispatched: `Hi ${firstName}! 📦
+
+Your order is on its way!
+
+Order ID  : #${orderIdStr}
+Product   : ${order.productName || 'T-Shirt'}
+
+Expected delivery in 3-5 business days. Track your delivery with the courier partner.
+
+Thank you for shopping with Crazy Cloths! 🖤
+crazy-clothes.vercel.app`,
+
+    delivered: `Hi ${firstName}! ✅
+
+Your Crazy Cloths order has been delivered!
+
+Order ID  : #${orderIdStr}
+
+We hope you love it! 🔥
+Drop us a review — it means the world to us.
+
+— Crazy Cloths 🖤
+crazy-clothes.vercel.app`,
+
+    cancelled: `Hi ${firstName},
+
+We're sorry — your order #${orderIdStr} has been cancelled.
+
+If you have any questions, reply to this message and we'll help you out.
+
+— Crazy Cloths 🖤`
+  };
+
+  // Map Firestore status values (capitalised) to message keys (lowercase)
+  const statusKey = newStatus?.toLowerCase();
+  const message = messages[statusKey];
+  if (!message) return;
+
+  // Add 91 prefix if not already present
+  const formattedPhone = phone.startsWith('91') ? phone : '91' + phone;
+
+  window.open(
+    `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`,
+    '_blank'
+  );
 }

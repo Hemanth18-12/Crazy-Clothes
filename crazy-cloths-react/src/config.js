@@ -2,7 +2,7 @@ export const CONFIG = {
   storeName: 'Crazy Cloths',
   
   // WhatsApp config
-  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER || '919505700178',
+  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER || '918019101606',
 
   // Cloudinary config
   cloudinary: {

@@ -4,6 +4,7 @@ import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serve
 import { db } from '../../firebase/config';
 import { useAuth } from '../../context/AuthContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { sendStatusUpdateToCustomer } from '../../hooks/useWhatsApp';
 
 export default function AdminOrders() {
   const location = useLocation();
@@ -111,26 +112,14 @@ export default function AdminOrders() {
 
       await logAdminAction('updated order status', orderId, `#CC-${orderIdStr} to ${newStatus}`);
 
-      // Automated WhatsApp notifications
-      if (o && o.customerPhone) {
-        let text = '';
-        if (newStatus === 'Confirmed') {
-          text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} has been confirmed. We're preparing it for dispatch. 📦`;
-        } else if (newStatus === 'Dispatched') {
-          text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} is on its way! Expected delivery in 3-5 days. 🚚`;
-        } else if (newStatus === 'Delivered') {
-          text = `Hi ${o.customerName}! Your order #CC-${orderIdStr} has been delivered. We hope you love it! Leave us a review on the app. ⭐`;
-        }
-
-        if (text) {
-          const cleanPhone = o.customerPhone.replace(/\D/g, '');
-          window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
-        }
+      // Automatically send WhatsApp status update to customer
+      if (o) {
+        sendStatusUpdateToCustomer(o, newStatus);
       }
 
       window.showAdminToast(
         'Status Updated',
-        `Order #CC-${orderIdStr} marked as ${newStatus}`
+        `Order #CC-${orderIdStr} marked as ${newStatus} — WhatsApp sent to customer`
       );
     } catch (err) {
       console.error('Failed to update status:', err);

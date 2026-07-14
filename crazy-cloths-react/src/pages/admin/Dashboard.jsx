@@ -36,6 +36,17 @@ export default function AdminDashboard() {
   const [statusCounts, setStatusCounts] = useState({ Pending: 0, Confirmed: 0, Dispatched: 0, Delivered: 0 });
   const [tooltip, setTooltip] = useState({ visible: false, text: '', x: 0, y: 0 });
 
+  // Live Now — online users
+  const [liveUsers, setLiveUsers] = useState([]);
+
+  // Revenue analytics
+  const [revenue, setRevenue] = useState({
+    total: 0, thisWeek: 0, lastWeek: 0, avgOrder: 0, change: 0, bestDay: { date: '', amount: 0 }
+  });
+
+  // Most Wishlisted products leaderboard
+  const [mostWishlisted, setMostWishlisted] = useState([]);
+
   const weeklyChartRef = useRef(null);
   const productsChartRef = useRef(null);
 
@@ -256,9 +267,65 @@ export default function AdminDashboard() {
       drawProductsChart(prodTypeCounts);
     });
 
+    // 5. Live presence — who is online
+    const unsubscribePresence = onSnapshot(collection(db, 'presence'), (snap) => {
+      const users = [];
+      snap.forEach((d) => users.push({ id: d.id, ...d.data() }));
+      setLiveUsers(users);
+    });
+
+    // 6. Revenue analytics from orders collection
+    const unsubscribeRevenue = onSnapshot(collection(db, 'orders'), (snap) => {
+      const orders = snap.docs.map((d) => ({
+        ...d.data(),
+        _parsedDate: d.data().createdAt
+          ? (d.data().createdAt.toDate ? d.data().createdAt.toDate() : new Date(d.data().createdAt))
+          : null
+      }));
+
+      const now = new Date();
+      const weekAgo = new Date(now - 7 * 86400000);
+      const twoWeeksAgo = new Date(now - 14 * 86400000);
+
+      const totalRevenue = orders.reduce((s, o) => s + (Number(o.price) || 0), 0);
+      const thisWeekOrders = orders.filter((o) => o._parsedDate && o._parsedDate >= weekAgo);
+      const lastWeekOrders = orders.filter((o) => o._parsedDate && o._parsedDate >= twoWeeksAgo && o._parsedDate < weekAgo);
+      const thisWeekRevenue = thisWeekOrders.reduce((s, o) => s + (Number(o.price) || 0), 0);
+      const lastWeekRevenue = lastWeekOrders.reduce((s, o) => s + (Number(o.price) || 0), 0);
+      const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+      const revenueChange = lastWeekRevenue > 0
+        ? ((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue * 100).toFixed(1)
+        : (thisWeekRevenue > 0 ? 100 : 0);
+
+      // Best day
+      const dailyTotals = {};
+      orders.forEach((o) => {
+        if (!o._parsedDate) return;
+        const dayKey = o._parsedDate.toISOString().split('T')[0];
+        dailyTotals[dayKey] = (dailyTotals[dayKey] || 0) + (Number(o.price) || 0);
+      });
+      let bestDay = { date: '', amount: 0 };
+      Object.entries(dailyTotals).forEach(([date, amount]) => {
+        if (amount > bestDay.amount) bestDay = { date, amount };
+      });
+
+      setRevenue({ total: totalRevenue, thisWeek: thisWeekRevenue, lastWeek: lastWeekRevenue, avgOrder: avgOrderValue, change: revenueChange, bestDay });
+    });
+
+    // 7. Most Wishlisted products leaderboard
+    const wishQ = query(collection(db, 'products'), orderBy('wishlistCount', 'desc'), limit(5));
+    const unsubscribeWishlist = onSnapshot(wishQ, (snap) => {
+      const items = [];
+      snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+      setMostWishlisted(items);
+    });
+
     return () => {
       unsubscribeActivity();
       unsubscribeOrders();
+      unsubscribePresence();
+      unsubscribeRevenue();
+      unsubscribeWishlist();
     };
   }, []);
 
@@ -532,6 +599,105 @@ export default function AdminDashboard() {
               <path fill="none" stroke="var(--a-red)" strokeWidth="1.5" d={drawSparklineSvg(sparklines.totalProducts).linePath}></path>
             </svg>
           </div>
+
+          {/* Card 5 — Live Now */}
+          <div className="admin-stat-card" style={{ borderColor: liveUsers.length > 0 ? 'rgba(0, 204, 102, 0.4)' : 'var(--a-border)' }}>
+            <style>{`
+              @keyframes pulse-green {
+                0% { box-shadow: 0 0 0 0 rgba(0,204,102,0.6); }
+                70% { box-shadow: 0 0 0 8px rgba(0,204,102,0); }
+                100% { box-shadow: 0 0 0 0 rgba(0,204,102,0); }
+              }
+            `}</style>
+            <div className="admin-stat-header">
+              <span className="admin-stat-label">Live Now</span>
+              <span className="admin-stat-icon">🟢</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <span style={{
+                display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%',
+                background: liveUsers.length > 0 ? '#00cc66' : '#444',
+                animation: liveUsers.length > 0 ? 'pulse-green 1.5s infinite' : 'none'
+              }} />
+              <span style={{ fontFamily: 'var(--a-font-display)', fontSize: '2.4rem', color: 'var(--a-text)', lineHeight: 1 }}>
+                {liveUsers.length}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.62rem', color: 'var(--a-text3)', fontFamily: 'var(--a-font-mono)', textTransform: 'uppercase', marginBottom: '8px' }}>
+              {liveUsers.length === 1 ? 'visitor online' : 'visitors online'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '80px', overflowY: 'auto' }}>
+              {liveUsers.length === 0 ? (
+                <div style={{ fontSize: '0.62rem', color: 'var(--a-text3)', fontFamily: 'var(--a-font-mono)' }}>No visitors right now</div>
+              ) : (
+                liveUsers.map((u) => (
+                  <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00cc66', flexShrink: 0 }} />
+                    <span style={{ fontSize: '0.62rem', fontFamily: 'var(--a-font-mono)', color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      {u.name || u.email?.split('@')[0] || 'Customer'}
+                    </span>
+                    <span style={{ fontSize: '0.58rem', color: 'var(--a-text3)', fontFamily: 'var(--a-font-mono)', textTransform: 'uppercase', flexShrink: 0 }}>
+                      {u.page || 'Browsing'}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+          {/* Total Revenue */}
+          <div className="admin-stat-card">
+            <div className="admin-stat-header">
+              <span className="admin-stat-label">Total Revenue</span>
+              <span className="admin-stat-icon">💰</span>
+            </div>
+            <div className="admin-stat-value">₹{Math.round(revenue.total).toLocaleString('en-IN')}</div>
+            <div className="admin-stat-trend neutral">
+              <span>All time</span>
+            </div>
+          </div>
+
+          {/* This Week Revenue */}
+          <div className="admin-stat-card">
+            <div className="admin-stat-header">
+              <span className="admin-stat-label">This Week</span>
+              <span className="admin-stat-icon">📈</span>
+            </div>
+            <div className="admin-stat-value">₹{Math.round(revenue.thisWeek).toLocaleString('en-IN')}</div>
+            <div className={`admin-stat-trend ${Number(revenue.change) >= 0 ? 'positive' : 'negative'}`}>
+              <span>{Number(revenue.change) >= 0 ? '↑' : '↓'} {Math.abs(revenue.change)}%</span>{' '}
+              <span style={{ color: 'var(--a-text3)', marginLeft: '4px' }}>vs last week</span>
+            </div>
+          </div>
+
+          {/* Avg Order Value */}
+          <div className="admin-stat-card">
+            <div className="admin-stat-header">
+              <span className="admin-stat-label">Avg Order Value</span>
+              <span className="admin-stat-icon">🎯</span>
+            </div>
+            <div className="admin-stat-value">₹{Math.round(revenue.avgOrder).toLocaleString('en-IN')}</div>
+            <div className="admin-stat-trend neutral">
+              <span>per order</span>
+            </div>
+          </div>
+
+          {/* Best Day */}
+          <div className="admin-stat-card">
+            <div className="admin-stat-header">
+              <span className="admin-stat-label">Best Day</span>
+              <span className="admin-stat-icon">🏆</span>
+            </div>
+            <div className="admin-stat-value">
+              {revenue.bestDay.amount > 0 ? `₹${Math.round(revenue.bestDay.amount).toLocaleString('en-IN')}` : '—'}
+            </div>
+            <div className="admin-stat-trend neutral" style={{ fontSize: '0.6rem' }}>
+              {revenue.bestDay.date ? new Date(revenue.bestDay.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'No data yet'}
+            </div>
+          </div>
         </div>
 
         {/* LOW STOCK ALERTS NOTIFICATION */}
@@ -600,8 +766,56 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* MOST WANTED — Wishlist Leaderboard */}
+        <div className="admin-card" style={{ marginBottom: '28px' }}>
+          <div className="admin-card-header">
+            <div className="admin-card-title">♥ Most Wanted</div>
+            <span style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.62rem', color: 'var(--a-text3)', textTransform: 'uppercase' }}>
+              Top Wishlisted Products
+            </span>
+          </div>
+          <div className="admin-card-body">
+            {mostWishlisted.length === 0 ? (
+              <div style={{ textAlign: 'center', color: 'var(--a-text3)', fontSize: '0.75rem', padding: '20px' }}>
+                No wishlist data yet. Wishlist counts update as customers save products.
+              </div>
+            ) : (() => {
+              const maxCount = Math.max(...mostWishlisted.map((p) => p.wishlistCount || 0), 1);
+              return mostWishlisted.map((p, i) => {
+                const imgSrc = p.imageUrl || (p.color === 'black' ? '/assets/images/black-t-shirt.png' : '/assets/images/white-t-shirt.png');
+                const barPct = Math.max(4, Math.round(((p.wishlistCount || 0) / maxCount) * 100));
+                const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32', '#888', '#666'];
+                return (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: i < mostWishlisted.length - 1 ? '1px solid var(--a-border)' : 'none' }}>
+                    {/* Rank */}
+                    <span style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.9rem', fontWeight: 700, color: rankColors[i] || '#666', width: '20px', textAlign: 'center', flexShrink: 0 }}>
+                      #{i + 1}
+                    </span>
+                    {/* Thumbnail */}
+                    <img src={imgSrc} alt={p.name} style={{ width: '36px', height: '44px', objectFit: 'cover', border: '1px solid var(--a-border)', flexShrink: 0 }} />
+                    {/* Name + Bar */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.72rem', color: 'var(--a-text)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {p.name || 'Unnamed Product'}
+                      </div>
+                      <div style={{ background: 'var(--a-border)', borderRadius: '2px', height: '5px', overflow: 'hidden' }}>
+                        <div style={{ width: `${barPct}%`, height: '100%', background: 'var(--a-red)', transition: 'width 0.5s ease' }} />
+                      </div>
+                    </div>
+                    {/* Count */}
+                    <span style={{ fontFamily: 'var(--a-font-mono)', fontSize: '1rem', fontWeight: 700, color: 'var(--a-red)', flexShrink: 0 }}>
+                      ♥ {p.wishlistCount || 0}
+                    </span>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+
         {/* CHARTS GRID ROW */}
         <div className="admin-charts-row">
+
           <div className="admin-card">
             <div className="admin-card-header">
               <div className="admin-card-title">Orders This Week</div>

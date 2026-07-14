@@ -142,7 +142,7 @@ Questions? Reply to this chat anytime.
 — Team Crazy Cloths 🖤`;
 
       // 2. Open WhatsApp for Owner & Customer
-      const ownerNumber = CONFIG.whatsappNumber || '919505700178';
+      const ownerNumber = CONFIG.whatsappNumber || '918019101606';
       const cleanOwnerNumber = ownerNumber.replace(/[^0-9]/g, '');
       const ownerUrl = `https://wa.me/${cleanOwnerNumber}?text=${encodeURIComponent(ownerMessage)}`;
       

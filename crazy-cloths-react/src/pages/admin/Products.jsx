@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { CONFIG } from '../../config';
 import { useAuth } from '../../context/AuthContext';
@@ -38,6 +38,13 @@ export default function AdminProducts() {
   const [editingPriceId, setEditingPriceId] = useState(null);
   const [editingPriceVal, setEditingPriceVal] = useState(499);
 
+  // Sort mode
+  const [sortMode, setSortMode] = useState('sortOrder'); // 'sortOrder' | 'wishlistCount' | 'price'
+
+  // Stock alert modal for back-in-stock notifications
+  const [stockAlertModal, setStockAlertModal] = useState(null); // { product, wishlisted: [] }
+  const [stockAlertIdx, setStockAlertIdx] = useState(0);
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -51,6 +58,7 @@ export default function AdminProducts() {
         snapshot.forEach((doc) => {
           list.push({ id: doc.id, ...doc.data() });
         });
+        // Initial sort by sortOrder — user can override via sortMode
         list.sort((a, b) => (b.sortOrder || 0) - (a.sortOrder || 0));
         setProducts(list);
         setLoading(false);
@@ -272,6 +280,21 @@ export default function AdminProducts() {
 
       await logAdminAction('toggled stock', productId, `of "${name}" to ${newStatus === 'inStock' ? 'In Stock' : 'Out of Stock'}`);
       window.showAdminToast('Stock Updated', `"${name}" marked as ${newStatus === 'inStock' ? 'In Stock' : 'Out of Stock'}.`);
+
+      // If toggled to inStock — check for wishlisted customers to notify
+      if (newStatus === 'inStock') {
+        try {
+          const wishSnap = await getDocs(collection(db, 'productWishlists', productId, 'users'));
+          const wishlisted = [];
+          wishSnap.forEach((d) => wishlisted.push({ id: d.id, ...d.data() }));
+          if (wishlisted.length > 0) {
+            setStockAlertModal({ product: { id: productId, name, ...docSnap.data() }, wishlisted });
+            setStockAlertIdx(0);
+          }
+        } catch (_) {
+          // productWishlists may not exist yet — ignore
+        }
+      }
     } catch (err) {
       console.error('Stock toggle failed:', err);
       alert('Stock toggle failed: ' + err.message);
@@ -325,6 +348,13 @@ export default function AdminProducts() {
       : '/assets/images/white-t-shirt.png';
   };
 
+  // Compute display-sorted list
+  const displayProducts = [...products].sort((a, b) => {
+    if (sortMode === 'wishlistCount') return (b.wishlistCount || 0) - (a.wishlistCount || 0);
+    if (sortMode === 'price') return (b.price || 0) - (a.price || 0);
+    return (b.sortOrder || 0) - (a.sortOrder || 0);
+  });
+
   return (
     <AdminLayout title="Products Catalog">
       {/* HEADER CONTROL BAR */}
@@ -343,7 +373,18 @@ export default function AdminProducts() {
         <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--a-text2)' }}>
           Catalog Size: <strong>{products.length}</strong> items
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Sort Mode */}
+          <select
+            className="admin-form-select"
+            style={{ padding: '6px 10px', fontSize: '0.72rem', fontFamily: 'var(--a-font-mono)', height: 'auto' }}
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value)}
+          >
+            <option value="sortOrder">Sort: Default</option>
+            <option value="wishlistCount">Sort: Most Wishlisted</option>
+            <option value="price">Sort: Price (High-Low)</option>
+          </select>
           {/* View Toggle */}
           <div style={{ display: 'flex', border: '1px solid var(--a-border)', borderRadius: '2px', overflow: 'hidden' }}>
             <button
@@ -380,7 +421,7 @@ export default function AdminProducts() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="admin-products-grid">
-          {products.map((p) => {
+          {displayProducts.map((p) => {
             const isLowStock =
               p.stockCount !== undefined && p.stockCount !== null && p.stockCount <= 5;
             const isInStock = p.stockStatus === 'inStock';
@@ -457,6 +498,17 @@ export default function AdminProducts() {
                     {isLowStock && (
                       <span className="admin-status pending">
                         Low: {p.stockCount} left
+                      </span>
+                    )}
+                    {/* Wishlist badge */}
+                    {(p.wishlistCount || 0) > 0 && (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '3px',
+                        fontFamily: 'var(--a-font-mono)', fontSize: '0.58rem',
+                        color: 'var(--a-red)', background: 'rgba(255,26,26,0.1)',
+                        border: '1px solid rgba(255,26,26,0.25)', padding: '4px 8px', borderRadius: '2px'
+                      }}>
+                        ♥ {p.wishlistCount}
                       </span>
                     )}
                   </div>
@@ -789,6 +841,81 @@ export default function AdminProducts() {
           </form>
         </div>
       </div>
+
+      {/* STOCK ALERT MODAL — notify wishlisted customers when product restocked */}
+      {stockAlertModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 2000,
+          background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'var(--a-surface)', border: '1px solid var(--a-border)',
+            padding: '32px', maxWidth: '480px', width: '90%', position: 'relative'
+          }}>
+            <button
+              onClick={() => setStockAlertModal(null)}
+              style={{ position: 'absolute', top: '12px', right: '16px', background: 'none', border: 'none', color: 'var(--a-text2)', fontSize: '1.4rem', cursor: 'pointer' }}
+            >×</button>
+            <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-green)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+              Back In Stock Alert
+            </div>
+            <h3 style={{ color: 'var(--a-text)', fontFamily: 'var(--a-font-display)', fontSize: '1.2rem', marginBottom: '4px' }}>
+              {stockAlertModal.product.name}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--a-text2)', fontFamily: 'var(--a-font-mono)', marginBottom: '20px' }}>
+              {stockAlertModal.wishlisted.length} customer{stockAlertModal.wishlisted.length !== 1 ? 's' : ''} wishlisted this product.
+              Send them a WhatsApp notification one at a time.
+            </p>
+
+            {/* Progress */}
+            <div style={{ background: 'var(--a-border)', borderRadius: '2px', height: '4px', marginBottom: '16px', overflow: 'hidden' }}>
+              <div style={{ width: `${Math.round((stockAlertIdx / stockAlertModal.wishlisted.length) * 100)}%`, height: '100%', background: 'var(--a-green)', transition: 'width 0.3s ease' }} />
+            </div>
+            <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-text3)', marginBottom: '20px' }}>
+              {stockAlertIdx} / {stockAlertModal.wishlisted.length} sent
+            </div>
+
+            {stockAlertIdx < stockAlertModal.wishlisted.length ? (
+              <>
+                <div style={{ marginBottom: '16px', padding: '12px', background: 'var(--a-surface2)', border: '1px solid var(--a-border)' }}>
+                  <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.72rem', color: 'var(--a-text)', fontWeight: 600 }}>
+                    {stockAlertModal.wishlisted[stockAlertIdx].name || 'Customer'}
+                  </div>
+                  <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-text3)' }}>
+                    {stockAlertModal.wishlisted[stockAlertIdx].phone || 'No phone'}
+                  </div>
+                </div>
+                <button
+                  className="admin-btn red"
+                  style={{ width: '100%', padding: '12px' }}
+                  onClick={() => {
+                    const u = stockAlertModal.wishlisted[stockAlertIdx];
+                    const phone = (u.phone || '').replace(/\D/g, '');
+                    if (phone) {
+                      const msg = `Hey ${u.name?.split(' ')[0] || 'there'}! 🔥 ${stockAlertModal.product.name} is back in stock on Crazy Cloths! Grab yours before it sells out: crazy-clothes.vercel.app`;
+                      const formatted = phone.startsWith('91') ? phone : '91' + phone;
+                      window.open(`https://wa.me/${formatted}?text=${encodeURIComponent(msg)}`, '_blank');
+                    }
+                    setStockAlertIdx((prev) => prev + 1);
+                  }}
+                >
+                  📲 Send WhatsApp → Next ({stockAlertIdx + 1}/{stockAlertModal.wishlisted.length})
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>✅</div>
+                <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.75rem', color: 'var(--a-green)' }}>
+                  All {stockAlertModal.wishlisted.length} customers notified!
+                </div>
+                <button className="admin-btn" style={{ marginTop: '16px', padding: '8px 24px' }} onClick={() => setStockAlertModal(null)}>
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

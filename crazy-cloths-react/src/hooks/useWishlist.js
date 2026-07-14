@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { collection, doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  onSnapshot,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+  getDoc
+} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
@@ -49,6 +59,8 @@ export function useWishlist() {
       navigate('/login');
       return;
     }
+
+    // 1. Write to user's wishlist subcollection
     const wishDocRef = doc(db, 'users', currentUser.uid, 'wishlist', productId);
     try {
       await setDoc(wishDocRef, { addedAt: new Date().toISOString() });
@@ -56,16 +68,70 @@ export function useWishlist() {
       console.error('Failed to add to wishlist:', err);
       throw err;
     }
+
+    // 2. Increment wishlistCount on the product document
+    try {
+      await updateDoc(doc(db, 'products', productId), {
+        wishlistCount: increment(1)
+      });
+    } catch (err) {
+      // Non-fatal — product might not exist or field may not be set
+      console.warn('Could not update wishlistCount on product:', err);
+    }
+
+    // 3. Write to productWishlists/{productId}/users/{uid} for stock alerts
+    try {
+      // Fetch user profile to get phone number
+      let userName = currentUser.displayName || '';
+      let userPhone = '';
+      const userDocSnap = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        userName = userData.name || userName;
+        userPhone = userData.phone || '';
+      }
+
+      await setDoc(
+        doc(db, 'productWishlists', productId, 'users', currentUser.uid),
+        {
+          uid: currentUser.uid,
+          name: userName,
+          email: currentUser.email || '',
+          phone: userPhone,
+          addedAt: serverTimestamp()
+        }
+      );
+    } catch (err) {
+      console.warn('Could not write to productWishlists:', err);
+    }
   };
 
   const removeFromWishlist = async (productId) => {
     if (!currentUser) return;
+
+    // 1. Remove from user's wishlist subcollection
     const wishDocRef = doc(db, 'users', currentUser.uid, 'wishlist', productId);
     try {
       await deleteDoc(wishDocRef);
     } catch (err) {
       console.error('Failed to remove from wishlist:', err);
       throw err;
+    }
+
+    // 2. Decrement wishlistCount on the product document
+    try {
+      await updateDoc(doc(db, 'products', productId), {
+        wishlistCount: increment(-1)
+      });
+    } catch (err) {
+      console.warn('Could not decrement wishlistCount on product:', err);
+    }
+
+    // 3. Remove from productWishlists subcollection
+    try {
+      await deleteDoc(doc(db, 'productWishlists', productId, 'users', currentUser.uid));
+    } catch (err) {
+      console.warn('Could not remove from productWishlists:', err);
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { usePresenceTracker } from './hooks/usePresenceTracker';
 
 // Providers
 import { AuthProvider } from './context/AuthContext';
@@ -44,6 +45,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 // Admin Pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/Orders'));
+const AdminCustomers = lazy(() => import('./pages/admin/Customers'));
 const AdminProducts = lazy(() => import('./pages/admin/Products'));
 const AdminUsers = lazy(() => import('./pages/admin/Users'));
 
@@ -51,6 +53,9 @@ function AppContent() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const isLoginPage = location.pathname === '/login';
+
+  // Track customer presence in Firestore for admin "Live Now" panel
+  usePresenceTracker();
   const hideMainLayout = isAdminPage || isLoginPage;
 
   return (
@@ -130,6 +135,14 @@ function AppContent() {
             element={
               <ProtectedRoute requireAdmin={true}>
                 <AdminUsers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/customers" 
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminCustomers />
               </ProtectedRoute>
             } 
           />

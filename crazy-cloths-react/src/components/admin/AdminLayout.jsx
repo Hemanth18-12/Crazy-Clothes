@@ -172,6 +172,14 @@ export default function AdminLayout({ children, title }) {
             <span>Products</span>
           </Link>
           <Link
+            to="/admin/customers"
+            className={`admin-nav-item ${isLinkActive('/admin/customers') ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <span className="admin-nav-icon">👤</span>
+            <span>Customers</span>
+          </Link>
+          <Link
             to="/admin/users"
             className={`admin-nav-item ${isLinkActive('/admin/users') ? 'active' : ''}`}
             onClick={() => setSidebarOpen(false)}
