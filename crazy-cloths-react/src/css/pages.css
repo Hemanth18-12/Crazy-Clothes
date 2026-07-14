@@ -225,10 +225,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: sticky;
-  top: calc(var(--header-height) + 2rem);
+  position: relative;
   gap: var(--spacing-md);
-  z-index: 10;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .designer-left {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    z-index: 10;
+  }
 }
 
 .designer-right {
@@ -665,8 +672,14 @@ html[data-theme="light"] .summary-card-premium {
 .color-cards-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 0.75rem;
   margin-top: 1rem;
+}
+
+@media (min-width: 480px) {
+  .color-cards-container {
+    gap: 1.5rem;
+  }
 }
 
 .color-card-btn {
@@ -851,5 +864,102 @@ textarea.form-input-premium:not(:placeholder-shown) ~ .form-label {
 .step-card.active {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ───────────────────────────────────────
+   CATALOG PRODUCT GRID — RESPONSIVE
+   ─────────────────────────────────────── */
+
+.catalog-grid-mobile {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .catalog-grid-mobile {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+/* ───────────────────────────────────────
+   PRODUCT IMAGE GALLERY
+   ─────────────────────────────────────── */
+
+.product-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.product-gallery-main {
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--color-bg-2);
+  border: 1px solid var(--color-border);
+  cursor: zoom-in;
+  position: relative;
+}
+
+.product-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease, opacity 0.35s ease;
+  display: block;
+}
+
+.product-gallery-main:hover img {
+  transform: scale(1.06);
+}
+
+.product-gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.product-gallery-thumb {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-color: var(--color-bg-2);
+  cursor: pointer;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+  opacity: 0.55;
+  padding: 0;
+  outline: none;
+}
+
+.product-gallery-thumb.active,
+.product-gallery-thumb:hover {
+  border-color: var(--color-accent);
+  opacity: 1;
+}
+
+.product-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+
+/* Color cards — fix floating on mobile */
+@media (max-width: 480px) {
+  .color-card-btn {
+    padding: 1rem 0.5rem;
+  }
+
+  .color-card-img-wrap {
+    max-width: 80px;
+  }
 }
 

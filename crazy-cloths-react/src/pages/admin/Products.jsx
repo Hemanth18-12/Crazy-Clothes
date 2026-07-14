@@ -19,6 +19,7 @@ export default function AdminProducts() {
   // Form states
   const [formCategory, setFormCategory] = useState('catalog');
   const [formName, setFormName] = useState('');
+  const [formBrand, setFormBrand] = useState('');
   const [formType, setFormType] = useState('Oversized T-Shirt');
   const [formColor, setFormColor] = useState('white');
   const [formPrice, setFormPrice] = useState(499);
@@ -26,10 +27,13 @@ export default function AdminProducts() {
   const [formInStock, setFormInStock] = useState(true);
   const [formCustomizable, setFormCustomizable] = useState(false);
 
-  // Upload state
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadPreview, setUploadPreview] = useState('');
+  // Upload state — multi-image support (up to 5)
+  const [formImages, setFormImages] = useState([]); // [{file, preview, url}]
   const [isUploading, setIsUploading] = useState(false);
+
+  // Legacy single-file refs (kept for drag-drop zone on first slot)
+  const fileInputRef = useRef(null);
+  const multiFileInputRef = useRef(null);
 
   // Inline delete confirmation states
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -45,7 +49,6 @@ export default function AdminProducts() {
   const [stockAlertModal, setStockAlertModal] = useState(null); // { product, wishlisted: [] }
   const [stockAlertIdx, setStockAlertIdx] = useState(0);
 
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     document.title = 'Crazy Cloths — Products Catalog';
@@ -138,26 +141,32 @@ export default function AdminProducts() {
       setEditingProduct(product);
       setFormCategory(product.category || 'catalog');
       setFormName(product.name || '');
+      setFormBrand(product.brand || '');
       setFormType(product.type || 'Oversized T-Shirt');
       setFormColor(product.color || 'white');
       setFormPrice(product.price || 499);
       setFormStockCount(product.stockCount !== undefined && product.stockCount !== null ? product.stockCount.toString() : '');
       setFormInStock(product.stockStatus === 'inStock');
       setFormCustomizable(!!product.isCustomizable);
-      setUploadPreview(product.imageUrl || '');
-      setSelectedFile(null);
+      // Load existing images array, fall back to legacy imageUrl
+      const existingImgs = Array.isArray(product.images) && product.images.length > 0
+        ? product.images.map((url) => ({ file: null, preview: url, url }))
+        : product.imageUrl
+        ? [{ file: null, preview: product.imageUrl, url: product.imageUrl }]
+        : [];
+      setFormImages(existingImgs);
     } else {
       setEditingProduct(null);
       setFormCategory('catalog');
       setFormName('');
+      setFormBrand('');
       setFormType('Oversized T-Shirt');
       setFormColor('white');
       setFormPrice(499);
       setFormStockCount('');
       setFormInStock(true);
       setFormCustomizable(false);
-      setUploadPreview('');
-      setSelectedFile(null);
+      setFormImages([]);
     }
     setPanelOpen(true);
   };
@@ -171,27 +180,48 @@ export default function AdminProducts() {
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setUploadPreview(URL.createObjectURL(file));
-    }
+  // Handle adding multiple images (up to 5 total)
+  const handleMultiFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setFormImages((prev) => {
+      const remaining = 5 - prev.length;
+      const toAdd = files.slice(0, remaining).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+        url: ''
+      }));
+      return [...prev, ...toAdd];
+    });
+    // Reset input so same file can be re-selected
+    if (multiFileInputRef.current) multiFileInputRef.current.value = '';
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setSelectedFile(file);
-      setUploadPreview(URL.createObjectURL(file));
-    }
+    const files = Array.from(e.dataTransfer.files || []);
+    setFormImages((prev) => {
+      const remaining = 5 - prev.length;
+      const toAdd = files.slice(0, remaining).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+        url: ''
+      }));
+      return [...prev, ...toAdd];
+    });
   };
 
-  const clearFile = () => {
-    setSelectedFile(null);
-    setUploadPreview('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const removeImage = (idx) => {
+    setFormImages((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const moveImage = (idx, dir) => {
+    setFormImages((prev) => {
+      const next = [...prev];
+      const target = idx + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
   };
 
   const handleSaveProduct = async (e) => {
@@ -209,33 +239,33 @@ export default function AdminProducts() {
       return;
     }
 
-    setIsUploading(true);
-
-    let imageUrl = editingProduct ? editingProduct.imageUrl : '';
-    let cloudinaryPublicId = editingProduct ? editingProduct.cloudinaryPublicId : '';
-
-    if (selectedFile) {
-      try {
-        const result = await uploadToCloudinary(selectedFile);
-        imageUrl = result.secure_url;
-        cloudinaryPublicId = result.public_id;
-      } catch (err) {
-        alert('Image upload failed: ' + err.message);
-        setIsUploading(false);
-        return;
-      }
-    }
-
-    if (!isCustom && !imageUrl) {
-      alert('Please upload a product image for catalog items.');
-      setIsUploading(false);
+    if (!isCustom && formImages.length === 0) {
+      alert('Please upload at least one product image for catalog items.');
       return;
     }
 
+    setIsUploading(true);
+
     try {
+      // Upload any new files (those with a file object but no url yet)
+      const uploadedImages = await Promise.all(
+        formImages.map(async (img) => {
+          if (img.file) {
+            const result = await uploadToCloudinary(img.file);
+            return { ...img, url: result.secure_url, publicId: result.public_id };
+          }
+          return img; // already uploaded (has url)
+        })
+      );
+
+      const imageUrls = uploadedImages.map((img) => img.url).filter(Boolean);
+      const primaryImageUrl = imageUrls[0] || '';
+      const primaryPublicId = uploadedImages[0]?.publicId || (editingProduct?.cloudinaryPublicId || '');
+
       const stockCountVal = formStockCount.trim() !== '' ? parseInt(formStockCount, 10) : null;
       const productData = {
         name: finalName,
+        brand: formCategory === 'catalog' ? formBrand.trim() : '',
         type: isCustom ? 'T-Shirt' : formType,
         color: formColor,
         price: parseInt(formPrice, 10) || 499,
@@ -243,8 +273,9 @@ export default function AdminProducts() {
         stockCount: stockCountVal,
         isCustomizable: isCustom ? true : formCustomizable,
         category: formCategory,
-        imageUrl: imageUrl || '',
-        cloudinaryPublicId: cloudinaryPublicId || ''
+        imageUrl: primaryImageUrl,
+        images: imageUrls,
+        cloudinaryPublicId: primaryPublicId
       };
 
       if (editingProduct) {
@@ -590,7 +621,10 @@ export default function AdminProducts() {
                           style={{ width: '32px', height: '40px', objectFit: 'cover', border: '1px solid var(--a-border)' }}
                         />
                       </td>
-                      <td style={{ fontWeight: 600 }}>{p.name}</td>
+                      <td style={{ fontWeight: 600 }}>
+                        {p.brand && <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--a-text3)', letterSpacing: '0.05em', marginBottom: '2px' }}>{p.brand}</div>}
+                        {p.name}
+                      </td>
                       <td>{p.type || 'T-Shirt'}</td>
                       <td style={{ textTransform: 'uppercase', fontFamily: 'var(--a-font-mono)', fontSize: '0.72rem' }}>{p.color}</td>
                       <td style={{ fontFamily: 'var(--a-font-mono)', fontWeight: 600 }}>
@@ -687,6 +721,18 @@ export default function AdminProducts() {
             {/* Form Fields for Catalog only */}
             {formCategory === 'catalog' && (
               <>
+                {/* Brand Name */}
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Brand Name (Optional)</label>
+                  <input
+                    type="text"
+                    className="admin-form-input"
+                    placeholder="e.g. Crazy Cloths, Nike, Puma"
+                    value={formBrand}
+                    onChange={(e) => setFormBrand(e.target.value)}
+                  />
+                </div>
+
                 {/* Product Name */}
                 <div className="admin-form-group">
                   <label className="admin-form-label">Product Name *</label>
@@ -721,17 +767,14 @@ export default function AdminProducts() {
             {/* Color Selection */}
             <div className="admin-form-group">
               <label className="admin-form-label">Color *</label>
-              <select
-                className="admin-form-select"
+              <input
+                type="text"
+                className="admin-form-input"
+                placeholder="e.g. White, Black, Navy Blue, Cherry Red"
                 value={formColor}
                 onChange={(e) => setFormColor(e.target.value)}
-              >
-                <option value="white">White</option>
-                <option value="black">Black</option>
-                <option value="navy">Navy Blue</option>
-                <option value="grey">Grey</option>
-                <option value="red">Red</option>
-              </select>
+                required
+              />
             </div>
 
             {/* Price */}
@@ -789,42 +832,109 @@ export default function AdminProducts() {
               )}
             </div>
 
-            {/* Image Upload Zone (catalog only) */}
+            {/* Multi-Image Upload Zone (catalog only) */}
             {formCategory === 'catalog' && (
               <div className="admin-form-group">
-                <label className="admin-form-label">Product Image *</label>
-                <div
-                  className="admin-upload-zone"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="admin-upload-icon">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '28px', height: '28px', margin: '0 auto' }}>
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.5"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                      />
-                    </svg>
+                <label className="admin-form-label">
+                  Product Images * <span style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-text3)', fontWeight: 400 }}>({formImages.length}/5) — First image is the cover</span>
+                </label>
+
+                {/* Existing / added images grid */}
+                {formImages.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '12px' }}>
+                    {formImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          aspectRatio: '3/4',
+                          border: idx === 0 ? '2px solid var(--a-red)' : '1px solid var(--a-border)',
+                          borderRadius: '4px',
+                          overflow: 'hidden',
+                          background: 'var(--a-surface2)'
+                        }}
+                      >
+                        <img
+                          src={img.preview}
+                          alt={`Image ${idx + 1}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                        {idx === 0 && (
+                          <span style={{
+                            position: 'absolute', top: '4px', left: '4px',
+                            background: 'var(--a-red)', color: '#fff',
+                            fontSize: '0.55rem', fontFamily: 'var(--a-font-mono)',
+                            textTransform: 'uppercase', padding: '2px 5px', borderRadius: '2px'
+                          }}>Cover</span>
+                        )}
+                        {/* Controls */}
+                        <div style={{ position: 'absolute', bottom: '4px', right: '4px', display: 'flex', gap: '3px' }}>
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              title="Move left"
+                              onClick={() => moveImage(idx, -1)}
+                              style={{
+                                width: '20px', height: '20px', background: 'rgba(0,0,0,0.7)',
+                                border: 'none', color: '#fff', fontSize: '0.7rem',
+                                cursor: 'pointer', borderRadius: '2px', lineHeight: 1
+                              }}
+                            >←</button>
+                          )}
+                          {idx < formImages.length - 1 && (
+                            <button
+                              type="button"
+                              title="Move right"
+                              onClick={() => moveImage(idx, 1)}
+                              style={{
+                                width: '20px', height: '20px', background: 'rgba(0,0,0,0.7)',
+                                border: 'none', color: '#fff', fontSize: '0.7rem',
+                                cursor: 'pointer', borderRadius: '2px', lineHeight: 1
+                              }}
+                            >→</button>
+                          )}
+                          <button
+                            type="button"
+                            title="Remove"
+                            onClick={() => removeImage(idx)}
+                            style={{
+                              width: '20px', height: '20px', background: 'rgba(200,0,0,0.85)',
+                              border: 'none', color: '#fff', fontSize: '0.8rem',
+                              cursor: 'pointer', borderRadius: '2px', lineHeight: 1
+                            }}
+                          >×</button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="admin-upload-text">Drag image here or click to browse</div>
-                  <div className="admin-upload-sub">Supports PNG, JPG up to 10MB</div>
+                )}
 
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </div>
-
-                {uploadPreview && (
-                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <img src={uploadPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '110px', border: '1px solid var(--a-border)', objectFit: 'contain' }} />
-                    <button type="button" className="admin-btn" style={{ padding: '4px 12px' }} onClick={clearFile}>Change Image</button>
+                {/* Add more images button (shows if < 5) */}
+                {formImages.length < 5 && (
+                  <div
+                    className="admin-upload-zone"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    onClick={() => multiFileInputRef.current?.click()}
+                    style={{ padding: '20px', minHeight: '80px' }}
+                  >
+                    <div className="admin-upload-icon">
+                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '24px', height: '24px', margin: '0 auto' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <div className="admin-upload-text" style={{ fontSize: '0.8rem' }}>
+                      {formImages.length === 0 ? 'Add product images' : `Add more (${5 - formImages.length} left)`}
+                    </div>
+                    <div className="admin-upload-sub">PNG, JPG · max 10MB each · up to 5</div>
+                    <input
+                      type="file"
+                      ref={multiFileInputRef}
+                      style={{ display: 'none' }}
+                      accept="image/*"
+                      multiple
+                      onChange={handleMultiFileChange}
+                    />
                   </div>
                 )}
               </div>

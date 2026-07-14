@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import "../css/search.css";
@@ -127,6 +127,11 @@ export default function SearchOverlay({ isOpen, onClose }) {
                     />
                   )}
                   <div className="cc-search-result-info">
+                    {product.brand && (
+                      <span style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '1px' }}>
+                        {product.brand}
+                      </span>
+                    )}
                     <span className="cc-search-result-name">{product.name || product.title}</span>
                     {product.price && (
                       <span className="cc-search-result-price">

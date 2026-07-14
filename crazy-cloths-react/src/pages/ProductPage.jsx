@@ -36,6 +36,8 @@ export default function ProductPage() {
   // Image-load states — start hidden; reveal on load to prevent progressive-JPEG grayscale flash
   const [catalogImgLoaded, setCatalogImgLoaded] = useState(false);
   const [customImgLoaded, setCustomImgLoaded] = useState(false);
+  // Gallery — active image index
+  const [activeGalleryIdx, setActiveGalleryIdx] = useState(0);
   
   // Reviews state (for catalog products)
   const [reviews, setReviews] = useState([]);
@@ -389,36 +391,63 @@ Design URL: ${cloudinaryUrl}`;
       {product.category === 'catalog' && (
         <section id="catalog-detail-section" className="page-section" style={{ display: 'block' }}>
           <div className="container" style={{ maxWidth: '900px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'start' }} className="catalog-grid-mobile">
+            <div className="catalog-grid-mobile">
               
-              {/* Left Column: Product Image */}
+              {/* Left Column: Product Image Gallery */}
               <div>
-                {/* aspect-ratio:3/4 fixes layout shift; opacity start at 0 prevents grayscale flash */}
-                <div
-                  className="designer-mockup-container"
-                  style={{
-                    maxWidth: '420px',
-                    overflow: 'hidden',
-                    borderRadius: '8px',
-                    aspectRatio: '3/4',
-                    backgroundColor: 'var(--color-bg-2)'
-                  }}
-                >
-                  <img
-                    src={product.imageUrl || '/assets/images/white-t-shirt.png'}
-                    alt={product.name}
-                    className="mockup-base"
-                    onLoad={() => setCatalogImgLoaded(true)}
-                    style={{
-                      width: '100%',
-                      borderRadius: '8px',
-                      transition: 'opacity 0.45s ease, transform 0.4s ease',
-                      opacity: catalogImgLoaded ? 1 : 0,
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-                  />
-                </div>
+                {(() => {
+                  // Build gallery images from product.images[] array (saved by admin),
+                  // falling back to single imageUrl for legacy products
+                  const galleryImgs =
+                    Array.isArray(product.images) && product.images.length > 0
+                      ? product.images
+                      : product.imageUrl
+                      ? [product.imageUrl]
+                      : ['/assets/images/white-t-shirt.png'];
+
+                  // Clamp active index in case product was updated with fewer images
+                  const safeIdx = Math.min(activeGalleryIdx, galleryImgs.length - 1);
+
+                  return (
+                    <div className="product-gallery">
+                      {/* Main large image */}
+                      <div className="product-gallery-main">
+                        <img
+                          key={safeIdx}
+                          src={galleryImgs[safeIdx]}
+                          alt={product.name}
+                          onLoad={() => setCatalogImgLoaded(true)}
+                          style={{
+                            opacity: catalogImgLoaded ? 1 : 0,
+                            transition: 'opacity 0.35s ease',
+                          }}
+                        />
+                      </div>
+
+                      {/* Thumbnails — only show if more than 1 image */}
+                      {galleryImgs.length > 1 && (
+                        <div
+                          className="product-gallery-thumbs"
+                          style={{
+                            gridTemplateColumns: `repeat(${Math.min(galleryImgs.length, 5)}, 1fr)`
+                          }}
+                        >
+                          {galleryImgs.map((img, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              className={`product-gallery-thumb ${safeIdx === idx ? 'active' : ''}`}
+                              onClick={() => { setActiveGalleryIdx(idx); setCatalogImgLoaded(false); }}
+                              aria-label={`View image ${idx + 1}`}
+                            >
+                              <img src={img} alt={`${product.name} view ${idx + 1}`} loading="lazy" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Right Column: Product Info & Order Form */}
@@ -427,6 +456,22 @@ Design URL: ${cloudinaryUrl}`;
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
                     {product.type || 'T-Shirt'} · {selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}
                   </p>
+                  
+                  {product.brand && (
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        color: 'var(--color-accent)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        marginBottom: '0.25rem'
+                      }}
+                    >
+                      {product.brand}
+                    </div>
+                  )}
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
                     <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', textTransform: 'uppercase', margin: 0 }}>

@@ -102,7 +102,23 @@ export default function ProductCard({
           </span>
           <span className="product-price">₹{formattedPrice}</span>
         </div>
-        <h3 className="product-title">{product.name}</h3>
+        {product.brand && (
+          <div
+            className="product-brand"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              color: 'var(--color-accent)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginTop: '4px'
+            }}
+          >
+            {product.brand}
+          </div>
+        )}
+        <h3 className="product-title" style={{ marginTop: product.brand ? '1px' : '2px' }}>{product.name}</h3>
         <button
           className="btn btn-accent btn-press-feedback"
           style={{ marginTop: 'auto' }}
