@@ -59,7 +59,7 @@ export default function ProductCard({
       data-product-id={product.id}
       style={{ cursor: 'pointer' }}
     >
-      <div className="product-image-wrapper" style={{ overflow: 'hidden' }}>
+      <div className="product-image-wrapper">
         <img
           src={getProductImage()}
           alt={product.name || 'T-Shirt Model'}
@@ -67,10 +67,7 @@ export default function ProductCard({
           onLoad={() => setImgLoaded(true)}
           style={{
             opacity: imgLoaded ? 1 : 0,
-            transition: 'opacity 0.4s ease',
-            objectFit: 'cover',
-            width: '100%',
-            height: '100%'
+            transition: 'opacity 0.4s ease'
           }}
         />
         <div className="product-badges">
@@ -102,7 +99,7 @@ export default function ProductCard({
           </span>
           <span className="product-price">₹{formattedPrice}</span>
         </div>
-        {product.brand && (
+        {product.brand && !(product.name && product.name.length > 15) && (
           <div
             className="product-brand"
             style={{
@@ -118,7 +115,9 @@ export default function ProductCard({
             {product.brand}
           </div>
         )}
-        <h3 className="product-title" style={{ marginTop: product.brand ? '1px' : '2px' }}>{product.name}</h3>
+        <h3 className="product-title" style={{ marginTop: product.brand ? '1px' : '2px' }}>
+          {product.name && product.name.length > 15 && product.brand ? product.brand : product.name}
+        </h3>
         <button
           className="btn btn-accent btn-press-feedback"
           style={{ marginTop: 'auto' }}

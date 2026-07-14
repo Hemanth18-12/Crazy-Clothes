@@ -6,16 +6,16 @@ export const CONFIG = {
 
   // Cloudinary config
   cloudinary: {
-    cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
-    uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-    productUploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+    cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dhteknetd',
+    uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'crazy-cloths-designs',
+    productUploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'crazy-cloths-designs',
   },
 
   // EmailJS config
   emailjs: {
-    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_63n5tne',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_r1kcfmp',
+    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '8eM5DjEsLvFKE0v1Y',
   },
 
   // Pricing defaults

@@ -102,7 +102,7 @@
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  /* No aspect-ratio here — the image wrapper owns the ratio */
+  height: 100%;
   transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
               box-shadow 0.4s ease,
               transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -130,22 +130,29 @@
 }
 
 /* ── Zone 1: Image Container ───────────────────────────── */
+/* padding-bottom trick: forces EXACTLY 4:5 ratio every time,
+   regardless of browser bugs with aspect-ratio inside
+   3D-transformed or flex containers.
+   height = 0, visual height comes from padding-bottom = (5/4)*100% = 125% */
 .product-image-wrapper {
-  position: relative;          /* anchor for badge & heart overlays */
+  position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;         /* fixed portrait ratio — never distorts */
-  overflow: hidden;            /* KEY FIX: clips image within this box */
+  height: 0;
+  padding-bottom: 125%;            /* 5 ÷ 4 × 100% → exactly 4:5 portrait ratio */
+  overflow: hidden;
   background-color: var(--color-bg-2);
-  flex-shrink: 0;              /* never squash when card height is constrained */
+  flex-shrink: 0;
   transition: background-color 0.3s;
 }
 
 .product-image-wrapper img {
-  display: block;              /* removes inline-image bottom gap */
+  display: block;
+  position: absolute;              /* pulled out of flow — cannot push wrapper height */
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;           /* fills ratio box, crops intelligently */
-  object-position: center top; /* favour the top (face/logo) of the shirt */
+  object-fit: cover;
+  object-position: center top;
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -210,6 +217,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex-grow: 1;
   /* No transform, no gradient — clean separation from image */
 }
 
@@ -257,7 +265,7 @@
 
 /* CTA button inside details */
 .product-card .product-info .btn {
-  margin-top: 8px;
+  margin-top: auto;
   width: 100%;
   padding: 0.55rem 0.8rem !important;
   font-size: 0.82rem;
