@@ -121,7 +121,7 @@ export default function ProductPage() {
           setProduct(data);
           setSelectedColor(data.color || 'white');
           if (data.category === 'catalog') {
-            setSelectedSize('Standard');
+            setSelectedSize('');
           } else {
             setSelectedSize('M'); // default size for custom
           }
@@ -224,6 +224,7 @@ export default function ProductPage() {
     if (!formData.phone.trim()) errors.phone = 'WhatsApp Number is required.';
     if (!formData.address.trim()) errors.address = 'Delivery Address is required.';
     if (formData.quantity <= 0) errors.quantity = 'Quantity must be at least 1.';
+    if (!selectedSize || selectedSize === 'Standard') errors.size = 'Please select a size.';
 
     if (product && product.category === 'customizable') {
       if (!cloudinaryUrl) {
@@ -511,6 +512,36 @@ Design URL: ${cloudinaryUrl}`;
                   <h3 style={{ fontSize: '1.1rem', textTransform: 'uppercase', marginBottom: '1.25rem', fontFamily: 'var(--font-display)', letterSpacing: '0.05em' }}>Place Order</h3>
 
                   <form onSubmit={handleOrderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Size Selector */}
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-secondary)' }}>Select Size *</span>
+                        <span onClick={() => setSizeGuideOpen(true)} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-accent)', textDecoration: 'underline', cursor: 'pointer' }}>Size Guide</span>
+                      </div>
+                      <div className="size-grid" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                        {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
+                          <button
+                            key={sz}
+                            type="button"
+                            className={`size-box-btn ${selectedSize === sz ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedSize(sz);
+                              if (formErrors.size) {
+                                setFormErrors(prev => {
+                                  const newErrors = { ...prev };
+                                  delete newErrors.size;
+                                  return newErrors;
+                                });
+                              }
+                            }}
+                          >
+                            {sz}
+                          </button>
+                        ))}
+                      </div>
+                      {formErrors.size && <div className="form-input-error" style={{ display: 'block', color: 'var(--color-accent)', fontSize: '0.75rem', marginTop: '0.25rem' }}>{formErrors.size}</div>}
+                    </div>
+
                     <div className="form-group">
                       <input
                         type="text"

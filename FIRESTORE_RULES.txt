@@ -1,72 +1,64 @@
-// ════════════════════════════════════════════════════════════
-//  CRAZY CLOTHS — FIRESTORE SECURITY RULES  (copy-paste this
-//  into Firebase Console → Firestore → Rules → Publish)
-// ════════════════════════════════════════════════════════════
-//
-//  TWO BUGS FIXED vs the original rules:
-//
-//  1. ORDERS — customers could NOT read their own orders.
-//     Old rule: allow read: if isAdmin();   ← blocks customers
-//     New rule: also allows read when the document's
-//     customerEmail matches the signed-in user's token email.
-//
-//  2. WISHLIST — the wishlist SUBCOLLECTION had no rule at all.
-//     Firestore rules do NOT cascade from /users/{uid} to
-//     /users/{uid}/wishlist/{productId} automatically.
-//     A matching /wishlist/{productId} block is now added.
-// ════════════════════════════════════════════════════════════
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Admin check ───────────────────────────────────────
-    // Keep in sync with ADMIN_EMAILS array in js/auth.js
     function isAdmin() {
       return request.auth != null &&
         (request.auth.token.email == 'hemanth.t18122005@gmail.com' ||
-         request.auth.token.email == 'admin2@crazycloths.com'       ||
-         request.auth.token.email == 'admin3@crazycloths.com'       ||
-         request.auth.token.email == 'admin4@crazycloths.com'       ||
+         request.auth.token.email == 'admin2@crazycloths.com' ||
+         request.auth.token.email == 'admin3@crazycloths.com' ||
+         request.auth.token.email == 'admin4@crazycloths.com' ||
          request.auth.token.email == 'admin5@crazycloths.com');
     }
 
-    // ── Products ──────────────────────────────────────────
     match /products/{productId} {
-      allow read:  if true;          // anyone can browse
-      allow write: if isAdmin();     // only admins can add/edit/delete
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // ── Orders ────────────────────────────────────────────
-    // FIX #1: customers can now read their OWN orders.
-    // Admin dashboard can still read ALL orders.
     match /orders/{orderId} {
       allow read: if isAdmin() ||
-                    (request.auth != null &&
-                     resource.data.customerEmail == request.auth.token.email);
-      allow write: if request.auth != null; // any logged-in user can place an order
-    }
-
-    // ── Users ─────────────────────────────────────────────
-    match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-
-      // FIX #2: wishlist subcollection must be EXPLICITLY covered.
-      // The parent /users/{uid} rule does NOT cascade to subcollections.
-      match /wishlist/{productId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
-      }
-
-      // Drafts subcollection (order form auto-save)
-      match /drafts/{draftId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
-      }
-    }
-
-    // ── Reviews ───────────────────────────────────────────
-    match /reviews/{reviewId} {
-      allow read:  if true;
+        (request.auth != null &&
+         resource.data.customerEmail == request.auth.token.email);
       allow write: if request.auth != null;
+    }
+
+    match /users/{uid} {
+      allow read: if isAdmin() ||
+        (request.auth != null && request.auth.uid == uid);
+      allow write: if request.auth != null && request.auth.uid == uid;
+
+      match /wishlist/{productId} {
+        allow read, write: if request.auth != null &&
+          request.auth.uid == uid;
+      }
+
+      match /drafts/{draftId} {
+        allow read, write: if request.auth != null &&
+          request.auth.uid == uid;
+      }
+    }
+
+    match /productWishlists/{productId}/users/{uid} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null &&
+        request.auth.uid == uid;
+    }
+
+    match /presence/{uid} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null &&
+        request.auth.uid == uid;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /activityLog/{logId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
   }
 }
