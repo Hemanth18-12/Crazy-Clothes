@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 import LogoMark from '../components/LogoMark';
 
 export default function LoginPage() {
@@ -8,6 +10,7 @@ export default function LoginPage() {
     currentUser,
     isAdmin,
     loginCustomer,
+    registerCustomer,
     loginAdmin,
     loginWithGoogle,
   } = useAuth();
@@ -32,6 +35,16 @@ export default function LoginPage() {
   const [custEmail, setCustEmail] = useState('');
   const [custPassword, setCustPassword] = useState('');
   const [showCustPassword, setShowCustPassword] = useState(false);
+
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [duplicatePhoneError, setDuplicatePhoneError] = useState('');
+  const [duplicateEmailError, setDuplicateEmailError] = useState('');
+  const [phoneChecking, setPhoneChecking] = useState(false);
+  const [emailChecking, setEmailChecking] = useState(false);
 
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -88,6 +101,68 @@ export default function LoginPage() {
       setPanelView(targetView);
       setAnimClass('form-enter');
     }, 250);
+  };
+
+  const checkPhoneDuplicate = async (phone) => {
+    if (!phone) return;
+    setPhoneChecking(true);
+    setDuplicatePhoneError('');
+    try {
+      const cleanPhone = phone.replace(/[\s\-\+]/g, '').replace(/^91/, '');
+      const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        setDuplicatePhoneError('This phone number is already registered.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setPhoneChecking(false);
+  };
+
+  const checkEmailDuplicate = async (email) => {
+    if (!email) return;
+    setEmailChecking(true);
+    setDuplicateEmailError('');
+    try {
+      const q = query(collection(db, 'users'), where('email', '==', email.toLowerCase().trim()));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        setDuplicateEmailError('This email is already registered.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setEmailChecking(false);
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (!regName.trim() || !regEmail.trim() || !regPhone.trim() || !regPassword) {
+      triggerError('Please fill in all fields.');
+      return;
+    }
+    
+    const cleanPhone = regPhone.replace(/[\s\-\+]/g, '').replace(/^91/, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      triggerError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    if (duplicatePhoneError || duplicateEmailError) {
+      triggerError('Please fix duplicate errors first.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      await registerCustomer(regEmail, regPassword, regName, cleanPhone);
+    } catch (err) {
+      console.error(err);
+      triggerError(err.message || 'Failed to register.');
+      setLoading(false);
+    }
   };
 
   const handleCustomerLoginSubmit = async (e) => {
@@ -413,33 +488,64 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* STATE 2: CUSTOMER REGISTER (GOOGLE ONLY) */}
+            {/* STATE 2: CUSTOMER REGISTER */}
             {panelView === 'register' && (
               <div className="form-panel active" id="panel-register">
-                <div>
+                <form onSubmit={handleRegisterSubmit}>
                   <h2 className="auth-form-title" style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
                     Join Us
                   </h2>
 
-                  <button
-                    type="button"
-                    disabled={loading || googleLoading || success}
-                    onClick={handleGoogleClick}
-                    className="google-register-btn"
-                  >
+                  <div className="input-group">
+                    <input type="text" id="reg-name" placeholder=" " className="form-input-premium" value={regName} onChange={handleInputChange(setRegName)} />
+                    <label htmlFor="reg-name" className="form-label">Full Name</label>
+                    <div className="input-underline"></div>
+                  </div>
+
+                  <div className="input-group">
+                    <input type="email" id="reg-email" placeholder=" " className={`form-input-premium ${duplicateEmailError ? 'input-invalid' : ''}`} value={regEmail} onChange={(e) => { handleInputChange(setRegEmail)(e); setDuplicateEmailError(''); }} onBlur={(e) => checkEmailDuplicate(e.target.value)} />
+                    <label htmlFor="reg-email" className="form-label">Email Address</label>
+                    <div className="input-underline"></div>
+                    {emailChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                    {duplicateEmailError && <p className="field-error" style={{marginTop:'4px', color:'var(--color-accent)'}}>⚠ {duplicateEmailError}</p>}
+                  </div>
+
+                  <div className="input-group">
+                    <input type="tel" id="reg-phone" placeholder=" " className={`form-input-premium ${duplicatePhoneError ? 'input-invalid' : ''}`} value={regPhone} onChange={(e) => { handleInputChange(setRegPhone)(e); setDuplicatePhoneError(''); }} onBlur={(e) => checkPhoneDuplicate(e.target.value)} />
+                    <label htmlFor="reg-phone" className="form-label">WhatsApp Number</label>
+                    <div className="input-underline"></div>
+                    {phoneChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                    {duplicatePhoneError && <p className="field-error" style={{marginTop:'4px', color:'var(--color-accent)'}}>⚠ {duplicatePhoneError}</p>}
+                  </div>
+
+                  <div className="input-group">
+                    <input type={showRegPassword ? 'text' : 'password'} id="reg-password" placeholder=" " className="form-input-premium" value={regPassword} onChange={handleInputChange(setRegPassword)} />
+                    <label htmlFor="reg-password" className="form-label">Password</label>
+                    <div className="input-underline"></div>
+                    <button type="button" className="password-toggle-btn" onClick={() => setShowRegPassword(!showRegPassword)} tabIndex="-1">
+                      <EyeIcon visible={showRegPassword} />
+                    </button>
+                  </div>
+
+                  <button type="submit" disabled={loading || googleLoading || success} className={`btn btn-premium ${success ? 'btn-success-state' : ''}`} style={{ marginTop: '1.5rem', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                    {success ? <>✓ Success</> : loading ? <SpinnerSVG /> : 'Create Account'}
+                  </button>
+
+                  <div className="auth-divider" style={{ textAlign: 'center', margin: '1.5rem 0', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }}></span>
+                    <span>OR</span>
+                    <span style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }}></span>
+                  </div>
+
+                  <button type="button" disabled={loading || googleLoading || success} onClick={handleGoogleClick} className="btn btn-premium" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontFamily: 'var(--font-body)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'none', letterSpacing: 'normal', width: '100%', backgroundColor: 'transparent' }}>
                     {googleLoading ? <SpinnerSVG /> : <GoogleSVG />}
                     Continue with Google
                   </button>
 
-                  <p className="google-register-description">
-                    We use Google to create your account securely.<br />
-                    No password needed.
-                  </p>
-
-                  <p className="auth-toggle-link" style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.88rem' }}>
+                  <p className="auth-toggle-link" style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.88rem' }}>
                     <span style={{ cursor: 'pointer', color: 'var(--color-accent)', textDecoration: 'underline' }} onClick={() => transitionToPanel('login')}>← Back to login</span>
                   </p>
-                </div>
+                </form>
               </div>
             )}
 

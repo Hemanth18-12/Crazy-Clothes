@@ -195,15 +195,20 @@ export default function AdminOrders() {
   const handleExportCSV = (itemsToExport) => {
     const headers = [
       'Order ID', 'Customer Name', 'Phone', 'Email',
-      'Address', 'Product', 'Color', 'Design URL',
+      'House No', 'Street', 'Village', 'City', 'State', 'Pincode', 'Landmark',
+      'Product', 'Color', 'Design URL',
       'Price', 'Date', 'Status'
     ];
-    const rows = itemsToExport.map((o) => [
-      o.orderId || o.id, o.customerName || 'N/A', o.customerPhone || 'N/A', o.customerEmail || 'N/A',
-      o.customerAddress || 'N/A', o.productName || 'N/A', o.color || 'N/A',
-      o.cloudinaryUrl || 'No design',
-      o.price || 499, o.createdAt || 'N/A', o.status || 'Pending'
-    ]);
+    const rows = itemsToExport.map((o) => {
+      const addr = o.address || {};
+      return [
+        o.orderId || o.id, o.customerName || 'N/A', o.customerPhone || 'N/A', o.customerEmail || 'N/A',
+        addr.houseNo || 'N/A', addr.street || 'N/A', addr.village || 'N/A', addr.city || 'N/A', addr.state || 'N/A', addr.pincode || 'N/A', addr.landmark || 'N/A',
+        o.productName || 'N/A', o.color || 'N/A',
+        o.cloudinaryUrl || 'No design',
+        o.price || 499, o.createdAt || 'N/A', o.status || 'Pending'
+      ];
+    });
     const csv = [headers, ...rows]
       .map((r) => r.map((v) => `"${v.toString().replace(/"/g, '""')}"`).join(','))
       .join('\n');
@@ -701,11 +706,29 @@ export default function AdminOrders() {
                     <strong style={{ color: 'var(--a-text2)' }}>Email:</strong> {activeOrder.customerEmail || 'N/A'}
                   </p>
                   <p style={{ marginBottom: '6px', fontSize: '0.8rem' }}>
-                    <strong style={{ color: 'var(--a-text2)' }}>Phone:</strong> {activeOrder.customerPhone || 'N/A'}
+                    <strong style={{ color: 'var(--a-text2)' }}>Phone:</strong>{' '}
+                    {activeOrder.customerPhone ? (
+                      <a href={`https://wa.me/91${activeOrder.customerPhone.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" style={{ color: '#25D366' }}>
+                        📱 {activeOrder.customerPhone}
+                      </a>
+                    ) : 'N/A'}
                   </p>
-                  <p style={{ marginBottom: '6px', fontSize: '0.8rem' }}>
-                    <strong style={{ color: 'var(--a-text2)' }}>Address:</strong> {activeOrder.customerAddress || 'N/A'}
-                  </p>
+                  <div style={{ marginTop: '8px' }}>
+                    <strong style={{ color: 'var(--a-text2)', fontSize: '0.8rem' }}>Address:</strong>
+                    {activeOrder.address && (activeOrder.address.houseNo || activeOrder.address.city) ? (
+                      <div style={{ fontSize: '0.78rem', fontFamily: 'var(--a-font-mono)', lineHeight: '1.6', marginTop: '4px', background: 'var(--a-surface2)', border: '1px solid var(--a-border)', padding: '8px 10px', borderRadius: '3px' }}>
+                        {[activeOrder.address.houseNo, activeOrder.address.street, activeOrder.address.village].filter(Boolean).join(', ')}<br/>
+                        {[activeOrder.address.city, activeOrder.address.state, activeOrder.address.pincode].filter(Boolean).join(', ')}
+                        {activeOrder.address.landmark && (
+                          <div style={{ color: 'var(--a-text3)', fontSize: '0.72rem', marginTop: '2px' }}>Near: {activeOrder.address.landmark}</div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '0.78rem', fontFamily: 'var(--a-font-mono)', lineHeight: '1.6', marginTop: '4px' }}>
+                        {activeOrder.customerAddress || 'N/A'}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>

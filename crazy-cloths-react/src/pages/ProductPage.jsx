@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, getDoc, collection, addDoc, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, query, where, orderBy, onSnapshot, getDocs, limit, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../hooks/useWishlist';
@@ -52,10 +52,22 @@ export default function ProductPage() {
     name: '',
     email: '',
     phone: '',
-    address: '',
+    houseNo: '',
+    street: '',
+    village: '',
+    city: '',
+    state: '',
+    pincode: '',
+    landmark: '',
     quantity: 1,
     notes: ''
   });
+
+  const [isReturningCustomer, setIsReturningCustomer] = useState(false);
+  const [duplicatePhoneError, setDuplicatePhoneError] = useState('');
+  const [duplicateEmailError, setDuplicateEmailError] = useState('');
+  const [phoneChecking, setPhoneChecking] = useState(false);
+  const [emailChecking, setEmailChecking] = useState(false);
   
   const [formErrors, setFormErrors] = useState({});
 
@@ -73,27 +85,62 @@ export default function ProductPage() {
       email: currentUser.email || ''
     }));
 
-    const fetchUserProfile = async () => {
+    async function loadSavedProfile() {
       try {
-        const { doc, getDoc } = await import('firebase/firestore');
-        const { db } = await import('../firebase/config');
-        const docRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setFormData((prev) => ({
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.phone || userData.address) {
+            setFormData(prev => ({
+              ...prev,
+              name: userData.name || currentUser.displayName || '',
+              email: userData.email || currentUser.email || '',
+              phone: userData.phone || '',
+              houseNo: userData.address?.houseNo || '',
+              street: userData.address?.street || '',
+              village: userData.address?.village || '',
+              city: userData.address?.city || '',
+              state: userData.address?.state || '',
+              pincode: userData.address?.pincode || '',
+              landmark: userData.address?.landmark || '',
+            }));
+            setIsReturningCustomer(true);
+            return;
+          }
+        }
+
+        const lastOrderQuery = query(
+          collection(db, 'orders'),
+          where('customerEmail', '==', currentUser.email),
+          orderBy('createdAt', 'desc'),
+          limit(1)
+        );
+        const lastOrderSnap = await getDocs(lastOrderQuery);
+
+        if (!lastOrderSnap.empty) {
+          const lastOrder = lastOrderSnap.docs[0].data();
+          setFormData(prev => ({
             ...prev,
-            name: data.name || prev.name,
-            phone: data.phone || prev.phone,
-            address: data.address || prev.address
+            name: lastOrder.customerName || currentUser.displayName || '',
+            email: lastOrder.customerEmail || currentUser.email || '',
+            phone: lastOrder.customerPhone || '',
+            houseNo: lastOrder.address?.houseNo || '',
+            street: lastOrder.address?.street || '',
+            village: lastOrder.address?.village || '',
+            city: lastOrder.address?.city || '',
+            state: lastOrder.address?.state || '',
+            pincode: lastOrder.address?.pincode || '',
+            landmark: lastOrder.address?.landmark || '',
           }));
+          setIsReturningCustomer(true);
         }
       } catch (err) {
-        console.error('Error prefilling product page details from profile:', err);
+        console.error('Error auto-filling details:', err);
       }
-    };
+    }
 
-    fetchUserProfile();
+    loadSavedProfile();
   }, [currentUser]);
 
   // Clear design image error once a design is uploaded
@@ -207,33 +254,165 @@ export default function ProductPage() {
   }
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    const field = id.replace('catalog-', '').replace('-input', '');
+    const { id, name, value } = e.target;
+    let field = name || id;
+    if (id.startsWith('catalog-')) field = id.replace('catalog-', '');
+    if (id.endsWith('-input')) field = field.replace('-input', '');
     setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
     if (formErrors[field]) {
-      setFormErrors((prev) => ({ ...prev, [field]: null }));
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
     }
+    if (field === 'phone') setDuplicatePhoneError('');
+    if (field === 'email') setDuplicateEmailError('');
+  };
+
+  const clearForm = () => {
+    setFormData({
+      name: '', email: '', phone: '', houseNo: '', street: '', village: '',
+      city: '', state: '', pincode: '', landmark: '', quantity: 1, notes: ''
+    });
+    setIsReturningCustomer(false);
+  };
+
+  const checkPhoneDuplicate = async (phone) => {
+    if (!phone) return;
+    setPhoneChecking(true);
+    setDuplicatePhoneError('');
+    try {
+      const cleanPhone = phone.replace(/[\s\-\+]/g, '').replace(/^91/, '');
+      const q = query(collection(db, 'users'), where('phone', '==', cleanPhone));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const existingUser = snap.docs[0].data();
+        if (existingUser.uid !== currentUser?.uid && snap.docs[0].id !== currentUser?.uid) {
+          setDuplicatePhoneError('This phone number is already registered with another account');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setPhoneChecking(false);
+  };
+
+  const checkEmailDuplicate = async (email) => {
+    if (!email) return;
+    setEmailChecking(true);
+    setDuplicateEmailError('');
+    try {
+      const q = query(collection(db, 'users'), where('email', '==', email.toLowerCase().trim()));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const existingUser = snap.docs[0].data();
+        if (existingUser.uid !== currentUser?.uid && snap.docs[0].id !== currentUser?.uid) {
+          setDuplicateEmailError('This email is already registered with another account');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setEmailChecking(false);
   };
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.name.trim()) errors.name = 'Full Name is required.';
-    if (!formData.phone.trim()) errors.phone = 'WhatsApp Number is required.';
-    if (!formData.address.trim()) errors.address = 'Delivery Address is required.';
-    if (formData.quantity <= 0) errors.quantity = 'Quantity must be at least 1.';
+    const isCustomizable = product?.category === 'customizable';
+
+    if (!formData.name?.trim()) {
+      errors.name = 'Full name is required';
+    } else if (!/^[a-zA-Z\s]{3,}$/.test(formData.name.trim())) {
+      errors.name = 'Please enter your full name (letters only)';
+    }
+
+    if (!formData.email?.trim()) {
+      errors.email = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    const cleanPhone = formData.phone?.replace(/[\s\-\+]/g, '').replace(/^91/, '');
+    if (!cleanPhone) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      errors.phone = 'Please enter a valid 10-digit Indian mobile number';
+    }
+
+    if (!formData.houseNo?.trim()) errors.houseNo = 'House No is required';
+    if (!formData.street?.trim()) errors.street = 'Street / Area is required';
+    if (!formData.village?.trim()) errors.village = 'Village / Town is required';
+    if (!formData.city?.trim()) errors.city = 'City / District is required';
+    if (!formData.state?.trim()) errors.state = 'Please select your state';
+    if (!formData.pincode?.trim()) {
+      errors.pincode = 'PIN Code is required';
+    } else if (!/^[1-9]\d{5}$/.test(formData.pincode)) {
+      errors.pincode = 'Enter a valid 6-digit PIN code';
+    }
+
+    const qty = Number(formData.quantity);
+    if (!qty || qty < 1 || qty > 10 || !Number.isInteger(qty)) {
+      errors.quantity = 'Quantity must be between 1 and 10';
+    }
+
     if (!selectedSize || selectedSize === 'Standard') errors.size = 'Please select a size.';
 
-    if (product && product.category === 'customizable') {
-      if (!cloudinaryUrl) {
+    if (isCustomizable) {
+      if (isUploading) {
+        errors.designImage = 'Please wait — your design is still uploading';
+      } else if (!cloudinaryUrl) {
         errors.designImage = 'Please upload your design image before placing the order';
       }
     }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    
+    if (Object.keys(errors).length > 0) {
+      setTimeout(() => {
+        const firstErrorKey = Object.keys(errors)[0];
+        const errorEl = document.getElementById(`field-${firstErrorKey}`);
+        if (errorEl) {
+          errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          errorEl.focus();
+        }
+      }, 100);
+      return false;
+    }
+    
+    if (duplicatePhoneError || duplicateEmailError) return false;
+
+    return true;
+  };
+
+  const saveCustomerProfile = async (orderData) => {
+    if (!currentUser) return;
+    try {
+      await setDoc(
+        doc(db, 'users', currentUser.uid),
+        {
+          name: orderData.customerName,
+          email: orderData.customerEmail,
+          phone: orderData.customerPhone,
+          address: {
+            houseNo: formData.houseNo,
+            street: formData.street,
+            village: formData.village,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+            landmark: formData.landmark || ''
+          },
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Could not save profile:', err);
+    }
   };
 
   const handleOrderSubmit = async (e) => {
@@ -264,7 +443,16 @@ export default function ProductPage() {
         customerName: formData.name,
         customerEmail: formData.email,
         customerPhone: formData.phone,
-        customerAddress: formData.address,
+        customerAddress: [formData.houseNo, formData.street, formData.village, formData.city, formData.state, formData.pincode, formData.landmark].filter(Boolean).join(', '),
+        address: {
+          houseNo: formData.houseNo,
+          street: formData.street,
+          village: formData.village,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          landmark: formData.landmark || ''
+        },
         specialInstructions: formData.notes,
         status: 'pending',
         createdAt: new Date().toISOString()
@@ -272,6 +460,7 @@ export default function ProductPage() {
 
       // 1. Save to Firestore
       await addDoc(collection(db, 'orders'), orderData);
+      await saveCustomerProfile(orderData);
 
       // 2. Save last order for receipt render on Success page
       localStorage.setItem(
@@ -542,82 +731,89 @@ Design URL: ${cloudinaryUrl}`;
                       {formErrors.size && <div className="form-input-error" style={{ display: 'block', color: 'var(--color-accent)', fontSize: '0.75rem', marginTop: '0.25rem' }}>{formErrors.size}</div>}
                     </div>
 
+                    {/* Returning Customer Banner */}
+                    {isReturningCustomer && (
+                      <div className="returning-customer-banner">
+                        <span>✓ Welcome back! We've filled in your details.</span>
+                        <button type="button" onClick={clearForm}>Use different details</button>
+                      </div>
+                    )}
+
                     <div className="form-group">
-                      <input
-                        type="text"
-                        id="catalog-name"
-                        className={`form-input ${formErrors.name ? 'input-invalid' : ''}`}
-                        placeholder=" "
-                        value={formData.name}
-                        onChange={handleInputChange}
-                      />
+                      <input type="text" name="name" id="field-name" className={`form-input ${formErrors.name ? 'input-invalid' : ''}`} placeholder=" " value={formData.name} onChange={handleInputChange} />
                       <label className="form-label">Full Name *</label>
-                      {formErrors.name && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.name}</div>}
+                      {formErrors.name && <p className="field-error">⚠ {formErrors.name}</p>}
                     </div>
 
                     <div className="form-group">
-                      <input
-                        type="email"
-                        id="catalog-email"
-                        className="form-input"
-                        placeholder=" "
-                        value={formData.email}
-                        onChange={handleInputChange}
-                      />
-                      <label className="form-label">Email Address</label>
+                      <input type="email" name="email" id="field-email" className={`form-input ${formErrors.email || duplicateEmailError ? 'input-invalid' : ''}`} placeholder=" " value={formData.email} onChange={handleInputChange} onBlur={(e) => checkEmailDuplicate(e.target.value)} />
+                      <label className="form-label">Email Address *</label>
+                      {emailChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                      {duplicateEmailError && <p className="field-error">⚠ {duplicateEmailError}</p>}
+                      {formErrors.email && <p className="field-error">⚠ {formErrors.email}</p>}
                     </div>
 
                     <div className="form-group">
-                      <input
-                        type="tel"
-                        id="catalog-phone"
-                        className={`form-input ${formErrors.phone ? 'input-invalid' : ''}`}
-                        placeholder=" "
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                      />
+                      <input type="tel" name="phone" id="field-phone" className={`form-input ${formErrors.phone || duplicatePhoneError ? 'input-invalid' : ''}`} placeholder=" " value={formData.phone} onChange={handleInputChange} onBlur={(e) => checkPhoneDuplicate(e.target.value)} />
                       <label className="form-label">WhatsApp Number *</label>
-                      {formErrors.phone && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.phone}</div>}
+                      {phoneChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                      {duplicatePhoneError && <p className="field-error">⚠ {duplicatePhoneError}</p>}
+                      {formErrors.phone && <p className="field-error">⚠ {formErrors.phone}</p>}
+                    </div>
+
+                    {/* Address Fields */}
+                    <div className="form-group">
+                      <input type="text" name="houseNo" id="field-houseNo" className={`form-input ${formErrors.houseNo ? 'input-invalid' : ''}`} placeholder=" " value={formData.houseNo} onChange={handleInputChange} />
+                      <label className="form-label">House No / Flat No / Building *</label>
+                      {formErrors.houseNo && <p className="field-error">⚠ {formErrors.houseNo}</p>}
+                    </div>
+                    
+                    <div className="form-group">
+                      <input type="text" name="street" id="field-street" className={`form-input ${formErrors.street ? 'input-invalid' : ''}`} placeholder=" " value={formData.street} onChange={handleInputChange} />
+                      <label className="form-label">Street / Area / Colony *</label>
+                      {formErrors.street && <p className="field-error">⚠ {formErrors.street}</p>}
+                    </div>
+                    
+                    <div className="form-group">
+                      <input type="text" name="village" id="field-village" className={`form-input ${formErrors.village ? 'input-invalid' : ''}`} placeholder=" " value={formData.village} onChange={handleInputChange} />
+                      <label className="form-label">Village / Town / Locality *</label>
+                      {formErrors.village && <p className="field-error">⚠ {formErrors.village}</p>}
+                    </div>
+                    
+                    <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div style={{position: 'relative'}}>
+                        <input type="text" name="city" id="field-city" className={`form-input ${formErrors.city ? 'input-invalid' : ''}`} placeholder=" " value={formData.city} onChange={handleInputChange} />
+                        <label className="form-label">City / District *</label>
+                        {formErrors.city && <p className="field-error">⚠ {formErrors.city}</p>}
+                      </div>
+                      <div style={{position: 'relative'}}>
+                        <input type="text" name="pincode" id="field-pincode" className={`form-input ${formErrors.pincode ? 'input-invalid' : ''}`} placeholder=" " value={formData.pincode} onChange={handleInputChange} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" />
+                        <label className="form-label">PIN Code *</label>
+                        {formErrors.pincode && <p className="field-error">⚠ {formErrors.pincode}</p>}
+                      </div>
+                    </div>
+                    
+                    <div className="form-group">
+                      <select name="state" id="field-state" className={`form-input ${formErrors.state ? 'input-invalid' : ''}`} style={{paddingTop: '1rem', paddingBottom: '0.5rem'}} value={formData.state} onChange={handleInputChange}>
+                        <option value="">Select State *</option>
+                        {["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"].map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      {formErrors.state && <p className="field-error">⚠ {formErrors.state}</p>}
+                    </div>
+                    
+                    <div className="form-group">
+                      <input type="text" name="landmark" id="field-landmark" className="form-input" placeholder=" " value={formData.landmark} onChange={handleInputChange} />
+                      <label className="form-label">Landmark (Optional)</label>
                     </div>
 
                     <div className="form-group">
-                      <textarea
-                        id="catalog-address"
-                        className={`form-input ${formErrors.address ? 'input-invalid' : ''}`}
-                        rows="2"
-                        style={{ resize: 'vertical' }}
-                        placeholder=" "
-                        value={formData.address}
-                        onChange={handleInputChange}
-                      />
-                      <label className="form-label">Delivery Address *</label>
-                      {formErrors.address && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.address}</div>}
-                    </div>
-
-                    <div className="form-group">
-                      <input
-                        type="number"
-                        id="catalog-qty"
-                        className="form-input"
-                        min="1"
-                        placeholder=" "
-                        style={{ fontFamily: 'var(--font-mono)' }}
-                        value={formData.quantity}
-                        onChange={handleInputChange}
-                      />
+                      <input type="number" name="quantity" id="field-quantity" className={`form-input ${formErrors.quantity ? 'input-invalid' : ''}`} min="1" max="10" placeholder=" " style={{ fontFamily: 'var(--font-mono)' }} value={formData.quantity} onChange={handleInputChange} />
                       <label className="form-label">Quantity *</label>
+                      {formErrors.quantity && <p className="field-error">⚠ {formErrors.quantity}</p>}
                     </div>
 
                     <div className="form-group">
-                      <textarea
-                        id="catalog-notes"
-                        className="form-input"
-                        rows="2"
-                        style={{ resize: 'vertical' }}
-                        placeholder=" "
-                        value={formData.notes}
-                        onChange={handleInputChange}
-                      />
+                      <textarea name="notes" id="field-notes" className="form-input" rows="2" style={{ resize: 'vertical' }} placeholder=" " value={formData.notes} onChange={handleInputChange} />
                       <label className="form-label">Special Instructions (Optional)</label>
                     </div>
 
@@ -892,86 +1088,91 @@ Design URL: ${cloudinaryUrl}`;
                     04. Customer Details
                   </h3>
                   <form onSubmit={handleOrderSubmit} id="order-form" style={{ border: '1px solid var(--color-border)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+                    {/* Returning Customer Banner */}
+                    {isReturningCustomer && (
+                      <div className="returning-customer-banner">
+                        <span>✓ Welcome back! We've filled in your details.</span>
+                        <button type="button" onClick={clearForm}>Use different details</button>
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <input type="text" name="name" id="field-name" className={`form-input ${formErrors.name ? 'input-invalid' : ''}`} placeholder=" " value={formData.name} onChange={handleInputChange} />
+                      <label className="form-label">Full Name *</label>
+                      {formErrors.name && <p className="field-error">⚠ {formErrors.name}</p>}
+                    </div>
+
+                    <div className="form-group">
+                      <input type="email" name="email" id="field-email" className={`form-input ${formErrors.email || duplicateEmailError ? 'input-invalid' : ''}`} placeholder=" " value={formData.email} onChange={handleInputChange} onBlur={(e) => checkEmailDuplicate(e.target.value)} />
+                      <label className="form-label">Email Address *</label>
+                      {emailChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                      {duplicateEmailError && <p className="field-error">⚠ {duplicateEmailError}</p>}
+                      {formErrors.email && <p className="field-error">⚠ {formErrors.email}</p>}
+                    </div>
+
+                    <div className="form-group">
+                      <input type="tel" name="phone" id="field-phone" className={`form-input ${formErrors.phone || duplicatePhoneError ? 'input-invalid' : ''}`} placeholder=" " value={formData.phone} onChange={handleInputChange} onBlur={(e) => checkPhoneDuplicate(e.target.value)} />
+                      <label className="form-label">WhatsApp Number *</label>
+                      {phoneChecking && <p style={{fontSize:'0.7rem', color:'var(--color-text-secondary)'}}>Checking...</p>}
+                      {duplicatePhoneError && <p className="field-error">⚠ {duplicatePhoneError}</p>}
+                      {formErrors.phone && <p className="field-error">⚠ {formErrors.phone}</p>}
+                    </div>
+
+                    {/* Address Fields */}
+                    <div className="form-group">
+                      <input type="text" name="houseNo" id="field-houseNo" className={`form-input ${formErrors.houseNo ? 'input-invalid' : ''}`} placeholder=" " value={formData.houseNo} onChange={handleInputChange} />
+                      <label className="form-label">House No / Flat No / Building *</label>
+                      {formErrors.houseNo && <p className="field-error">⚠ {formErrors.houseNo}</p>}
+                    </div>
                     
                     <div className="form-group">
-                      <input
-                        type="text"
-                        id="name-input"
-                        className={`form-input ${formErrors.name ? 'input-invalid' : ''}`}
-                        placeholder=" "
-                        value={formData.name}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="name-input" className="form-label">Full Name *</label>
-                      {formErrors.name && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.name}</div>}
+                      <input type="text" name="street" id="field-street" className={`form-input ${formErrors.street ? 'input-invalid' : ''}`} placeholder=" " value={formData.street} onChange={handleInputChange} />
+                      <label className="form-label">Street / Area / Colony *</label>
+                      {formErrors.street && <p className="field-error">⚠ {formErrors.street}</p>}
+                    </div>
+                    
+                    <div className="form-group">
+                      <input type="text" name="village" id="field-village" className={`form-input ${formErrors.village ? 'input-invalid' : ''}`} placeholder=" " value={formData.village} onChange={handleInputChange} />
+                      <label className="form-label">Village / Town / Locality *</label>
+                      {formErrors.village && <p className="field-error">⚠ {formErrors.village}</p>}
+                    </div>
+                    
+                    <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div style={{position: 'relative'}}>
+                        <input type="text" name="city" id="field-city" className={`form-input ${formErrors.city ? 'input-invalid' : ''}`} placeholder=" " value={formData.city} onChange={handleInputChange} />
+                        <label className="form-label">City / District *</label>
+                        {formErrors.city && <p className="field-error">⚠ {formErrors.city}</p>}
+                      </div>
+                      <div style={{position: 'relative'}}>
+                        <input type="text" name="pincode" id="field-pincode" className={`form-input ${formErrors.pincode ? 'input-invalid' : ''}`} placeholder=" " value={formData.pincode} onChange={handleInputChange} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" />
+                        <label className="form-label">PIN Code *</label>
+                        {formErrors.pincode && <p className="field-error">⚠ {formErrors.pincode}</p>}
+                      </div>
+                    </div>
+                    
+                    <div className="form-group">
+                      <select name="state" id="field-state" className={`form-input ${formErrors.state ? 'input-invalid' : ''}`} style={{paddingTop: '1rem', paddingBottom: '0.5rem'}} value={formData.state} onChange={handleInputChange}>
+                        <option value="">Select State *</option>
+                        {["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"].map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      {formErrors.state && <p className="field-error">⚠ {formErrors.state}</p>}
+                    </div>
+                    
+                    <div className="form-group">
+                      <input type="text" name="landmark" id="field-landmark" className="form-input" placeholder=" " value={formData.landmark} onChange={handleInputChange} />
+                      <label className="form-label">Landmark (Optional)</label>
                     </div>
 
                     <div className="form-group">
-                      <input
-                        type="email"
-                        id="email-input"
-                        className="form-input"
-                        placeholder=" "
-                        value={formData.email}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="email-input" className="form-label">Email Address</label>
-                      <span className="form-input-note">Used to send your order confirmation email.</span>
+                      <input type="number" name="quantity" id="field-quantity" className={`form-input ${formErrors.quantity ? 'input-invalid' : ''}`} min="1" max="10" placeholder=" " style={{ fontFamily: 'var(--font-mono)' }} value={formData.quantity} onChange={handleInputChange} />
+                      <label className="form-label">Quantity *</label>
+                      {formErrors.quantity && <p className="field-error">⚠ {formErrors.quantity}</p>}
                     </div>
 
                     <div className="form-group">
-                      <input
-                        type="tel"
-                        id="phone-input"
-                        className={`form-input ${formErrors.phone ? 'input-invalid' : ''}`}
-                        placeholder=" "
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="phone-input" className="form-label">WhatsApp Number *</label>
-                      <span className="form-input-note">Country code + number (e.g. 919876543210).</span>
-                      {formErrors.phone && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.phone}</div>}
-                    </div>
-
-                    <div className="form-group">
-                      <textarea
-                        id="address-input"
-                        className={`form-input ${formErrors.address ? 'input-invalid' : ''}`}
-                        rows="3"
-                        style={{ resize: 'vertical', fontFamily: 'var(--font-body)' }}
-                        placeholder=" "
-                        value={formData.address}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="address-input" className="form-label">Delivery Address *</label>
-                      {formErrors.address && <div className="form-input-error" style={{ display: 'block' }}>{formErrors.address}</div>}
-                    </div>
-
-                    <div className="form-group">
-                      <input
-                        type="number"
-                        id="qty-input"
-                        className="form-input"
-                        min="1"
-                        style={{ fontFamily: 'var(--font-mono)' }}
-                        placeholder=" "
-                        value={formData.quantity}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="qty-input" className="form-label">Quantity *</label>
-                    </div>
-
-                    <div className="form-group">
-                      <textarea
-                        id="notes-input"
-                        className="form-input"
-                        rows="2"
-                        style={{ resize: 'vertical', fontFamily: 'var(--font-body)' }}
-                        placeholder=" "
-                        value={formData.notes}
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="notes-input" className="form-label">Special Instructions (Optional)</label>
+                      <textarea name="notes" id="field-notes" className="form-input" rows="2" style={{ resize: 'vertical' }} placeholder=" " value={formData.notes} onChange={handleInputChange} />
+                      <label className="form-label">Special Instructions (Optional)</label>
                     </div>
 
                   </form>

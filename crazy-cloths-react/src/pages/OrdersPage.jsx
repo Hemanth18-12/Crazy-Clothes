@@ -472,7 +472,15 @@ export default function OrdersPage() {
                     <div className="order-body-grid">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                         <img
-                          src={order.cloudinaryUrl || order.imageUrl || '/assets/images/white-t-shirt.png'}
+                          src={
+                            order.cloudinaryUrl
+                              ? order.cloudinaryUrl
+                              : order.imageUrl
+                              ? order.imageUrl
+                              : (order.color === 'black'
+                                  ? '/assets/images/black-t-shirt.png'
+                                  : '/assets/images/white-t-shirt.png')
+                          }
                           alt={order.productName || 'Custom Fit'}
                           className="order-thumbnail"
                         />
@@ -510,6 +518,64 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Delivery Address Card */}
+                    {order.address && (order.address.houseNo || order.address.city) && (
+                      <div style={{
+                        marginTop: '1.25rem',
+                        borderTop: '1px dashed var(--color-border)',
+                        paddingTop: '1rem',
+                        display: 'flex',
+                        gap: '0.75rem',
+                        alignItems: 'flex-start'
+                      }}>
+                        <div style={{ flexShrink: 0, marginTop: '2px' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                            Delivery Address
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-primary)', lineHeight: '1.55' }}>
+                            {[order.address.houseNo, order.address.street, order.address.village].filter(Boolean).join(', ')}<br/>
+                            {[order.address.city, order.address.state, order.address.pincode].filter(Boolean).join(', ')}
+                            {order.address.landmark && (
+                              <span style={{ color: 'var(--color-text-secondary)', display: 'block', fontSize: '0.72rem' }}>
+                                Near: {order.address.landmark}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fallback: show plain address string for old orders */}
+                    {!order.address && order.customerAddress && (
+                      <div style={{
+                        marginTop: '1.25rem',
+                        borderTop: '1px dashed var(--color-border)',
+                        paddingTop: '1rem',
+                        display: 'flex',
+                        gap: '0.75rem',
+                        alignItems: 'flex-start'
+                      }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                            Delivery Address
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-primary)', lineHeight: '1.55' }}>
+                            {order.customerAddress}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {status === 'Delivered' && (
                       <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>

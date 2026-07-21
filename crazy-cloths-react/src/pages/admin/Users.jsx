@@ -371,33 +371,70 @@ export default function AdminUsers() {
                               background: 'var(--a-bg2)'
                             }}
                           >
-                            <div
-                              style={{
-                                padding: '16px 24px',
-                                borderLeft: '3px solid var(--a-red)',
-                                background: 'var(--a-surface)'
-                              }}
-                            >
                               <div
                                 style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  marginBottom: '12px'
+                                  padding: '16px 24px',
+                                  borderLeft: '3px solid var(--a-red)',
+                                  background: 'var(--a-surface)'
                                 }}
                               >
-                                <span
+                                {/* User Details Card */}
+                                <div style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                  gap: '16px',
+                                  background: 'var(--a-surface2)',
+                                  border: '1px solid var(--a-border)',
+                                  padding: '16px',
+                                  borderRadius: '4px',
+                                  marginBottom: '20px'
+                                }}>
+                                  <div>
+                                    <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-text3)', textTransform: 'uppercase', marginBottom: '6px' }}>Contact Info</div>
+                                    <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem' }}><strong>Email:</strong> {user.email || 'N/A'}</p>
+                                    <p style={{ margin: 0, fontSize: '0.8rem' }}>
+                                      <strong>Phone:</strong>{' '}
+                                      {user.phone ? (
+                                        <a href={`https://wa.me/91${user.phone.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" style={{ color: '#25D366', textDecoration: 'none' }}>
+                                          📱 {user.phone}
+                                        </a>
+                                      ) : 'N/A'}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <div style={{ fontFamily: 'var(--a-font-mono)', fontSize: '0.65rem', color: 'var(--a-text3)', textTransform: 'uppercase', marginBottom: '6px' }}>Saved Delivery Address</div>
+                                    {user.address && (user.address.houseNo || user.address.city) ? (
+                                      <p style={{ margin: 0, fontSize: '0.78rem', fontFamily: 'var(--a-font-mono)', lineHeight: '1.4' }}>
+                                        {[user.address.houseNo, user.address.street, user.address.village].filter(Boolean).join(', ')}<br/>
+                                        {[user.address.city, user.address.state, user.address.pincode].filter(Boolean).join(', ')}
+                                        {user.address.landmark && <><br/><span style={{ color: 'var(--a-text3)', fontSize: '0.72rem' }}>Near: {user.address.landmark}</span></>}
+                                      </p>
+                                    ) : (
+                                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--a-text3)', fontStyle: 'italic' }}>No address saved.</p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div
                                   style={{
-                                    fontSize: '0.75rem',
-                                    fontWeight: 700,
-                                    color: 'var(--a-text)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.06em',
-                                    fontFamily: 'var(--a-font-mono)'
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '12px'
                                   }}
                                 >
-                                  Order History — {user.name || user.email || 'User'}
-                                </span>
+                                  <span
+                                    style={{
+                                      fontSize: '0.75rem',
+                                      fontWeight: 700,
+                                      color: 'var(--a-text)',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.06em',
+                                      fontFamily: 'var(--a-font-mono)'
+                                    }}
+                                  >
+                                    Order History — {user.name || user.email || 'User'}
+                                  </span>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--a-text2)' }}>
                                   {user.ordersCount} order{user.ordersCount !== 1 ? 's' : ''} · Total:{' '}
                                   <strong style={{ color: 'var(--a-green)' }}>

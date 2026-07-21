@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
@@ -31,6 +32,20 @@ export function AuthProvider({ children }) {
   // Standard email/password customer login
   const loginCustomer = async (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
+  };
+
+  // Standard email/password customer registration
+  const registerCustomer = async (email, password, name, phone) => {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    // Create their Firestore profile
+    await setDoc(doc(db, 'users', user.uid), {
+      name: name || '',
+      email: email || '',
+      phone: phone || '',
+      createdAt: serverTimestamp(),
+    });
+    return result;
   };
 
   // Admin login - checks email whitelist before Firebase login
@@ -76,6 +91,7 @@ export function AuthProvider({ children }) {
     loading,
     isAdmin,
     loginCustomer,
+    registerCustomer,
     loginAdmin,
     loginWithGoogle,
     logout,

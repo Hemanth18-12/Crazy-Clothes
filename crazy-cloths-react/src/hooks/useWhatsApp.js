@@ -25,6 +25,10 @@ export function useWhatsApp() {
       ? order.cloudinaryUrl
       : 'No custom design';
 
+    const addressString = order.address 
+      ? [order.address.houseNo, order.address.street, order.address.village, order.address.city, order.address.state, order.address.pincode, order.address.landmark].filter(Boolean).join(', ')
+      : order.customerAddress;
+
     const message = `🛍️ *NEW ORDER — ${CONFIG.storeName}*
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 *Order ID   :* #${orderId}
@@ -42,7 +46,7 @@ export function useWhatsApp() {
 *Name       :* ${order.customerName}
 *Email      :* ${order.customerEmail || 'Not provided'}
 *Phone      :* ${order.customerPhone}
-*Address    :* ${order.customerAddress}
+*Address    :* ${addressString}
 
 📝 *Notes:* ${order.specialInstructions || 'None'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━`;
